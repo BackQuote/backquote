@@ -27,3 +27,14 @@
 *.exe
 *.out
 *.app
+
+# Misc
+.DS_STORE
+node_modules
+*~
+*.pyc
+*.sublime-project
+*.sublime-workspace
+.idea
+*.iml
+.vscode
