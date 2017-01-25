@@ -28,6 +28,10 @@
 *.out
 *.app
 
+# Quotes data
+/tools/GenerateUltimateFile/GenerateUltimateFile/quotes/*
+/backtester/ultimate_files/*
+
 # Misc
 .DS_STORE
 node_modules
@@ -38,3 +42,4 @@ node_modules
 .idea
 *.iml
 .vscode
+*.vcxproj*
