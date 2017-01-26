@@ -48,15 +48,12 @@ int main(int argc, char* argv[])
 	string quotesDir = args["--quotesDir"][0];
 	vector<string> tickers = args["--tickers"];
 	
-	vector<thread*> threads = {};
+	vector<unique_ptr<thread>> threads = {};
 	for (int i = 0; i < tickers.size(); ++i)
-		threads.push_back(new thread(generateFileForTicker, tickers[i], quotesDir));
+		threads.push_back(make_unique<thread>(generateFileForTicker, tickers[i], quotesDir));
 
 	for (int i = 0; i < threads.size(); ++i)
-	{
 		threads[i]->join();
-		delete threads[i];
-	}
 
 	return 0;
 }
