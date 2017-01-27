@@ -14,14 +14,11 @@
 using namespace std;
 namespace fs = boost::filesystem;
 
-void throwException(const string&);
-void generateFileForTicker(string&, string&);
-
-const int marketOpenTime = 34'200'000;
-const int marketCloseTime = 57'600'000;
-
 int main(int argc, char* argv[])
 {
+	void throwException(const string&);
+	void generateFileForTicker(string&, string&);
+
 	map<string, vector<string>> args;
 	args["--quotesDir"] = {};
 	args["--tickers"] = {};
@@ -60,6 +57,8 @@ int main(int argc, char* argv[])
 
 void generateFileForTicker(string& ticker, string& quotesDir)
 {
+	const int marketOpenTime = 34'200'000;
+	const int marketCloseTime = 57'600'000;
 	fs::path targetDir(quotesDir);
 	fs::directory_iterator it(targetDir), eod;
 	ifstream fileStream;
