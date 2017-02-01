@@ -42,3 +42,5 @@ node_modules
 .idea
 *.iml
 .vscode
+*.log
+*.css.map

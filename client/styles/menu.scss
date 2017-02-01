@@ -1,0 +1,50 @@
+.menu {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 260px;
+  display: block;
+  z-index: 1;
+  color: #ffffff;
+  font-weight: 200;
+  background-size: cover;
+  background-color: #293a42;
+
+  nav {
+    margin-top: 20px;
+    ul {
+      list-style: none;
+      li {
+        margin: 0;
+        a {
+          color: #ffffff;
+          position: relative;
+          display: block;
+          padding: 15px;
+          text-decoration: none;
+
+          &:hover:not(.active) {
+            background-color: #172a3a;
+            transition: all 150ms ease-in;
+            box-shadow: inset 5px 0 0 0 #4b968a;
+          }
+        }
+      }
+    }
+  }
+}
+
+.active {
+  background-color: #172a3a;
+  transition: all 150ms ease-in;
+  box-shadow: inset 5px 0 0 0 #60cec2;
+  border-bottom: none;
+}
+
+.logo {
+  padding: 15px 15px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: #0d1f2d;
+}
