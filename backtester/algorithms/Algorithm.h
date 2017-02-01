@@ -1,4 +1,8 @@
 #pragma once
+#include <string>
+#include <unordered_map>
+
+using namespace std;
 
 enum Position {
 	down = 0,

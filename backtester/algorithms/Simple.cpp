@@ -1,7 +1,6 @@
-#include "stdafx.h"
 #include "Simple.h"
 
-Simple::Simple()
+Simple::Simple(const unordered_map<string, double> params)
 {
 }
 

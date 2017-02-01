@@ -4,7 +4,7 @@
 class Simple : public Algorithm
 {
 public:
-	Simple();
+	Simple(const unordered_map<string, double> params);
 	~Simple();
 	Position processQuote(double);
 };
