@@ -41,10 +41,9 @@ void throwException(const string& message);
 void uploadResults(const vector<Day>&, const string&, const string&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
-void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>&, const string&, vector<Day>&,
-					ctpl::thread_pool& tp, vector<future<void>>&);
-void simulateDay(double&, unordered_map<string, double>&, size_t&, double&, Action&, unique_ptr<Algorithm>&, Day&, bool&, Result&,
-				 Trade&, size_t&);
+void simulateDay(double, Result&, unique_ptr<Algorithm>&, Day&);
+void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
+	ctpl::thread_pool& tp, vector<future<void>>&);
 
 const double commission = 5; // amount in dollars for selling a stock
 const size_t marketOpenTime = 34'200'000; // milliseconds equivalent to 9h30
@@ -66,9 +65,9 @@ int main(int argc, char* argv[]) {
 	block. 8 = 1 thread per core. When each thread per ticker blocks, we still want one thread per core to be active, so we
 	have 8 + tickers.size threads in the pool. */
 	ctpl::thread_pool tp(8 + tickers.size());
-	vector<future<void>> results;
+	vector<future<void>> taskReturns;
 	for (const string &ticker : tickers) {
-		results.push_back(
+		taskReturns.push_back(
 		tp.push([&](int id) {
 			const string ultimateFile = "ultimate_files/" + ticker + ".txt";
 			vector<Day> days;
@@ -79,7 +78,7 @@ int main(int argc, char* argv[]) {
 		}));
 	}
 	
-	for (future<void> &result : results) {
+	for (future<void> &result : taskReturns) {
 		result.get();
 	}
 	cout << "Press any key to continue...\n";
@@ -112,6 +111,7 @@ unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
 }
 
 void loadUltimateFile(vector<Day>& days, const string& ultimateFile) {
+	cout << "Loading ultimate file " + ultimateFile << endl;
 	ifstream ultimateFileStream;
 	ultimateFileStream.open(ultimateFile);
 	if (!ultimateFileStream) {
@@ -203,65 +203,62 @@ void backtestAlgo(vector<Day>& days, json& config, ctpl::thread_pool& tp, const 
 		params["timeBufferEnd"] = 0;
 	}
 
-	vector<future<void>> results;
-	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, results);
+	vector<future<void>> taskReturns;
+	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, taskReturns);
 
-	for (future<void> &result : results) {
+	for (future<void> &result : taskReturns) {
 		result.get();
 	}
 }
 
-void runParamCombos(size_t i, vector<string>& rangeNames, vector<vector<double>>& ranges, unordered_map<string, double>& params,
-					const string& algoName, vector<Day>& days, ctpl::thread_pool& tp, vector<future<void>>& results) {
+void runParamCombos(size_t i, vector<string>& rangeNames, vector<vector<double>>& ranges, unordered_map<string, double> params,
+					const string& algoName, vector<Day>& days, ctpl::thread_pool& tp, vector<future<void>>& taskReturns) {
 	double start = ranges[i][0];
 	double end = ranges[i][1];
 	double increment = ranges[i][2];
-	double currentQuote;
-	double currentCash;
-	bool activePositions;
-	size_t currentTime, stockUnits;
-	Trade trade;
-	Result result;
-	Action action;
 
 	while (start <= end) {
 		params[rangeNames[i]] = start;
 		if (i == ranges.size() - 1) {
-			results.push_back(
+			taskReturns.push_back(
 			tp.push([&](int id) {
 				cout << "Running a simulation...\n";
 				unique_ptr<Algorithm> algo = getAlgo(algoName, params);
+				Result result;
 				result.params = params;
 				for (Day day : days) {
 					result.trades.clear();
-					activePositions = false;
-					stockUnits = 0;
-					currentCash = params["cash"];
-					simulateDay(currentCash, params, currentTime, currentQuote, action,	algo, day, activePositions, result,
-								trade, stockUnits);
-					result.profit = currentCash - params["cash"];
+					double currentCash = result.params["cash"];
+					simulateDay(currentCash, result, algo, day);
+					result.profit = currentCash - result.params["cash"];
 					day.results.push_back(result);
 				}
 			}
 			));
 		} 
 		else {
-			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, results);
+			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, taskReturns);
 		}
 		start += increment;
 	}
 }
 
-void simulateDay(double& currentCash, unordered_map<string, double>& params, size_t& currentTime, double& currentQuote, Action& action,
-	unique_ptr<Algorithm>& algo, Day& day, bool& activePositions, Result& result, Trade& trade, size_t& stockUnits) {
+void simulateDay(double currentCash, Result& result, unique_ptr<Algorithm>& algo, Day& day) {
+	double currentQuote;
+	size_t currentTime;
+	size_t stockUnits = 0;
+	bool activePositions = false;
+	Action action;
+	Trade trade;
+
 	for (size_t i = 0; i < day.quotes.size(); ++i) {
 		currentTime = day.timestamps[i];
 		currentQuote = day.quotes[i];
-		if (currentTime < marketOpenTime + params["timeBufferStart"]) {
+		if (currentTime < marketOpenTime + result.params["timeBufferStart"]) {
 			continue;
 		}
 
-		if (currentTime > marketCloseTime - params["timeBufferEnd"]) {
+		if (currentTime > marketCloseTime - result.params["timeBufferEnd"]) {
 			action = sell;
 		}
 		else {
@@ -269,7 +266,7 @@ void simulateDay(double& currentCash, unordered_map<string, double>& params, siz
 		}
 
 		if (action != nop) {
-			stockUnits = (size_t)(((currentCash - params["maxLossPerTrade"]) / params["margin"]) / currentQuote);
+			stockUnits = (size_t)(((currentCash - result.params["maxLossPerTrade"]) / result.params["margin"]) / currentQuote);
 			trade.quantity = stockUnits;
 			trade.price = currentQuote;
 			trade.timestamp = currentTime;
@@ -286,7 +283,7 @@ void simulateDay(double& currentCash, unordered_map<string, double>& params, siz
 			currentCash += trade.price * trade.quantity - commission;
 			result.trades.push_back(trade);
 
-			if (currentCash < params["minimumCash"]) {
+			if (currentCash < result.params["minimumCash"]) {
 				break;
 			}
 		}
