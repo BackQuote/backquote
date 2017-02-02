@@ -41,7 +41,8 @@ void throwException(const string& message);
 void uploadResults(const vector<Day>&, const string&, const string&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
-void simulateDay(double, Result&, unique_ptr<Algorithm>&, Day&);
+void simulateDay(double&, Result&, unique_ptr<Algorithm>&, Day&);
+bool handleAction(Result&, double&, Action&, double, size_t, size_t&, Trade&, bool&);
 void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
 	ctpl::thread_pool& tp, vector<future<void>>&);
 
@@ -111,7 +112,7 @@ unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
 }
 
 void loadUltimateFile(vector<Day>& days, const string& ultimateFile) {
-	cout << "Loading ultimate file " + ultimateFile << endl;
+	cout << "Loading " + ultimateFile + " ...\n";
 	ifstream ultimateFileStream;
 	ultimateFileStream.open(ultimateFile);
 	if (!ultimateFileStream) {
@@ -243,13 +244,14 @@ void runParamCombos(size_t i, vector<string>& rangeNames, vector<vector<double>>
 	}
 }
 
-void simulateDay(double currentCash, Result& result, unique_ptr<Algorithm>& algo, Day& day) {
+void simulateDay(double& currentCash, Result& result, unique_ptr<Algorithm>& algo, Day& day) {
 	double currentQuote;
 	size_t currentTime;
 	size_t stockUnits = 0;
 	bool activePositions = false;
 	Action action;
 	Trade trade;
+	bool keepTrading = false;
 
 	for (size_t i = 0; i < day.quotes.size(); ++i) {
 		currentTime = day.timestamps[i];
@@ -265,29 +267,39 @@ void simulateDay(double currentCash, Result& result, unique_ptr<Algorithm>& algo
 			action = algo->processQuote(currentQuote);
 		}
 
-		if (action != nop) {
-			stockUnits = (size_t)(((currentCash - result.params["maxLossPerTrade"]) / result.params["margin"]) / currentQuote);
-			trade.quantity = stockUnits;
-			trade.price = currentQuote;
-			trade.timestamp = currentTime;
-			trade.action = action;
-		}
-
-		if (action == buy && !activePositions) {
-			activePositions = true;
-			currentCash -= trade.price * trade.quantity;
-			result.trades.push_back(trade);
-		}
-		else if (action == sell && activePositions) {
-			activePositions = false;
-			currentCash += trade.price * trade.quantity - commission;
-			result.trades.push_back(trade);
-
-			if (currentCash < result.params["minimumCash"]) {
-				break;
-			}
+		keepTrading = handleAction(result, currentCash, action, currentQuote, currentTime, stockUnits, trade, activePositions);
+		if (!keepTrading) {
+			break;
 		}
 	}
+}
+
+bool handleAction(Result& result, double& currentCash, Action& action, double currentQuote, size_t currentTime, size_t& stockUnits,
+				  Trade& trade, bool& activePositions) {
+	if (action != nop) {
+		stockUnits = (size_t)(((currentCash - result.params["maxLossPerTrade"]) / result.params["margin"]) / currentQuote);
+		trade.quantity = stockUnits;
+		trade.price = currentQuote;
+		trade.timestamp = currentTime;
+		trade.action = action;
+	}
+
+	if (action == buy && !activePositions) {
+		activePositions = true;
+		currentCash -= trade.price * trade.quantity;
+		result.trades.push_back(trade);
+	}
+	else if (action == sell && activePositions) {
+		activePositions = false;
+		currentCash += trade.price * trade.quantity - commission;
+		result.trades.push_back(trade);
+
+		if (currentCash < result.params["minimumCash"]) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void uploadResults(const vector<Day>& days, const string& ticker, const string& algoName) {
