@@ -254,7 +254,7 @@ void simulateDay(double& currentCash, Result& result, unique_ptr<Algorithm>& alg
 	bool keepTrading = false;
 
 	for (size_t i = 0; i < day.quotes.size(); ++i) {
-		currentTime = day.timestamps[i];
+		currentTime = day.timestamps[i/4];
 		currentQuote = day.quotes[i];
 		if (currentTime < marketOpenTime + result.params["timeBufferStart"]) {
 			continue;
