@@ -1,14 +1,16 @@
 #include "Simple.h"
+#include <string>
 
-Simple::Simple(const unordered_map<string, double> params)
-{
+Simple::Simple() : bought(false) {
 }
 
-Position Simple::processQuote(double)
-{
-	return up;
+Action Simple::processQuote(double quote) {
+	if (bought) {
+		return nop;
+	}
+	bought = true;
+	return buy;
 }
 
-Simple::~Simple()
-{
+Simple::~Simple() {
 }

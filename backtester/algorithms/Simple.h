@@ -1,11 +1,14 @@
 #pragma once
 #include "Algorithm.h"
 
-class Simple : public Algorithm
-{
+class Simple : public Algorithm {
 public:
-	Simple(const unordered_map<string, double> params);
+	Simple();
 	~Simple();
-	Position processQuote(double);
+	Action processQuote(double);
+
+private:
+	size_t timeBufferStart, timeBufferEnd;
+	bool bought;
 };
 

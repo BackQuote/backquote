@@ -15,9 +15,9 @@ using json = nlohmann::json;
 
 struct Trade {
 	double price;
-	double value;
+	size_t quantity;
 	Action action;
-	string time;
+	size_t timestamp;
 };
 
 struct Result {
@@ -29,7 +29,7 @@ struct Result {
 struct Day {
 	string date;
 	vector<double> quotes;
-	vector<string> timestamps;
+	vector<int> timestamps;
 	vector<Result> results;
 };
 
@@ -41,15 +41,21 @@ void throwException(const string& message);
 void uploadResults(const vector<Day>&, const string&, const string&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
-void runParamCombos(int, vector<string>&, vector<vector<double>>&, unordered_map<string, double>&, const string&, vector<Day>&, ctpl::thread_pool& tp, vector<future<void>>&);
+void simulateDay(double&, Result&, unique_ptr<Algorithm>&, Day&);
+bool handleAction(Result&, double&, Action&, double, size_t, size_t&, Trade&, bool&);
+void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
+	ctpl::thread_pool& tp, vector<future<void>>&);
+
+const double commission = 5; // amount in dollars for selling a stock
+const size_t marketOpenTime = 34'200'000; // milliseconds equivalent to 9h30
+const size_t marketCloseTime = 57'600'000; // milliseconds equivalent to 16h00
+const size_t lineElementCount = 5; // 5 = number of elements we want in a line of an ultimate file (time, open, high, low, close)
 
 int main(int argc, char* argv[]) {
 	unordered_map<string, vector<string>> args = parseArgs(argc, argv);
 	const string algoName = args["--algoName"][0];
 	vector<string> tickers = args["--tickers"];
 
-	const int marketOpenTime = 34'200'000; // milliseconds equivalent to 9h30
-	const int marketCloseTime = 57'600'000; // milliseconds equivalent to 16h00
 	const string configFilePath = "algorithms/configs/" + algoName + ".json";
 	
 	ifstream i(configFilePath);
@@ -60,9 +66,9 @@ int main(int argc, char* argv[]) {
 	block. 8 = 1 thread per core. When each thread per ticker blocks, we still want one thread per core to be active, so we
 	have 8 + tickers.size threads in the pool. */
 	ctpl::thread_pool tp(8 + tickers.size());
-	vector<future<void>> results;
+	vector<future<void>> taskReturns;
 	for (const string &ticker : tickers) {
-		results.push_back(
+		taskReturns.push_back(
 		tp.push([&](int id) {
 			const string ultimateFile = "ultimate_files/" + ticker + ".txt";
 			vector<Day> days;
@@ -73,7 +79,7 @@ int main(int argc, char* argv[]) {
 		}));
 	}
 	
-	for (future<void> &result : results) {
+	for (future<void> &result : taskReturns) {
 		result.get();
 	}
 	cout << "Press any key to continue...\n";
@@ -106,6 +112,7 @@ unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
 }
 
 void loadUltimateFile(vector<Day>& days, const string& ultimateFile) {
+	cout << "Loading " + ultimateFile + " ...\n";
 	ifstream ultimateFileStream;
 	ultimateFileStream.open(ultimateFile);
 	if (!ultimateFileStream) {
@@ -124,10 +131,10 @@ void loadUltimateFile(vector<Day>& days, const string& ultimateFile) {
 			day->date = upLine.substr(upLine.size() - 8, 8);
 		}
 		else {
-			string lineInfo[5]; //time, open, high, low, close
+			string lineInfo[lineElementCount];
 			split(upLine, lineInfo);
 			
-			string timestamp = lineInfo[0];
+			int timestamp = stoi(lineInfo[0]);
 			day->timestamps.push_back(timestamp);
 			
 			double open, high, low, close;
@@ -151,7 +158,7 @@ void split(const string& line, string lineInfo[]) {
 	lineInfo[0] = pch; // time
 
 	pch = strtok_s(NULL, ",", &nextToken);
-	for (int i = 1; pch != NULL && i < 5; ++i) { // 5 = number of values we want in a line (time, open, high, low, close)
+	for (size_t i = 1; pch != NULL && i < lineElementCount; ++i) {
 		lineInfo[i] = pch;
 		pch = strtok_s(NULL, ",", &nextToken);
 	}
@@ -189,41 +196,110 @@ void backtestAlgo(vector<Day>& days, json& config, ctpl::thread_pool& tp, const 
 			params[it.key()] = it.value().get<double>();
 		}
 	}
-	vector<future<void>> results;
-	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, results);
 
-	for (future<void> &result : results) {
+	if (params.find("timeBufferStart") == params.end()) {
+		params["timeBufferStart"] = 0;
+	}
+	if (params.find("timeBufferEnd") == params.end()) {
+		params["timeBufferEnd"] = 0;
+	}
+
+	vector<future<void>> taskReturns;
+	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, taskReturns);
+
+	for (future<void> &result : taskReturns) {
 		result.get();
 	}
 }
 
-void runParamCombos(int i, vector<string>& rangeNames, vector<vector<double>>& ranges, unordered_map<string, double>& params, const string& algoName, vector<Day>& days, ctpl::thread_pool& tp, vector<future<void>>& results) {
+void runParamCombos(size_t i, vector<string>& rangeNames, vector<vector<double>>& ranges, unordered_map<string, double> params,
+					const string& algoName, vector<Day>& days, ctpl::thread_pool& tp, vector<future<void>>& taskReturns) {
 	double start = ranges[i][0];
 	double end = ranges[i][1];
 	double increment = ranges[i][2];
-	double margin = 0.3;
-	double wallet;
 
 	while (start <= end) {
 		params[rangeNames[i]] = start;
 		if (i == ranges.size() - 1) {
-			results.push_back(
+			taskReturns.push_back(
 			tp.push([&](int id) {
+				cout << "Running a simulation...\n";
 				unique_ptr<Algorithm> algo = getAlgo(algoName, params);
+				Result result;
+				result.params = params;
 				for (Day day : days) {
-					Position position = none;
-					// TODO: implement: buy, sell, market open time, close time, wallet value, margin
-					for (double quote : day.quotes) {
-						algo->processQuote(quote);
-					}
+					result.trades.clear();
+					double currentCash = result.params["cash"];
+					simulateDay(currentCash, result, algo, day);
+					result.profit = currentCash - result.params["cash"];
+					day.results.push_back(result);
 				}
-			}));
+			}
+			));
 		} 
 		else {
-			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, results);
+			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, taskReturns);
 		}
 		start += increment;
 	}
+}
+
+void simulateDay(double& currentCash, Result& result, unique_ptr<Algorithm>& algo, Day& day) {
+	double currentQuote;
+	size_t currentTime;
+	size_t stockUnits = 0;
+	bool activePositions = false;
+	Action action;
+	Trade trade;
+	bool keepTrading = false;
+
+	for (size_t i = 0; i < day.quotes.size(); ++i) {
+		currentTime = day.timestamps[i];
+		currentQuote = day.quotes[i];
+		if (currentTime < marketOpenTime + result.params["timeBufferStart"]) {
+			continue;
+		}
+
+		if (currentTime > marketCloseTime - result.params["timeBufferEnd"]) {
+			action = sell;
+		}
+		else {
+			action = algo->processQuote(currentQuote);
+		}
+
+		keepTrading = handleAction(result, currentCash, action, currentQuote, currentTime, stockUnits, trade, activePositions);
+		if (!keepTrading) {
+			break;
+		}
+	}
+}
+
+bool handleAction(Result& result, double& currentCash, Action& action, double currentQuote, size_t currentTime, size_t& stockUnits,
+				  Trade& trade, bool& activePositions) {
+	if (action != nop) {
+		stockUnits = (size_t)(((currentCash - result.params["maxLossPerTrade"]) / result.params["margin"]) / currentQuote);
+		trade.quantity = stockUnits;
+		trade.price = currentQuote;
+		trade.timestamp = currentTime;
+		trade.action = action;
+	}
+
+	if (action == buy && !activePositions) {
+		activePositions = true;
+		currentCash -= trade.price * trade.quantity;
+		result.trades.push_back(trade);
+	}
+	else if (action == sell && activePositions) {
+		activePositions = false;
+		currentCash += trade.price * trade.quantity - commission;
+		result.trades.push_back(trade);
+
+		if (currentCash < result.params["minimumCash"]) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void uploadResults(const vector<Day>& days, const string& ticker, const string& algoName) {
@@ -232,9 +308,8 @@ void uploadResults(const vector<Day>& days, const string& ticker, const string& 
 
 unique_ptr<Algorithm> getAlgo(const string& algoName, const unordered_map<string, double>& params) {
 	if (algoName.compare("simple") == 0) {
-		return make_unique<Simple>(params);
+		return make_unique<Simple>();
 	}
-	
 	throwException("Algorithm with name " + algoName + " is not implemented.");
 }
 
