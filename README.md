@@ -1,5 +1,8 @@
 # ![logo](https://avatars2.githubusercontent.com/u/25215892?v=3)
 
+# Summary
+The goal of this project is to develop a performant, reliable infrastructure to backtest stock trading algorithms against large amounts of historical stock data and visualize the results with graphs. 
+
 ## Install
 
 ### API
