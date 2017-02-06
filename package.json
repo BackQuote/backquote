@@ -1,0 +1,61 @@
+{
+  "name": "backtester",
+  "version": "1.0.0",
+  "description": "BackQuote Backtester",
+  "main": "index.js",
+  "scripts": {
+    "test": "",
+    "start": "node server",
+    "build": "rimraf dist && webpack --config ./webpack.production.config.js --progress --profile --colors",
+    "eslint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BackQuote/backtester.git"
+  },
+  "author": "Charles Provencher, Anthony Nadeau, Martin Rancourt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BackQuote/backtester/issues"
+  },
+  "homepage": "https://github.com/BackQuote/backtester#readme",
+  "dependencies": {
+    "file-loader": "^0.9.0",
+    "react": "^15.0.2",
+    "react-dom": "^15.0.2",
+    "react-hot-loader": "^3.0.0-beta.2",
+    "react-redux": "^4.4.5",
+    "react-router": "^2.4.0",
+    "react-router-redux": "^4.0.4",
+    "redux": "^3.5.2"
+  },
+  "devDependencies": {
+    "amcharts3": "github:amcharts/amcharts3",
+    "amcharts3-react": "github:amcharts/amcharts3-react",
+    "babel-core": "^6.22.1",
+    "babel-eslint": "^7.1.1",
+    "babel-loader": "^6.2.10",
+    "babel-polyfill": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.22.0",
+    "babel-preset-stage-0": "^6.22.0",
+    "css-loader": "^0.26.1",
+    "eslint": "^3.14.0",
+    "eslint-loader": "^1.6.1",
+    "eslint-plugin-react": "^6.9.0",
+    "html-webpack-plugin": "^2.26.0",
+    "immutable": "^3.8.1",
+    "node-sass": "^4.3.0",
+    "react-json-tree": "^0.10.1",
+    "react-redux": "^5.0.2",
+    "redux-devtools": "^3.3.2",
+    "redux-devtools-dock-monitor": "^1.1.1",
+    "redux-devtools-log-monitor": "^1.2.0",
+    "redux-thunk": "^2.2.0",
+    "sass-loader": "^4.1.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2",
+    "whatwg-fetch": "^2.0.2"
+  }
+}
