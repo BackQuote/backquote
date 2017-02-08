@@ -14,11 +14,11 @@
 using namespace std;
 namespace fs = boost::filesystem;
 
+void throwException(const string&);
+void generateFileForTicker(string&, string&);
+
 int main(int argc, char* argv[])
 {
-	void throwException(const string&);
-	void generateFileForTicker(string&, string&);
-
 	map<string, vector<string>> args;
 	args["--quotesDir"] = {};
 	args["--tickers"] = {};
@@ -46,10 +46,10 @@ int main(int argc, char* argv[])
 	vector<string> tickers = args["--tickers"];
 	
 	vector<unique_ptr<thread>> threads = {};
-	for (int i = 0; i < tickers.size(); ++i)
+	for (size_t i = 0; i < tickers.size(); ++i)
 		threads.push_back(make_unique<thread>(generateFileForTicker, tickers[i], quotesDir));
 
-	for (int i = 0; i < threads.size(); ++i)
+	for (size_t i = 0; i < threads.size(); ++i)
 		threads[i]->join();
 
 	return 0;
@@ -65,7 +65,7 @@ void generateFileForTicker(string& ticker, string& quotesDir)
 	ofstream ultimateFileStream;
 	string line;
 	string filePath;
-	string ultimateFilePath = "../../../backtester/ultimate_files/" + ticker + "_ultimate.txt";
+	string ultimateFilePath = "../backtester/ultimate_files/" + ticker + "_ultimate.txt";
 	struct stat buffer;
 	int time;
 
