@@ -47,5 +47,8 @@
     <ClCompile Include="algorithms\Simple.cpp">
       <Filter>Source Files\algorithms</Filter>
     </ClCompile>
+    <ClCompile Include="algorithms\Algorithm.cpp">
+      <Filter>Source Files\algorithms</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

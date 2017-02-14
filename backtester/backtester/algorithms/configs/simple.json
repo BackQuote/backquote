@@ -1,8 +1,8 @@
 {
-	"timeBufferStart":[0, 0, 1000],
-	"timeBufferEnd":[0, 0, 1000],
+	"timeBufferStart":[1000000, 1000000, 1],
+	"timeBufferEnd":[1000000, 1000000, 1],
 	"cash":15000,
 	"margin":0.3,
 	"maxLossPerTrade":0.05,
-	"minimumCash": 11000
+	"maxDailyLoss": 0.3
 }

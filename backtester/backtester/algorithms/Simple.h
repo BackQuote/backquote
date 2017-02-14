@@ -3,12 +3,11 @@
 
 class Simple : public Algorithm {
 public:
-	Simple();
+	Simple(const unordered_map<string, double> params);
 	~Simple();
-	Action processQuote(double);
-
+	Action processQuote(const double, const size_t);
+	
 private:
-	size_t timeBufferStart, timeBufferEnd;
 	bool bought;
 };
 

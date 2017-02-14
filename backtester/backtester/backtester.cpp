@@ -15,15 +15,23 @@ using json = nlohmann::json;
 
 struct Trade {
 	double price;
-	size_t quantity;
+	size_t quantityReset;
+	size_t quantityNoReset;
 	Action action;
 	size_t timestamp;
 };
 
 struct Result {
+	/*
+	Daily profit vs cumulative profit: profit of that single day vs the profit of that single day + all the ones before it
+	Reset vs NoReset: is the wallet value resetted to the same value after every day regardless of the gains or losses?
+	*/
 	unordered_map<string, double> params;
 	vector<Trade> trades;
-	double profit;
+	double dailyProfitReset;
+	double cumulativeProfitReset;
+	double dailyProfitNoReset;
+	double cumulativeProfitNoReset;
 };
 
 struct Day {
@@ -33,6 +41,7 @@ struct Day {
 	vector<Result> results;
 };
 
+void writeResults(vector<Day>&, const string&);
 void split(const string&, string[]);
 void addQuotes(const double, const double, const double, const double, unique_ptr<Day>&);
 void loadUltimateFile(vector<Day>&, const string&);
@@ -41,14 +50,13 @@ void throwException(const string& message);
 void uploadResults(const vector<Day>&, const string&, const string&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
-void simulateDay(double&, Result&, unique_ptr<Algorithm>&, Day&);
-bool handleAction(Result&, double&, Action&, double, size_t, size_t&, Trade&, bool&);
+void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&);
+bool handleAction(Result&, double&, double&, Action&, double, size_t, Trade&, bool&);
 void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
 	ctpl::thread_pool& tp, vector<future<void>>&);
 
+const int quoteDivFactor = 10'000; // by how much we need to divide the quotes to represent them in dollars
 const double commission = 5; // amount in dollars for selling a stock
-const size_t marketOpenTime = 34'200'000; // milliseconds equivalent to 9h30
-const size_t marketCloseTime = 57'600'000; // milliseconds equivalent to 16h00
 const size_t lineElementCount = 5; // 5 = number of elements we want in a line of an ultimate file (time, open, high, low, close)
 
 int main(int argc, char* argv[]) {
@@ -76,13 +84,14 @@ int main(int argc, char* argv[]) {
 			cout << "DATA LOADED FOR " + ticker << endl;
 			backtestAlgo(days, config, tp, algoName);
 			uploadResults(days, ticker, algoName);
+			writeResults(days, ticker);
 		}));
 	}
 	
 	for (future<void> &result : taskReturns) {
 		result.get();
 	}
-	cout << "Press any key to continue...\n";
+	cout << "Press \"Enter\" to continue...\n";
 	getchar();
 	return 0;
 }
@@ -111,7 +120,7 @@ unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
 	return args;
 }
 
-void loadUltimateFile(vector<Day>& days, const string& ultimateFile) {
+void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
 	cout << "Loading " + ultimateFile + " ...\n";
 	ifstream ultimateFileStream;
 	ultimateFileStream.open(ultimateFile);
@@ -138,10 +147,10 @@ void loadUltimateFile(vector<Day>& days, const string& ultimateFile) {
 			day->timestamps.push_back(timestamp);
 			
 			double open, high, low, close;
-			open = atof(lineInfo[1].c_str());
-			high = atof(lineInfo[2].c_str());
-			low = atof(lineInfo[3].c_str());
-			close = atof(lineInfo[4].c_str());
+			open = atof(lineInfo[1].c_str()) / quoteDivFactor;
+			high = atof(lineInfo[2].c_str()) / quoteDivFactor;
+			low = atof(lineInfo[3].c_str()) / quoteDivFactor;
+			close = atof(lineInfo[4].c_str()) / quoteDivFactor;
 			addQuotes(open, high, low, close, day);
 		}
 	}
@@ -149,7 +158,7 @@ void loadUltimateFile(vector<Day>& days, const string& ultimateFile) {
 	ultimateFileStream.close();
 }
 
-void split(const string& line, string lineInfo[]) {
+void split(const string &line, string lineInfo[]) {
 	char* charLine = new char[line.size() + 1];
 	const char* tempCharLine = line.c_str();
 	strcpy_s(charLine, line.size() + 1, tempCharLine);
@@ -165,7 +174,7 @@ void split(const string& line, string lineInfo[]) {
 	delete[] charLine;
 }
 
-void addQuotes(const double open, const double high, const double low, const double close, unique_ptr<Day>& day) {
+void addQuotes(const double open, const double high, const double low, const double close, unique_ptr<Day> &day) {
 	day->quotes.push_back(open);
 	double closeRatio = abs(close - low / close - high);
 	double openRatio = abs(open - low / open - high);
@@ -182,7 +191,7 @@ void addQuotes(const double open, const double high, const double low, const dou
 	day->quotes.push_back(close);
 }
 
-void backtestAlgo(vector<Day>& days, json& config, ctpl::thread_pool& tp, const string& algoName) {
+void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const string &algoName) {
 	unordered_map<string, double> params;
 	vector<string> rangeNames;
 	vector<vector<double>> ranges;
@@ -212,8 +221,8 @@ void backtestAlgo(vector<Day>& days, json& config, ctpl::thread_pool& tp, const 
 	}
 }
 
-void runParamCombos(size_t i, vector<string>& rangeNames, vector<vector<double>>& ranges, unordered_map<string, double> params,
-					const string& algoName, vector<Day>& days, ctpl::thread_pool& tp, vector<future<void>>& taskReturns) {
+void runParamCombos(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> params,
+					const string &algoName, vector<Day> &days, ctpl::thread_pool &tp, vector<future<void>> &taskReturns) {
 	double start = ranges[i][0];
 	double end = ranges[i][1];
 	double increment = ranges[i][2];
@@ -221,21 +230,31 @@ void runParamCombos(size_t i, vector<string>& rangeNames, vector<vector<double>>
 	while (start <= end) {
 		params[rangeNames[i]] = start;
 		if (i == ranges.size() - 1) {
-			taskReturns.push_back(
-			tp.push([&](int id) {
+			//taskReturns.push_back(
+			//tp.push([&](int id) {
 				cout << "Running a simulation...\n";
 				unique_ptr<Algorithm> algo = getAlgo(algoName, params);
 				Result result;
 				result.params = params;
-				for (Day day : days) {
+				double cumulativeCash = result.params["cash"];
+				double dailyCashReset;
+				double dailyCashNoReset;
+				result.cumulativeProfitNoReset = 0;
+				result.cumulativeProfitReset = 0;
+				for (Day &day : days) {
 					result.trades.clear();
-					double currentCash = result.params["cash"];
-					simulateDay(currentCash, result, algo, day);
-					result.profit = currentCash - result.params["cash"];
+					dailyCashReset = result.params["cash"];
+					dailyCashNoReset = cumulativeCash;
+					simulateDay(dailyCashReset, dailyCashNoReset, result, algo, day);
+					result.dailyProfitReset = dailyCashReset - result.params["cash"];
+					result.dailyProfitNoReset = dailyCashNoReset - cumulativeCash;
+					cumulativeCash = dailyCashNoReset;
+					result.cumulativeProfitNoReset += result.dailyProfitNoReset;
+					result.cumulativeProfitReset += result.dailyProfitReset;
 					day.results.push_back(result);
 				}
-			}
-			));
+			//}
+			//));
 		} 
 		else {
 			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, taskReturns);
@@ -244,10 +263,9 @@ void runParamCombos(size_t i, vector<string>& rangeNames, vector<vector<double>>
 	}
 }
 
-void simulateDay(double& currentCash, Result& result, unique_ptr<Algorithm>& algo, Day& day) {
+void simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &result, unique_ptr<Algorithm> &algo, Day &day) {
 	double currentQuote;
 	size_t currentTime;
-	size_t stockUnits = 0;
 	bool activePositions = false;
 	Action action;
 	Trade trade;
@@ -256,29 +274,17 @@ void simulateDay(double& currentCash, Result& result, unique_ptr<Algorithm>& alg
 	for (size_t i = 0; i < day.quotes.size(); ++i) {
 		currentTime = day.timestamps[i/4]; // 4 is the number of quotes per timestamp (per second): open, close, high, low
 		currentQuote = day.quotes[i];
-		if (currentTime < marketOpenTime + result.params["timeBufferStart"]) {
-			continue;
-		}
-
-		if (currentTime > marketCloseTime - result.params["timeBufferEnd"]) {
-			action = sell;
-		}
-		else {
-			action = algo->processQuote(currentQuote);
-		}
-
-		keepTrading = handleAction(result, currentCash, action, currentQuote, currentTime, stockUnits, trade, activePositions);
+		action = algo->processQuote(currentQuote, currentTime);
+		keepTrading = handleAction(result, dailyCashReset, dailyCashNoReset, action, currentQuote, currentTime, trade, activePositions);
 		if (!keepTrading) {
 			break;
 		}
 	}
 }
 
-bool handleAction(Result& result, double& currentCash, Action& action, double currentQuote, size_t currentTime, size_t& stockUnits,
-				  Trade& trade, bool& activePositions) {
+bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, double currentQuote,
+				  size_t currentTime, Trade &trade, bool &activePositions) {
 	if (action != nop) {
-		stockUnits = (size_t)(((currentCash - result.params["maxLossPerTrade"]) / result.params["margin"]) / currentQuote);
-		trade.quantity = stockUnits;
 		trade.price = currentQuote;
 		trade.timestamp = currentTime;
 		trade.action = action;
@@ -286,34 +292,65 @@ bool handleAction(Result& result, double& currentCash, Action& action, double cu
 
 	if (action == buy && !activePositions) {
 		activePositions = true;
-		currentCash -= trade.price * trade.quantity;
+		trade.quantityReset = (dailyCashReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / currentQuote;
+		trade.quantityNoReset = (dailyCashNoReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / currentQuote;
+		dailyCashReset -= trade.price * trade.quantityReset;
+		dailyCashNoReset -= trade.price * trade.quantityNoReset;
 		result.trades.push_back(trade);
 	}
 	else if (action == sell && activePositions) {
 		activePositions = false;
-		currentCash += trade.price * trade.quantity - commission;
+		dailyCashReset += trade.price * trade.quantityReset - commission;
+		dailyCashNoReset += trade.price * trade.quantityNoReset - commission;
 		result.trades.push_back(trade);
+		trade.quantityReset = 0;
+		trade.quantityNoReset = 0;
 
-		if (currentCash < result.params["minimumCash"]) {
+		if (dailyCashReset < dailyCashReset * (1 - result.params["maxDailyLoss"])) {
 			return false;
 		}
 	}
-
 	return true;
 }
 
-void uploadResults(const vector<Day>& days, const string& ticker, const string& algoName) {
+void uploadResults(const vector<Day> &days, const string &ticker, const string &algoName) {
 	//TODO: upload results contained in days to database (PostgreSQL)
 }
 
-unique_ptr<Algorithm> getAlgo(const string& algoName, const unordered_map<string, double>& params) {
+unique_ptr<Algorithm> getAlgo(const string &algoName, const unordered_map<string, double> &params) {
 	if (algoName.compare("simple") == 0) {
-		return make_unique<Simple>();
+		return make_unique<Simple>(params);
 	}
 	throwException("Algorithm with name " + algoName + " is not implemented.");
 }
 
-void throwException(const string& message) {
+void throwException(const string &message) {
 	cout << message << endl;
 	throw 20;
+}
+
+void writeResults(vector<Day> &days, const string &ticker) {
+	ofstream resultsStream;
+	resultsStream.open("C:/Users/Charles/Desktop/results/" + ticker + ".txt");
+	for (int i = 0; i < days.size(); ++i) {
+		//resultsStream << "DATE:" + day.date << endl;
+		for (Result &res : days[i].results){
+			//resultsStream << "PARAMS:" << endl;
+			//for (auto it = res.params.begin(); it != res.params.end(); ++it) {
+			//	resultsStream << it->first << " = " << it->second << endl;
+			//}
+
+			resultsStream << "profit reset = " << res.dailyProfitReset << endl;
+			resultsStream << "profit no reset = " << res.dailyProfitNoReset << endl;
+			//resultsStream << "trades: " << endl;
+			//for (Trade &trade : res.trades) {
+			//	resultsStream << "Price: " << trade.price << " ; QTY: " << trade.quantity << " ; Action: " << trade.action << " ; Time:" << trade.timestamp << endl;
+			//}
+
+			resultsStream << "CUMUL RESET = " << res.cumulativeProfitReset << endl;
+			resultsStream << "CUMUL NO RESET = " << res.cumulativeProfitNoReset << endl;
+		}
+	}
+
+	resultsStream.close();
 }
