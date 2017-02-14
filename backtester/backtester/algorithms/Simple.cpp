@@ -5,8 +5,8 @@ Simple::Simple(const unordered_map<string, double> params) : bought(false) {
 	algoParams = params;
 }
 
-Action Simple::processQuote(const double quote, const size_t timestamp) {
-	if (!checkDayActive(timestamp)) {
+Action Simple::processQuote(Quote &quote) {
+	if (!checkDayActive(quote.timestamp) || quote.lastOfTheDay) {
 		if (bought) {
 			bought = false;
 			return sell;

@@ -36,14 +36,13 @@ struct Result {
 
 struct Day {
 	string date;
-	vector<double> quotes;
-	vector<int> timestamps;
+	vector<Quote> quotes;
 	vector<Result> results;
 };
 
 void writeResults(vector<Day>&, const string&);
 void split(const string&, string[]);
-void addQuotes(const double, const double, const double, const double, unique_ptr<Day>&);
+void addQuotes(const double, const double, const double, const double, Day&, size_t);
 void loadUltimateFile(vector<Day>&, const string&);
 void backtestAlgo(vector<Day>&, json&, ctpl::thread_pool&, const string& algoName);
 void throwException(const string& message);
@@ -51,7 +50,7 @@ void uploadResults(const vector<Day>&, const string&, const string&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
 void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&);
-bool handleAction(Result&, double&, double&, Action&, double, size_t, Trade&, bool&);
+bool handleAction(Result&, double&, double&, Action&, Quote&, Trade&, bool&);
 void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
 	ctpl::thread_pool& tp, vector<future<void>>&);
 
@@ -129,29 +128,28 @@ void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
 	}
 		
 	string upLine;
-	unique_ptr<Day> day = make_unique<Day>();
+	string lineInfo[lineElementCount];
+	size_t timestamp;
+	Day day;
+	double open, high, low, close;
 	getline(ultimateFileStream, upLine);
-	day->date = upLine.substr(upLine.size() - 8, 8);
+	day.date = upLine.substr(upLine.size() - 8, 8);
 
 	while (getline(ultimateFileStream, upLine)) {
 		if (upLine.find("new day") != string::npos) {
-			days.push_back(*day);
-			day = make_unique<Day>();
-			day->date = upLine.substr(upLine.size() - 8, 8);
+			day.quotes[day.quotes.size() - 1].lastOfTheDay = true;
+			days.push_back(day);
+			day.quotes.clear();
+			day.date = upLine.substr(upLine.size() - 8, 8);
 		}
 		else {
-			string lineInfo[lineElementCount];
 			split(upLine, lineInfo);
-			
-			int timestamp = stoi(lineInfo[0]);
-			day->timestamps.push_back(timestamp);
-			
-			double open, high, low, close;
+			timestamp = stoi(lineInfo[0]);
 			open = atof(lineInfo[1].c_str()) / quoteDivFactor;
 			high = atof(lineInfo[2].c_str()) / quoteDivFactor;
 			low = atof(lineInfo[3].c_str()) / quoteDivFactor;
 			close = atof(lineInfo[4].c_str()) / quoteDivFactor;
-			addQuotes(open, high, low, close, day);
+			addQuotes(open, high, low, close, day, timestamp);
 		}
 	}
 
@@ -174,21 +172,28 @@ void split(const string &line, string lineInfo[]) {
 	delete[] charLine;
 }
 
-void addQuotes(const double open, const double high, const double low, const double close, unique_ptr<Day> &day) {
-	day->quotes.push_back(open);
+void addQuotes(const double open, const double high, const double low, const double close, Day &day, size_t timestamp) {
+	Quote quote;
+	quote.timestamp = timestamp;
+	quote.price = open;
+	day.quotes.push_back(quote);
 	double closeRatio = abs(close - low / close - high);
 	double openRatio = abs(open - low / open - high);
 
 	if (openRatio < closeRatio) {
-		day->quotes.push_back(low);
-		day->quotes.push_back(high);
+		quote.price = low;
+		day.quotes.push_back(quote);
+		quote.price = high;
+		day.quotes.push_back(quote);
 	}
 	else {
-		day->quotes.push_back(high);
-		day->quotes.push_back(low);
+		quote.price = high;
+		day.quotes.push_back(quote);
+		quote.price = low;
+		day.quotes.push_back(quote);
 	}
-
-	day->quotes.push_back(close);
+	quote.price = close;
+	day.quotes.push_back(quote);
 }
 
 void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const string &algoName) {
@@ -264,36 +269,32 @@ void runParamCombos(size_t i, vector<string> &rangeNames, vector<vector<double>>
 }
 
 void simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &result, unique_ptr<Algorithm> &algo, Day &day) {
-	double currentQuote;
-	size_t currentTime;
 	bool activePositions = false;
 	Action action;
 	Trade trade;
 	bool keepTrading = false;
 
 	for (size_t i = 0; i < day.quotes.size(); ++i) {
-		currentTime = day.timestamps[i/4]; // 4 is the number of quotes per timestamp (per second): open, close, high, low
-		currentQuote = day.quotes[i];
-		action = algo->processQuote(currentQuote, currentTime);
-		keepTrading = handleAction(result, dailyCashReset, dailyCashNoReset, action, currentQuote, currentTime, trade, activePositions);
+		action = algo->processQuote(day.quotes[i]);
+		keepTrading = handleAction(result, dailyCashReset, dailyCashNoReset, action, day.quotes[i], trade, activePositions);
 		if (!keepTrading) {
 			break;
 		}
 	}
 }
 
-bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, double currentQuote,
-				  size_t currentTime, Trade &trade, bool &activePositions) {
+bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, Quote &quote, Trade &trade,
+				  bool &activePositions) {
 	if (action != nop) {
-		trade.price = currentQuote;
-		trade.timestamp = currentTime;
+		trade.price = quote.price;
+		trade.timestamp = quote.timestamp;
 		trade.action = action;
 	}
 
 	if (action == buy && !activePositions) {
 		activePositions = true;
-		trade.quantityReset = (dailyCashReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / currentQuote;
-		trade.quantityNoReset = (dailyCashNoReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / currentQuote;
+		trade.quantityReset = (dailyCashReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / quote.price;
+		trade.quantityNoReset = (dailyCashNoReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / quote.price;
 		dailyCashReset -= trade.price * trade.quantityReset;
 		dailyCashNoReset -= trade.price * trade.quantityNoReset;
 		result.trades.push_back(trade);

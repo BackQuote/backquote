@@ -10,11 +10,17 @@ enum Action {
 	nop = 2
 };
 
+struct Quote {
+	double price;
+	size_t timestamp;
+	bool lastOfTheDay = false;
+};
+
 class Algorithm {
 public:
 	Algorithm();
 	~Algorithm();
-	virtual Action processQuote(const double, const size_t) = 0;
+	virtual Action processQuote(Quote&) = 0;
 
 protected:
 	bool Algorithm::checkDayActive(size_t);

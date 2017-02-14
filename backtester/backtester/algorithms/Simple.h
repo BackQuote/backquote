@@ -5,7 +5,7 @@ class Simple : public Algorithm {
 public:
 	Simple(const unordered_map<string, double> params);
 	~Simple();
-	Action processQuote(const double, const size_t);
+	Action processQuote(Quote&);
 	
 private:
 	bool bought;
