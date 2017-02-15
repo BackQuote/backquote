@@ -44,13 +44,14 @@ void writeResults(vector<Day>&, const string&);
 void split(const string&, string[]);
 void addQuotes(const double, const double, const double, const double, Day&, size_t);
 void loadUltimateFile(vector<Day>&, const string&);
-void backtestAlgo(vector<Day>&, json&, ctpl::thread_pool&, const string& algoName);
+void backtestAlgo(vector<Day>&, json&, ctpl::thread_pool&, const string&);
 void throwException(const string& message);
 void uploadResults(const vector<Day>&, const string&, const string&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
 void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&);
 bool handleAction(Result&, double&, double&, Action&, Quote&, Trade&, bool&);
+void runSimulation(int id, const string&, unordered_map<string, double>&, vector<Day>&);
 void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
 	ctpl::thread_pool& tp, vector<future<void>>&);
 
@@ -177,8 +178,8 @@ void addQuotes(const double open, const double high, const double low, const dou
 	quote.timestamp = timestamp;
 	quote.price = open;
 	day.quotes.push_back(quote);
-	double closeRatio = abs(close - low / close - high);
-	double openRatio = abs(open - low / open - high);
+	double closeRatio = abs((close - low) / (close - high));
+	double openRatio = abs((open - low) / (open - high));
 
 	if (openRatio < closeRatio) {
 		quote.price = low;
@@ -218,16 +219,16 @@ void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const 
 		params["timeBufferEnd"] = 0;
 	}
 
-	vector<future<void>> taskReturns;
-	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, taskReturns);
+	vector<future<void>> futures;
+	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, futures);
 
-	for (future<void> &result : taskReturns) {
+	for (future<void> &result : futures) {
 		result.get();
 	}
 }
 
 void runParamCombos(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> params,
-					const string &algoName, vector<Day> &days, ctpl::thread_pool &tp, vector<future<void>> &taskReturns) {
+					const string &algoName, vector<Day> &days, ctpl::thread_pool &tp, vector<future<void>> &futures) {
 	double start = ranges[i][0];
 	double end = ranges[i][1];
 	double increment = ranges[i][2];
@@ -235,36 +236,36 @@ void runParamCombos(size_t i, vector<string> &rangeNames, vector<vector<double>>
 	while (start <= end) {
 		params[rangeNames[i]] = start;
 		if (i == ranges.size() - 1) {
-			//taskReturns.push_back(
-			//tp.push([&](int id) {
-				cout << "Running a simulation...\n";
-				unique_ptr<Algorithm> algo = getAlgo(algoName, params);
-				Result result;
-				result.params = params;
-				double cumulativeCash = result.params["cash"];
-				double dailyCashReset;
-				double dailyCashNoReset;
-				result.cumulativeProfitNoReset = 0;
-				result.cumulativeProfitReset = 0;
-				for (Day &day : days) {
-					result.trades.clear();
-					dailyCashReset = result.params["cash"];
-					dailyCashNoReset = cumulativeCash;
-					simulateDay(dailyCashReset, dailyCashNoReset, result, algo, day);
-					result.dailyProfitReset = dailyCashReset - result.params["cash"];
-					result.dailyProfitNoReset = dailyCashNoReset - cumulativeCash;
-					cumulativeCash = dailyCashNoReset;
-					result.cumulativeProfitNoReset += result.dailyProfitNoReset;
-					result.cumulativeProfitReset += result.dailyProfitReset;
-					day.results.push_back(result);
-				}
-			//}
-			//));
+			runSimulation(0, algoName, params, days);
 		} 
 		else {
-			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, taskReturns);
+			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, futures);
 		}
 		start += increment;
+	}
+}
+
+void runSimulation(int id, const string &algoName, unordered_map<string, double> &params, vector<Day> &days) {
+	cout << "Running a simulation...\n";
+	unique_ptr<Algorithm> algo = getAlgo(algoName, params);
+	Result result;
+	result.params = params;
+	double cumulativeCash = result.params["cash"];
+	double dailyCashReset;
+	double dailyCashNoReset;
+	result.cumulativeProfitNoReset = 0;
+	result.cumulativeProfitReset = 0;
+	for (Day &day : days) {
+		result.trades.clear();
+		dailyCashReset = result.params["cash"];
+		dailyCashNoReset = cumulativeCash;
+		simulateDay(dailyCashReset, dailyCashNoReset, result, algo, day);
+		result.dailyProfitReset = dailyCashReset - result.params["cash"];
+		result.dailyProfitNoReset = dailyCashNoReset - cumulativeCash;
+		cumulativeCash = dailyCashNoReset;
+		result.cumulativeProfitNoReset += result.dailyProfitNoReset;
+		result.cumulativeProfitReset += result.dailyProfitReset;
+		day.results.push_back(result);
 	}
 }
 
@@ -328,30 +329,4 @@ unique_ptr<Algorithm> getAlgo(const string &algoName, const unordered_map<string
 void throwException(const string &message) {
 	cout << message << endl;
 	throw 20;
-}
-
-void writeResults(vector<Day> &days, const string &ticker) {
-	ofstream resultsStream;
-	resultsStream.open("C:/Users/Charles/Desktop/results/" + ticker + ".txt");
-	for (int i = 0; i < days.size(); ++i) {
-		//resultsStream << "DATE:" + day.date << endl;
-		for (Result &res : days[i].results){
-			//resultsStream << "PARAMS:" << endl;
-			//for (auto it = res.params.begin(); it != res.params.end(); ++it) {
-			//	resultsStream << it->first << " = " << it->second << endl;
-			//}
-
-			resultsStream << "profit reset = " << res.dailyProfitReset << endl;
-			resultsStream << "profit no reset = " << res.dailyProfitNoReset << endl;
-			//resultsStream << "trades: " << endl;
-			//for (Trade &trade : res.trades) {
-			//	resultsStream << "Price: " << trade.price << " ; QTY: " << trade.quantity << " ; Action: " << trade.action << " ; Time:" << trade.timestamp << endl;
-			//}
-
-			resultsStream << "CUMUL RESET = " << res.cumulativeProfitReset << endl;
-			resultsStream << "CUMUL NO RESET = " << res.cumulativeProfitNoReset << endl;
-		}
-	}
-
-	resultsStream.close();
 }
