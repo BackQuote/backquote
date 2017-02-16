@@ -1,15 +1,24 @@
 #include "Simple.h"
 #include <string>
 
-Simple::Simple() : bought(false) {
+Simple::Simple(const unordered_map<string, double> params) : bought(false) {
+	algoParams = params;
 }
 
-Action Simple::processQuote(double quote) {
-	if (bought) {
+Action Simple::processQuote(Quote &quote) {
+	if (!checkDayActive(quote.timestamp) || quote.lastOfTheDay) {
+		if (bought) {
+			bought = false;
+			return sell;
+		}
 		return nop;
 	}
-	bought = true;
-	return buy;
+
+	if (!bought) {
+		bought = true;
+		return buy;
+	}
+	return nop;
 }
 
 Simple::~Simple() {

@@ -156,6 +156,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="algorithms\Algorithm.cpp" />
     <ClCompile Include="algorithms\Simple.cpp" />
     <ClCompile Include="backtester.cpp" />
     <ClCompile Include="stdafx.cpp">
