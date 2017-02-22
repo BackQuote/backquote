@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from flask import Flask, jsonify
-from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -11,7 +10,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 from models import *
 
 db = SQLAlchemy(app)
-api = Api(app)
 
 @app.route('/')
 def api_root():
@@ -19,20 +17,33 @@ def api_root():
 
 @app.route('/algorithms')
 def algorithms():
-    algos = Algorithms.query.all()
+    algos = Algorithm.query.all()
     return jsonify([i.serialize for i in algos])
 
 @app.route('/algorithms/<id>')
 def algorithm(id):
-    # TODO: Handle errors
-    algo = Algorithms.query.get(id)
-    return jsonify(algo.serialize)
+    algorithm = Algorithm.query.get(id)
+    return jsonify(algorithm.serialize)
 
-class Status(Resource):
-    def get(self):
-        return {'status' : 'ok'}
+@app.route('/results/<id>')
+def result(id):
+    result = Result.query.get(id)
+    return jsonify(result.serialize)
 
-api.add_resource(Status, '/status')
+@app.route('/days/<id>')
+def day(id):
+    day = Day.query.get(id)
+    return jsonify(day.serialize)
+
+@app.route('/trades/<id>')
+def trade(id):
+    trade = Trade.query.get(id)
+    return jsonify(trade.serialize)
+
+@app.route('/quotes/<id>')
+def quote(id):
+    quote = Quote.query.get(id)
+    return jsonify(quote.serialize)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=app.config['DEBUG'])
