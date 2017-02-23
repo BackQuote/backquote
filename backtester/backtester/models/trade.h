@@ -1,7 +1,7 @@
 #include "action.h"
 
-#ifndef BACKTESTER_ACTION_H
-#define BACKTESTER_ACTION_H
+#ifndef BACKTESTER_TRADE_H
+#define BACKTESTER_TRADE_H
 struct Trade {
     double price;
     size_t quantityReset;
@@ -9,4 +9,4 @@ struct Trade {
     Action action;
     size_t timestamp;
 };
-#endif //BACKTESTER_ACTION_H
+#endif //BACKTESTER_TRADE_H

@@ -14,7 +14,6 @@
 using namespace std;
 using json = nlohmann::json;
 
-void writeResults(vector<Day>&, const string&);
 void split(const string&, string[]);
 void addQuotes(const double, const double, const double, const double, Day&, size_t);
 void loadUltimateFile(vector<Day>&, const string&);
@@ -58,7 +57,6 @@ int main(int argc, char* argv[]) {
 			cout << "DATA LOADED FOR " + ticker << endl;
 			backtestAlgo(days, config, tp, algoName);
 			uploadResults(days, ticker, algoName);
-			writeResults(days, ticker);
 		}));
 	}
 	
