@@ -9,38 +9,11 @@
 #include "external_dependencies/json.hpp"
 #include "external_dependencies/ctpl_stl.h"
 #include "algorithms/Simple.h"
+#include "models/models.h"
 
 using namespace std;
 using json = nlohmann::json;
 
-struct Trade {
-	double price;
-	size_t quantityReset;
-	size_t quantityNoReset;
-	Action action;
-	size_t timestamp;
-};
-
-struct Result {
-	/*
-	Daily profit vs cumulative profit: profit of that single day vs the profit of that single day + all the ones before it
-	Reset vs NoReset: is the wallet value resetted to the same value after every day regardless of the gains or losses?
-	*/
-	unordered_map<string, double> params;
-	vector<Trade> trades;
-	double dailyProfitReset;
-	double cumulativeProfitReset;
-	double dailyProfitNoReset;
-	double cumulativeProfitNoReset;
-};
-
-struct Day {
-	string date;
-	vector<Quote> quotes;
-	vector<Result> results;
-};
-
-void writeResults(vector<Day>&, const string&);
 void split(const string&, string[]);
 void addQuotes(const double, const double, const double, const double, Day&, size_t);
 void loadUltimateFile(vector<Day>&, const string&);
@@ -84,7 +57,6 @@ int main(int argc, char* argv[]) {
 			cout << "DATA LOADED FOR " + ticker << endl;
 			backtestAlgo(days, config, tp, algoName);
 			uploadResults(days, ticker, algoName);
-			writeResults(days, ticker);
 		}));
 	}
 	

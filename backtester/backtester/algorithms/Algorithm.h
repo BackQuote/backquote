@@ -1,20 +1,10 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include "../models/quote.h"
+#include "../models/action.h"
 
 using namespace std;
-
-enum Action {
-	buy = 0,
-	sell = 1,
-	nop = 2
-};
-
-struct Quote {
-	double price;
-	size_t timestamp;
-	bool lastOfTheDay = false;
-};
 
 class Algorithm {
 public:

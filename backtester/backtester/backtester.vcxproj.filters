@@ -16,6 +16,15 @@
     <Filter Include="Source Files\algorithms">
       <UniqueIdentifier>{4ab99c0f-9148-4ef1-b77a-84a239782768}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\models">
+      <UniqueIdentifier>{917f317f-e513-4f09-99b4-5002901b4bf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\algorithms">
+      <UniqueIdentifier>{6daea1d4-a705-4880-b7c4-24e13a42d8bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\external_dependencies">
+      <UniqueIdentifier>{a0eccac8-5699-456b-af98-5f0e9bad07d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,14 +36,35 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="json.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="algorithms\Simple.h">
+      <Filter>Header Files\algorithms</Filter>
     </ClInclude>
     <ClInclude Include="algorithms\Algorithm.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\algorithms</Filter>
     </ClInclude>
-    <ClInclude Include="algorithms\Simple.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="json.hpp">
+      <Filter>Header Files\external_dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="external_dependencies\ctpl_stl.h">
+      <Filter>Header Files\external_dependencies</Filter>
+    </ClInclude>
+    <ClInclude Include="models\action.h">
+      <Filter>Header Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\day.h">
+      <Filter>Header Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\models.h">
+      <Filter>Header Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\quote.h">
+      <Filter>Header Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\result.h">
+      <Filter>Header Files\models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\trade.h">
+      <Filter>Header Files\models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
