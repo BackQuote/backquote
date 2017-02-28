@@ -24,7 +24,7 @@ class Simulations extends React.Component {
             <tbody>
             {
               this.props.simulations.map((simulation) => {
-                return <SimulationRow simulation={simulation}/>;
+                return <SimulationRow key={simulation.id} simulation={simulation}/>;
               })
             }
             </tbody>

@@ -15,7 +15,7 @@ const SimulationRow = ({simulation}) =>
   </tr>;
 
 SimulationRow.propTypes = {
-  simulation: PropTypes.array
+  simulation: PropTypes.object
 };
 
 export default SimulationRow;

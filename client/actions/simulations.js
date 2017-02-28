@@ -1,16 +1,17 @@
 import * as types from './types';
+import api from '../api';
 
-export function simulationsHasErrored(bool) {
+export function simulationsHasErrored(hasErrored) {
   return {
     type: types.SIMULATIONS_HAS_ERRORED,
-    hasErrored: bool
+    hasErrored: hasErrored
   };
 }
 
-export function simulationsIsLoading(bool) {
+export function simulationsIsLoading(isLoading) {
   return {
     type: types.SIMULATIONS_IS_LOADING,
-    isLoading: bool
+    isLoading: isLoading
   };
 }
 
@@ -21,19 +22,14 @@ export function simulationsFetchDataSuccess(simulations) {
   };
 }
 
-export function fetchSimulations(url) {
+export function fetchSimulations() {
   return (dispatch) => {
     dispatch(simulationsIsLoading(true));
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw Error(response.statusText);
-        }
+    api.get('simulations')
+      .then((simulations) => {
+        dispatch(simulationsFetchDataSuccess(simulations));
         dispatch(simulationsIsLoading(false));
-        return response;
       })
-      .then((response) => response.json())
-      .then((simulations) => dispatch(simulationsFetchDataSuccess(simulations)))
       .catch(() => dispatch(simulationsHasErrored(true)));
   };
 }

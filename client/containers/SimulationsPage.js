@@ -5,8 +5,7 @@ import { fetchSimulations } from '../actions/simulations';
 
 class SimulationsPage extends React.Component {
   componentDidMount() {
-    // TODO: de-hardcode api endpoint
-    this.props.fetchSimulations('http://localhost:8888/simulations');
+    this.props.fetchSimulations();
   }
 
   render() {
@@ -29,7 +28,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchSimulations: (url) => dispatch(fetchSimulations(url))
+    fetchSimulations: () => dispatch(fetchSimulations())
   };
 };
 

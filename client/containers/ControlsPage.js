@@ -5,8 +5,7 @@ import { fetchAlgorithms } from '../actions/algorithms';
 
 class ControlsPage extends React.Component {
   componentDidMount() {
-    // TODO: de-hardcode api endpoint
-    this.props.fetchAlgorithms('http://localhost:8888/algorithms');
+    this.props.fetchAlgorithms();
   }
 
   render() {
@@ -31,7 +30,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchAlgorithms: (url) => dispatch(fetchAlgorithms(url))
+    fetchAlgorithms: () => dispatch(fetchAlgorithms())
   };
 };
 
