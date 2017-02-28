@@ -1,16 +1,17 @@
 import * as types from './types';
+import api from '../api';
 
-export function algorithmsHasErrored(bool) {
+export function algorithmsHasErrored(hasErrored) {
   return {
     type: types.ALGORITHMS_HAS_ERRORED,
-    hasErrored: bool
+    hasErrored: hasErrored
   };
 }
 
-export function algorithmsIsLoading(bool) {
+export function algorithmsIsLoading(isLoading) {
   return {
     type: types.ALGORITHMS_IS_LOADING,
-    isLoading: bool
+    isLoading: isLoading
   };
 }
 
@@ -21,19 +22,14 @@ export function algorithmsFetchDataSuccess(algorithms) {
   };
 }
 
-export function fetchAlgorithms(url) {
+export function fetchAlgorithms() {
   return (dispatch) => {
     dispatch(algorithmsIsLoading(true));
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw Error(response.statusText);
-        }
+    api.get('algorithms')
+      .then((algorithms) => {
+        dispatch(algorithmsFetchDataSuccess(algorithms));
         dispatch(algorithmsIsLoading(false));
-        return response;
       })
-      .then((response) => response.json())
-      .then((algorithms) => dispatch(algorithmsFetchDataSuccess(algorithms)))
       .catch(() => dispatch(algorithmsHasErrored(true)));
   };
 }
