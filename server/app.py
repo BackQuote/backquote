@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS, cross_origin
 import os
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+CORS(app)
 
 from models import *
 
