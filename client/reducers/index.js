@@ -1,16 +1,16 @@
 import { routerReducer as routing } from 'react-router-redux';
 import { combineReducers } from 'redux';
 import { algorithms, algorithmsIsLoading, algorithmsHasErrored } from './algorithms';
-import { simulations, simulationsIsLoading, simulationsHasErrored } from './simulations';
+import { backtests, backtestsIsLoading, backtestsHasErrored } from './backtests';
 
 const rootReducer = combineReducers({
   routing,
   algorithms,
   algorithmsIsLoading,
   algorithmsHasErrored,
-  simulations,
-  simulationsIsLoading,
-  simulationsHasErrored
+  backtests,
+  backtestsIsLoading,
+  backtestsHasErrored
 });
 
 export default rootReducer;

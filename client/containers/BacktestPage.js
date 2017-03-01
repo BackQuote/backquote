@@ -1,14 +1,14 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Run from '../components/Run';
+import Simulation from '../components/Backtest';
 
-const RunPage = () => {
+const SimulationPage = () => {
   return (
-    <Run/>
+    <Simulation/>
   );
 };
 
-RunPage.propTypes = {
+SimulationPage.propTypes = {
   filter: PropTypes.string,
   onFilter: PropTypes.func
 };
@@ -30,4 +30,4 @@ const mapDispatchToProps = () => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RunPage);
+)(SimulationPage);

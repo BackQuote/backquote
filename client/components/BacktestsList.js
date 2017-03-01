@@ -1,21 +1,21 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
-import SimulationRow from './SimulationRow';
+import BacktestRow from './BacktestRow';
 
-class Simulations extends React.Component {
+class BacktestList extends React.Component {
   render() {
     return (
       <div className={card}>
         <header>
           <h4 className="title">
-            Simulations
+            Backtests
           </h4>
         </header>
         <section>
           <table className="u-full-width">
             <thead>
             <tr>
-              <th>Simulation</th>
+              <th>Backtest</th>
               <th>Algorithm</th>
               <th>Parameters</th>
               <th>Tickers</th>
@@ -23,8 +23,8 @@ class Simulations extends React.Component {
             </thead>
             <tbody>
             {
-              this.props.simulations.map((simulation) => {
-                return <SimulationRow key={simulation.id} simulation={simulation}/>;
+              this.props.backtests.map((backtest) => {
+                return <BacktestRow key={backtest.id} backtest={backtest}/>;
               })
             }
             </tbody>
@@ -35,8 +35,8 @@ class Simulations extends React.Component {
   }
 }
 
-Simulations.propTypes = {
-  simulations: PropTypes.array
+BacktestList.propTypes = {
+  backtests: PropTypes.array
 };
 
-export default Simulations;
+export default BacktestList;
