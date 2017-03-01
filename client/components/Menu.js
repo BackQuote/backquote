@@ -16,7 +16,7 @@ const Menu = () =>
           <Link to="/controls" onlyActiveOnIndex activeClassName={active}>Controls</Link>
         </li>
         <li>
-          <Link to="/simulations" onlyActiveOnIndex activeClassName={active}>Simulations</Link>
+          <Link to="/backtests" onlyActiveOnIndex activeClassName={active}>Backtests</Link>
         </li>
       </ul>
     </nav>

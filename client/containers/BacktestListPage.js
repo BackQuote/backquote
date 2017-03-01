@@ -1,34 +1,34 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Simulations from '../components/Simulations';
-import { fetchSimulations } from '../actions/simulations';
+import BacktestList from '../components/BacktestsList';
+import { fetchBacktests } from '../actions/backtests';
 
 class SimulationsPage extends React.Component {
   componentDidMount() {
-    this.props.fetchSimulations();
+    this.props.fetchBacktests();
   }
 
   render() {
     return (
-      <Simulations simulations={this.props.simulations}/>
+      <BacktestList backtests={this.props.backtests}/>
     );
   }
 }
 
 SimulationsPage.propTypes = {
-  fetchSimulations: PropTypes.func,
-  simulations: PropTypes.array
+  fetchBacktests: PropTypes.func,
+  backtests: PropTypes.array
 };
 
 const mapStateToProps = (state) => {
   return {
-    simulations: state.simulations,
+    backtests: state.backtests,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchSimulations: () => dispatch(fetchSimulations())
+    fetchBacktests: () => dispatch(fetchBacktests())
   };
 };
 
