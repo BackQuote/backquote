@@ -6,18 +6,27 @@ const config = {
     type: 'column',
     backgroundColor: '#FFFFFF'
   },
+  plotOptions: {
+    series: {
+      stacking: 'null'
+    }
+  },
   title: {
     text: 'Simulation Chart'
   },
   xAxis: {
-    categories: ['Jan', 'Fev', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    categories: []
   },
   yAxis: {
     title: {
       text: 'Profit'
     }
   },
-  series: [{}]
+  series: [{
+    color: '#00FF00'
+  }, {
+    color: '#FF0000'
+  }]
 };
 
 class SimulationChart extends React.Component {
@@ -27,9 +36,15 @@ class SimulationChart extends React.Component {
   }
 
   render() {
-    console.log(this.props.days);
-    config.series = this.props.days.map((day) => {
-      return day.id;
+    this.props.days.forEach((day) => {
+      config.xAxis.categories.push(day.date);
+      if (day.profit < 0) {
+        config.series[0].data.push(null);
+        config.series[1].data.push(day.profit);
+      } else {
+        config.series[0].data.push(day.profit);
+        config.series[1].data.push(null);
+      }
     });
     return <ReactHighcharts config={config}></ReactHighcharts>;
   }
