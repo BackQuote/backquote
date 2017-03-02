@@ -19,6 +19,10 @@ class api {
     return this.fetch('post', path, options);
   }
 
+  put(path, options) {
+    return this.fetch('put', path, options);
+  }
+
   fetch(method, path = '', options) {
     const url = `${this.base}/${path}`;
     options = Object.assign({}, optionsDefaults, this.options, options || {});

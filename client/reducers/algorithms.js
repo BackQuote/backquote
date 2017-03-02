@@ -8,6 +8,7 @@ export function algorithmsHasErrored(state = false, action) {
       return state;
   }
 }
+
 export function algorithmsIsLoading(state = false, action) {
   switch (action.type) {
     case types.ALGORITHMS_IS_LOADING:
@@ -16,6 +17,7 @@ export function algorithmsIsLoading(state = false, action) {
       return state;
   }
 }
+
 export function algorithms(state = [], action) {
   switch (action.type) {
     case types.ALGORITHMS_FETCH_DATA_SUCCESS:

@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Controls from '../components/Controls';
 import { fetchAlgorithms } from '../actions/algorithms';
+import { fetchTemplates } from '../actions/templates';
 
 class ControlsPage extends React.Component {
   componentDidMount() {
@@ -10,19 +11,22 @@ class ControlsPage extends React.Component {
 
   render() {
     return (
-      <Controls algorithms={this.props.algorithms}/>
+      <Controls algorithms={this.props.algorithms}
+                templates={this.props.templates}
+                fetchTemplates={this.props.fetchTemplates}/>
     );
   }
 }
 
 ControlsPage.propTypes = {
   fetchAlgorithms: PropTypes.func,
-  algorithms: PropTypes.array
+  fetchTemplates: PropTypes.func
 };
 
 const mapStateToProps = (state) => {
   return {
     algorithms: state.algorithms,
+    templates: state.templates,
     hasErrored: state.algorithmsHasErrored,
     isLoading: state.algorithmsIsLoading
   };
@@ -30,7 +34,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchAlgorithms: () => dispatch(fetchAlgorithms())
+    fetchAlgorithms: () => dispatch(fetchAlgorithms()),
+    fetchTemplates: (algorithm) => dispatch(fetchTemplates(algorithm))
   };
 };
 
