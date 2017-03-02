@@ -14,7 +14,7 @@ class Controls extends React.Component {
   }
 
   handleAlgorithmChange() {
-    this.props.fetchTemplates(this.refs.algorithm.value);
+    this.props.actions.fetchTemplates(this.refs.algorithm.value);
   }
 
   handleTemplateChange() {

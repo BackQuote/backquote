@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import BacktestList from '../components/BacktestsList';
-import { fetchBacktests } from '../actions/backtests';
+import * as backtestsActionCreators from '../actions/backtests';
 
 class SimulationsPage extends React.Component {
   componentDidMount() {
-    this.props.fetchBacktests();
+    this.props.actions.fetchBacktests();
   }
 
   render() {
@@ -16,7 +17,7 @@ class SimulationsPage extends React.Component {
 }
 
 SimulationsPage.propTypes = {
-  fetchBacktests: PropTypes.func,
+  actions: PropTypes.object,
   backtests: PropTypes.array
 };
 
@@ -28,7 +29,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchBacktests: () => dispatch(fetchBacktests())
+    actions: bindActionCreators(backtestsActionCreators, dispatch)
   };
 };
 

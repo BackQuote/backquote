@@ -1,23 +1,24 @@
 import React, { PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import DailyResult from '../components/DailyResult';
-import { fetchDailyResult } from '../actions/dailyResult';
+import * as dailyResultActions from '../actions/dailyResult';
 
 class DailyResultPage extends React.Component {
   componentDidMount() {
-    fetchDailyResult();
+    this.props.actions.fetchDailyResult();
   }
 
   render() {
+    let { dailyResult } = this.props;
     return (
-      <DailyResult dailyResult={this.props.dailyResult} />
+      <DailyResult dailyResult={dailyResult} />
     );
   }
 }
 
 DailyResultPage.propTypes = {
-  fetchDailyResult: PropTypes.func,
-  dailyResult: PropTypes.object
+  actions: PropTypes.object
 };
 
 const mapStateToProps = (state) => {
@@ -28,7 +29,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchDailyResult: dispatch(fetchDailyResult())
+    actions: bindActionCreators(dailyResultActions, dispatch)
   };
 };
 

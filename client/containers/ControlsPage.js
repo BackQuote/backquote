@@ -1,26 +1,25 @@
 import React, { PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Controls from '../components/Controls';
-import { fetchAlgorithms } from '../actions/algorithms';
-import { fetchTemplates } from '../actions/templates';
+import * as algorithmsActionCreators from '../actions/algorithms';
+import * as templatesActionCreators from '../actions/templates';
 
 class ControlsPage extends React.Component {
   componentDidMount() {
-    this.props.fetchAlgorithms();
+    this.props.actions.fetchAlgorithms();
   }
 
   render() {
+    let { actions, algorithms, templates } = this.props;
     return (
-      <Controls algorithms={this.props.algorithms}
-                templates={this.props.templates}
-                fetchTemplates={this.props.fetchTemplates}/>
+      <Controls actions={actions} algorithms={algorithms} templates={templates}/>
     );
   }
 }
 
 ControlsPage.propTypes = {
-  fetchAlgorithms: PropTypes.func,
-  fetchTemplates: PropTypes.func
+  actions: PropTypes.object,
 };
 
 const mapStateToProps = (state) => {
@@ -34,8 +33,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchAlgorithms: () => dispatch(fetchAlgorithms()),
-    fetchTemplates: (algorithm) => dispatch(fetchTemplates(algorithm))
+    actions: bindActionCreators({
+      ...algorithmsActionCreators,
+      ...templatesActionCreators
+    }, dispatch),
   };
 };
 
