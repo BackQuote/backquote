@@ -1,33 +1,38 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Simulation from '../components/Simulation';
+import { fetchDays } from '../actions/days';
 
-const RunPage = () => {
-  return (
-    <Simulation/>
-  );
-};
+class SimulationPage extends React.Component {
+  componentDidMount() {
+    this.props.fetchDays();
+  }
 
-RunPage.propTypes = {
-  filter: PropTypes.string,
-  onFilter: PropTypes.func
+  render() {
+    return (
+      <Simulation days={this.props.days}/>
+    );
+  }
+}
+
+SimulationPage.propTypes = {
+  days: PropTypes.array,
+  fetchDays: PropTypes.func,
 };
 
 const mapStateToProps = (state) => {
-  // TODO: map state to props
   return {
-    filter: state.filter
+    days: state.days,
   };
 };
 
-const mapDispatchToProps = () => {
-  // TODO: map dispatch to props
+const mapDispatchToProps = (dispatch) => {
   return {
-
+    fetchDays: () => dispatch(fetchDays())
   };
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(RunPage);
+)(SimulationPage);
