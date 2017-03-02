@@ -18,7 +18,7 @@ class Simulation extends React.Component {
         </header>
         <section>
           <div className="container">
-            <SimulationChart days={this.props.days} goToDailyChart={this.goToDailyChart}/>
+            <SimulationChart days={this.props.days} goToDailyChart={this.goToDailyChart.bind(this)}/>
           </div>
         </section>
       </div>
