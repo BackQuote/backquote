@@ -21,9 +21,9 @@ class SimulationChart extends React.Component {
           },
           zones: [{
             value: 0,
-            color: '#FF0000'
+            color: '#f93943'
           }, {
-            color: '#00FF00'
+            color: '#6cd899'
           }]
         }
       },
