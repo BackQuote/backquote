@@ -14,7 +14,7 @@ class SimulationPage extends React.Component {
 
   render() {
     return (
-      <Simulation days={this.props.days} goToDailyChart={this.goToDailyChart.bind(this)}/>
+      <Simulation days={this.props.days} goToDailyChart={() => {this.goToDailyChart();}}/>
     );
   }
 }
