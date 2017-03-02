@@ -8,16 +8,24 @@ class SimulationPage extends React.Component {
     this.props.fetchDays();
   }
 
+  goToDailyChart(id) {
+    this.context.router.push(`/daily_result/${id}`);
+  }
+
   render() {
     return (
-      <Simulation days={this.props.days}/>
+      <Simulation days={this.props.days} goToDailyChart={() => {this.goToDailyChart();}}/>
     );
   }
 }
 
 SimulationPage.propTypes = {
   days: PropTypes.array,
-  fetchDays: PropTypes.func,
+  fetchDays: PropTypes.func
+};
+
+SimulationPage.contextTypes = {
+  router: React.PropTypes.object
 };
 
 const mapStateToProps = (state) => {

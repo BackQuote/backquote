@@ -3,6 +3,10 @@ import { card } from '../styles/card.scss';
 import SimulationChart from './SimulationChart';
 
 class Simulation extends React.Component {
+  goToDailyChart(id) {
+    this.props.goToDailyChart(id);
+  }
+
   render() {
     return (
       <div className={card}>
@@ -13,7 +17,7 @@ class Simulation extends React.Component {
         </header>
         <section>
           <div className="container">
-            <SimulationChart days={this.props.days}/>
+            <SimulationChart days={this.props.days} goToDailyChart={() => {this.goToDailyChart();}}/>
           </div>
         </section>
       </div>
@@ -22,7 +26,8 @@ class Simulation extends React.Component {
 }
 
 Simulation.propTypes = {
-  days: PropTypes.array
+  days: PropTypes.array,
+  goToDailyChart: PropTypes.func
 };
 
 export default Simulation;
