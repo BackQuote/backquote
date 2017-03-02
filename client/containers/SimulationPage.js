@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Simulation from '../components/Simulation';
-import { fetchDays } from '../actions/days';
+import * as daysActions from '../actions/days';
 
 class SimulationPage extends React.Component {
   componentDidMount() {
-    this.props.fetchDays();
+    this.props.actions.fetchDays();
   }
 
   goToDailyChart(id) {
@@ -21,7 +22,7 @@ class SimulationPage extends React.Component {
 
 SimulationPage.propTypes = {
   days: PropTypes.array,
-  fetchDays: PropTypes.func
+  actions: PropTypes.object
 };
 
 SimulationPage.contextTypes = {
@@ -36,7 +37,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchDays: () => dispatch(fetchDays())
+    actions: bindActionCreators(daysActions, dispatch)
   };
 };
 
