@@ -9,7 +9,7 @@ class SimulationPage extends React.Component {
   }
 
   goToDailyChart(id) {
-    this.props.history.push(`/daily_result/${id}`);
+    this.context.router.push(`/daily_result/${id}`);
   }
 
   render() {
@@ -21,8 +21,11 @@ class SimulationPage extends React.Component {
 
 SimulationPage.propTypes = {
   days: PropTypes.array,
-  fetchDays: PropTypes.func,
-  history: PropTypes.object
+  fetchDays: PropTypes.func
+};
+
+SimulationPage.contextTypes = {
+  router: React.PropTypes.object
 };
 
 const mapStateToProps = (state) => {

@@ -4,7 +4,6 @@ import SimulationChart from './SimulationChart';
 
 class Simulation extends React.Component {
   goToDailyChart(id) {
-    console.log(this.props);
     this.props.goToDailyChart(id);
   }
 
