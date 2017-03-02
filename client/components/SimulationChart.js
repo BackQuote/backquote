@@ -1,52 +1,48 @@
 import React, { PropTypes } from 'react';
-import ReactHighcharts from 'react-highcharts';
+import ReactHighstock from 'react-highcharts/ReactHighstock';
 
 const config = {
   chart: {
     type: 'column',
-    backgroundColor: '#FFFFFF'
   },
   plotOptions: {
+    column: {
+      groupPadding: '0'
+    },
     series: {
-      stacking: 'null'
+      zones: [{
+        value: 0,
+        color: '#FF0000'
+      }, {
+        color: '#00FF00'
+      }]
     }
+  },
+  rangeSelector: {
+    selected: 1
   },
   title: {
     text: 'Simulation Chart'
   },
   xAxis: {
-    categories: []
+    type: 'datetime',
   },
   yAxis: {
+    offset: 30,
     title: {
       text: 'Profit'
     }
   },
-  series: [{
-    color: '#00FF00'
-  }, {
-    color: '#FF0000'
-  }]
+  series: [{}]
 };
 
 class SimulationChart extends React.Component {
-  componentDidMount() {
-    //let chart = this.refs.chart.getChart();
-    //chart.series[0].addPoint({x: 10, y: 12});
-  }
-
   render() {
-    this.props.days.forEach((day) => {
-      config.xAxis.categories.push(day.date);
-      if (day.profit < 0) {
-        config.series[0].data.push(null);
-        config.series[1].data.push(day.profit);
-      } else {
-        config.series[0].data.push(day.profit);
-        config.series[1].data.push(null);
-      }
+    config.series[0].data = this.props.days.map((day) => {
+      let date = day.date.split('-');
+      return [Date.UTC(date[0], date[1], date[2]), day.profit];
     });
-    return <ReactHighcharts config={config}></ReactHighcharts>;
+    return <ReactHighstock config={config}></ReactHighstock>;
   }
 }
 
