@@ -20,9 +20,11 @@
   },
   "homepage": "https://github.com/BackQuote/backtester#readme",
   "dependencies": {
+    "brace": "^0.10.0",
     "file-loader": "^0.9.0",
     "highcharts": "^5.0.7",
     "react": "^15.4.2",
+    "react-ace": "^4.1.6",
     "react-dom": "^15.0.2",
     "react-highcharts": "^11.5.0",
     "react-hot-loader": "^3.0.0-beta.2",
