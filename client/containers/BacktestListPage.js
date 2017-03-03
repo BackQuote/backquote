@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import BacktestList from '../components/BacktestsList';
 import * as backtestsActionCreators from '../actions/backtests';
 
-class SimulationsPage extends React.Component {
+class BacktestListPage extends React.Component {
   componentDidMount() {
     this.props.actions.fetchBacktests();
   }
@@ -16,7 +16,7 @@ class SimulationsPage extends React.Component {
   }
 }
 
-SimulationsPage.propTypes = {
+BacktestListPage.propTypes = {
   actions: PropTypes.object,
   backtests: PropTypes.array
 };
@@ -36,4 +36,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SimulationsPage);
+)(BacktestListPage);
