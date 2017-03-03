@@ -82,7 +82,8 @@ class Controls extends React.Component {
       },
       body: JSON.stringify({
         algorithm: parseInt(this.refs.algorithm.value, 10),
-        params: JSON.parse(this.refs.template.value)
+        params: JSON.parse(this.refs.template.value),
+        ticker: this.refs.ticker.value
       })
     }) // TODO: show some confirmation in the UI
       .then(() => {
@@ -107,32 +108,41 @@ class Controls extends React.Component {
         <section>
           <form>
             <div className="row">
-              <div className="four columns">
-                <div className="row">
-                  <label htmlFor="algorithm">Algorithm</label>
-                  <select className="u-full-width" id="algorithm" ref="algorithm"
-                          onChange={() => {this.handleAlgorithmChange();}}>
-                    {
-                      this.props.algorithms.map((algorithm) => {
-                        return <option key={algorithm.id} value={algorithm.id}>{algorithm.name}</option>;
-                      })
-                    }
-                  </select>
-                </div>
-                <div className="row">
-                  <label htmlFor="algorithm">Template</label>
-                  <select className="u-full-width" id="templates" ref="template"
-                          onChange={() => {this.handleTemplateChange();}}>
-                    <option value="">Select</option>
-                    {
-                      this.props.templates.map((templates) => {
-                        return <option key={templates.id} value={JSON.stringify(templates.params)}>{JSON.stringify(templates.params)}</option>;
-                      })
-                    }
-                  </select>
-                </div>
+              <div className="two columns">
+                <label htmlFor="algorithm">Algorithm</label>
+                <select className="u-full-width" id="algorithm" ref="algorithm"
+                        onChange={() => {this.handleAlgorithmChange();}}>
+                  {
+                    this.props.algorithms.map((algorithm) => {
+                      return <option key={algorithm.id} value={algorithm.id}>{algorithm.name}</option>;
+                    })
+                  }
+                </select>
               </div>
-              <div className="eight columns">
+              <div className="two columns">
+                <label htmlFor="algorithm">Ticker</label>
+                <select className="u-full-width" id="ticker" ref="ticker">
+                  <option value="">Select</option>
+                  {
+                    this.props.tickers.map((ticker) => {
+                      return <option key={ticker.id} value={ticker.code}>{ticker.name}</option>;
+                    })
+                  }
+                </select>
+              </div>
+              <div className="two columns">
+                <label htmlFor="algorithm">Template</label>
+                <select className="u-full-width" id="templates" ref="template"
+                        onChange={() => {this.handleTemplateChange();}}>
+                  <option value="">Select</option>
+                  {
+                    this.props.templates.map((templates) => {
+                      return <option key={templates.id} value={JSON.stringify(templates.params)}>{JSON.stringify(templates.params)}</option>;
+                    })
+                  }
+                </select>
+              </div>
+              <div className="six columns">
                 <div className="row">
                   <label htmlFor="parameters">Parameters </label>
                   <div>
