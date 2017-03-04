@@ -13,7 +13,7 @@ class SimulationRow extends React.Component {
         <td>
           <JSONTree data={JSON.parse(String(this.props.simulation.params))} hideRoot />
         </td>
-        <td>{this.props.simulation.ticker}</td>
+        <td>TODO: Ticker</td>
         <td>{this.props.simulation.profit}</td>
       </tr>
     );

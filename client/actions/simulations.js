@@ -15,7 +15,7 @@ export function simulationsIsLoading(isLoading) {
   };
 }
 
-export function simulationsFetchDataSuccess(days) {
+export function simulationsFetchDataSuccess(simulations) {
   return {
     type: types.SIMULATIONS_FETCH_DATA_SUCCESS,
     simulations
