@@ -55,6 +55,10 @@ config.series = [{
   }]
 }];
 
+config.title = {
+  text: 'Daily result chart'
+};
+
 class DailyResultChart extends React.Component {
   updateDataSet() {
     const sets = ['quotes', 'trades', 'profit'];

@@ -16,7 +16,7 @@ class SimulationChart extends React.Component {
           cursor: 'pointer',
           events: {
             click: () => {
-              this.props.goToDailyChart(1);
+              this.props.updateDailyResultChart(1);
             }
           },
           zones: [{
@@ -45,6 +45,7 @@ class SimulationChart extends React.Component {
       series: [{}]
     };
   }
+
   render() {
     this.config.series[0].data = this.props.days.map((day) => {
       let date = day.date.split('-');
@@ -56,7 +57,7 @@ class SimulationChart extends React.Component {
 
 SimulationChart.propTypes = {
   days: PropTypes.array,
-  goToDailyChart: PropTypes.func
+  updateDailyResultChart: PropTypes.func
 };
 
 export default SimulationChart;

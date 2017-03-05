@@ -5,6 +5,7 @@ import { templates, templatesIsLoading, templatesHasErrored } from './templates'
 import { backtests, backtestsIsLoading, backtestsHasErrored } from './backtests';
 import { days, daysIsLoading, daysHasErrored } from './days';
 import { dailyResult, dailyResultIsLoading, dailyResultHasErrored } from './dailyResult';
+import { simulations, simulationsIsLoading, simulationsHasErrored } from './simulations';
 
 const rootReducer = combineReducers({
   routing,
@@ -23,6 +24,9 @@ const rootReducer = combineReducers({
   days,
   daysIsLoading,
   daysHasErrored,
+  simulations,
+  simulationsIsLoading,
+  simulationsHasErrored,
 });
 
 export default rootReducer;
