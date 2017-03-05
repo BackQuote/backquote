@@ -2,8 +2,8 @@ import React, { PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Simulation from '../components/Simulation';
-import * as daysActionCreators from '../actions/days';
-import * as dailyResultActionCreators from '../actions/dailyResult';
+import * as daysAction from '../actions/days';
+import * as dailyResultAction from '../actions/dailyResult';
 
 class SimulationPage extends React.Component {
   componentDidMount() {
@@ -38,8 +38,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
-      ...daysActionCreators,
-      ...dailyResultActionCreators,
+      ...daysAction,
+      ...dailyResultAction,
     }, dispatch)
   };
 };
