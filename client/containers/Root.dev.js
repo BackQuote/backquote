@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { Provider } from 'react-redux';
-import DevTools from './DevTools';
 import { Router } from 'react-router';
 import routes from '../routes';
 
