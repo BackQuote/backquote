@@ -1,6 +1,8 @@
 #include "quote.h"
 #include "result.h"
 
+using Result = result_ns::Result;
+
 #ifndef BACKTESTER_DAY_H
 #define BACKTESTER_DAY_H
 struct Day {

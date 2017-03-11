@@ -6,75 +6,104 @@
 #include <vector>
 #include <thread>
 #include <unordered_map>
+#include <mutex>
 #include "external_dependencies/json.hpp"
 #include "external_dependencies/ctpl_stl.h"
 #include "algorithms/Simple.h"
 #include "models/models.h"
 
+#ifdef DEBUG 
+#define log cout 
+#else
+#define log / ## / cout 
+#endif
+
 using namespace std;
 using json = nlohmann::json;
+using Trade = trade_ns::Trade;
+using Result = result_ns::Result;
 
-void split(const string&, string[]);
+string buildbacktesterRootDir(char*);
+void split(const string&, string[], const char*);
 void addQuotes(const double, const double, const double, const double, Day&, size_t);
 void loadUltimateFile(vector<Day>&, const string&);
-void backtestAlgo(vector<Day>&, json&, ctpl::thread_pool&, const string&);
+void backtestAlgo(vector<Day>&, json&, ctpl::thread_pool&, const string&, mutex&, const string&);
 void throwException(const string& message);
-void uploadResults(const vector<Day>&, const string&, const string&);
+void uploadResults(const vector<Day>&, const string&, const string&, mutex&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
 void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&);
 bool handleAction(Result&, double&, double&, Action&, Quote&, Trade&, bool&);
 void runSimulation(int id, const string&, unordered_map<string, double>&, vector<Day>&);
 void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
-	ctpl::thread_pool& tp, vector<future<void>>&);
+	ctpl::thread_pool& tp, vector<future<void>>&, mutex&, const string&);
 
 const int quoteDivFactor = 10'000; // by how much we need to divide the quotes to represent them in dollars
 const double commission = 5; // amount in dollars for selling a stock
-const size_t lineElementCount = 5; // 5 = number of elements we want in a line of an ultimate file (time, open, high, low, close)
+const size_t lineElementCount = 5; // 5 = number of elements we want in a line of an ultimate file (time, open, high, low, close) 
 
 int main(int argc, char* argv[]) {
+	const string backtesterRootDir = buildbacktesterRootDir(argv[0]);
 	unordered_map<string, vector<string>> args = parseArgs(argc, argv);
 	const string algoName = args["--algoName"][0];
 	vector<string> tickers = args["--tickers"];
-
-	const string configFilePath = "algorithms/configs/" + algoName + ".json";
-	
-	ifstream i(configFilePath);
 	json config;
-	i >> config;
+
+	if (args["--params"].size() > 0) {
+		config = args["--params"][0];
+	}
+	else {
+		ifstream i(backtesterRootDir + "/algorithms/configs/" + algoName + ".json");
+		i >> config;
+	}
 
 	/* One task per ticker will be queued, and each one of those tasks will queue up several other tasks (max 8 total) and then
 	block. 8 = 1 thread per core. When each thread per ticker blocks, we still want one thread per core to be active, so we
 	have 8 + tickers.size threads in the pool. */
 	ctpl::thread_pool tp(8 + tickers.size());
 	vector<future<void>> taskReturns;
+	mutex(m);
 	for (const string &ticker : tickers) {
 		taskReturns.push_back(
 		tp.push([&](int id) {
-			const string ultimateFile = "ultimate_files/" + ticker + ".txt";
+			const string ultimateFile = backtesterRootDir + "/ultimate_files/" + ticker + ".txt";
 			vector<Day> days;
 			loadUltimateFile(days, ultimateFile);
-			cout << "DATA LOADED FOR " + ticker << endl;
-			backtestAlgo(days, config, tp, algoName);
-			uploadResults(days, ticker, algoName);
+			log << "DATA LOADED FOR " + ticker << endl;
+			backtestAlgo(days, config, tp, algoName, m, ticker);
 		}));
 	}
 	
 	for (future<void> &result : taskReturns) {
 		result.get();
 	}
-	cout << "Press \"Enter\" to continue...\n";
-	getchar();
+	
+	cout << "BACKTESTER DONE" << endl;
 	return 0;
+}
+
+string buildbacktesterRootDir(char* exeDir) {
+	string dir = exeDir;
+	size_t sectionRemoveCount = 2;
+	size_t endPos = dir.length() - 1;
+	char c;
+	for (size_t i = 0; i < sectionRemoveCount; --endPos) {
+		c = dir.at(endPos);
+		if (c == '/' || c == '\\') {
+			++i;
+		}
+	}
+	return dir.substr(0, endPos+1);
 }
 
 unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
 	unordered_map<string, vector<string>> args;
 	args["--algoName"] = {};
 	args["--tickers"] = {};
+	args["--params"] = {};
 
 	for (int i = 1; i < argc - 1;) {
-		if (args.find(argv[i]) == args.end()) {
+		if (!args.count(argv[i])) {
 			throw invalid_argument(string(argv[i]) + " is an unrecognized argument");
 		}
 
@@ -93,7 +122,7 @@ unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
 }
 
 void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
-	cout << "Loading " + ultimateFile + " ...\n";
+	log << "Loading " + ultimateFile + " ...\n";
 	ifstream ultimateFileStream;
 	ultimateFileStream.open(ultimateFile);
 	if (!ultimateFileStream) {
@@ -116,7 +145,7 @@ void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
 			day.date = upLine.substr(upLine.size() - 8, 8);
 		}
 		else {
-			split(upLine, lineInfo);
+			split(upLine, lineInfo, ",");
 			timestamp = stoi(lineInfo[0]);
 			open = atof(lineInfo[1].c_str()) / quoteDivFactor;
 			high = atof(lineInfo[2].c_str()) / quoteDivFactor;
@@ -129,7 +158,7 @@ void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
 	ultimateFileStream.close();
 }
 
-void split(const string &line, string lineInfo[]) {
+void split(const string &line, string lineInfo[], const char* delimiter) {
 	char* charLine = new char[line.size() + 1];
 	const char* tempCharLine = line.c_str();
 	strcpy_s(charLine, line.size() + 1, tempCharLine);
@@ -140,7 +169,7 @@ void split(const string &line, string lineInfo[]) {
 	pch = strtok_s(NULL, ",", &nextToken);
 	for (size_t i = 1; pch != NULL && i < lineElementCount; ++i) {
 		lineInfo[i] = pch;
-		pch = strtok_s(NULL, ",", &nextToken);
+		pch = strtok_s(NULL, delimiter, &nextToken);
 	}
 	delete[] charLine;
 }
@@ -169,7 +198,7 @@ void addQuotes(const double open, const double high, const double low, const dou
 	day.quotes.push_back(quote);
 }
 
-void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const string &algoName) {
+void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const string &algoName, mutex &m, const string &ticker) {
 	unordered_map<string, double> params;
 	vector<string> rangeNames;
 	vector<vector<double>> ranges;
@@ -192,7 +221,7 @@ void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const 
 	}
 
 	vector<future<void>> futures;
-	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, futures);
+	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, futures, m, ticker);
 
 	for (future<void> &result : futures) {
 		result.get();
@@ -200,7 +229,8 @@ void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const 
 }
 
 void runParamCombos(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> params,
-					const string &algoName, vector<Day> &days, ctpl::thread_pool &tp, vector<future<void>> &futures) {
+					const string &algoName, vector<Day> &days, ctpl::thread_pool &tp, vector<future<void>> &futures, mutex &m,
+					const string &ticker) {
 	double start = ranges[i][0];
 	double end = ranges[i][1];
 	double increment = ranges[i][2];
@@ -209,16 +239,17 @@ void runParamCombos(size_t i, vector<string> &rangeNames, vector<vector<double>>
 		params[rangeNames[i]] = start;
 		if (i == ranges.size() - 1) {
 			runSimulation(0, algoName, params, days);
+			uploadResults(days, ticker, algoName, m);
 		} 
 		else {
-			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, futures);
+			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, futures, m, ticker);
 		}
 		start += increment;
 	}
 }
 
 void runSimulation(int id, const string &algoName, unordered_map<string, double> &params, vector<Day> &days) {
-	cout << "Running a simulation...\n";
+	log << "Running a simulation...\n";
 	unique_ptr<Algorithm> algo = getAlgo(algoName, params);
 	Result result;
 	result.params = params;
@@ -287,8 +318,25 @@ bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoRes
 	return true;
 }
 
-void uploadResults(const vector<Day> &days, const string &ticker, const string &algoName) {
-	//TODO: upload results contained in days to database (PostgreSQL)
+void uploadResults(const vector<Day> &days, const string &ticker, const string &algoName, mutex &m) {
+	unique_lock<mutex> lock(m);
+
+	size_t simulationId = days[0].results.size();
+	json j_sim;
+	j_sim["id"] = simulationId;
+	json j_resList;
+
+	for (const Day &day : days) {
+		json j_res;
+		j_res["date"] = day.date;
+		j_res["result"] = json(day.results.back());
+		j_resList.push_back(j_res);
+	}
+	
+	j_sim["results"] = j_resList;
+	cout << j_sim << endl;
+
+	lock.unlock();
 }
 
 unique_ptr<Algorithm> getAlgo(const string &algoName, const unordered_map<string, double> &params) {

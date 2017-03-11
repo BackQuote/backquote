@@ -2,7 +2,9 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
+
 import os
+import subprocess
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -56,6 +58,16 @@ def trade(id):
 def quote(id):
     quote = Quote.query.get(id)
     return jsonify(quote.serialize)
+
+@app.route('/run_backtester')
+def run_backtester(algorithm, params, tickers):
+    exe = '../backtester/backtester/Release/backtester.exe'
+    proc = subprocess.Popen([exe, '--algoName', algorithm, '--params', params, '--tickers'] + tickers,
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    line = ''
+    while line != 'BACKTESTER DONE':
+        line = proc.stdout.readline().rstrip('\r\n')
+        print line
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])

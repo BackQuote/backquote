@@ -75,7 +75,7 @@ class Controls extends React.Component {
   launchBacktest() {
     // TODO: unify saveTemplate and launchBacktest
     if (this.checkForErrors()) return;
-    api.post('backtests', {
+    api.post('run_backtester', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
