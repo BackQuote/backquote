@@ -23,20 +23,23 @@ using json = nlohmann::json;
 using Trade = trade_ns::Trade;
 using Result = result_ns::Result;
 
+vector<unordered_map<string, double>> buildParamCombos(json&);
 string buildbacktesterRootDir(char*);
 void split(const string&, string[], const char*);
 void addQuotes(const double, const double, const double, const double, Day&, size_t);
 void loadUltimateFile(vector<Day>&, const string&);
-void backtestAlgo(vector<Day>&, json&, ctpl::thread_pool&, const string&, mutex&, const string&);
+void backtestAlgo(vector<Day>&, ctpl::thread_pool&, const string&, mutex&, const string&, vector<unordered_map<string, double>>&);
 void throwException(const string& message);
-void uploadResults(const vector<Day>&, const string&, const string&, mutex&);
+void uploadResults(const vector<Day>&, const string&, const string&, mutex&, unordered_map<string, double>&);
 unordered_map<string, vector<string>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
-void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&);
-bool handleAction(Result&, double&, double&, Action&, Quote&, Trade&, bool&);
+void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&, unordered_map<string, double>&);
+bool handleAction(Result&, double&, double&, Action&, Quote&, Trade&, bool&, unordered_map<string, double>&);
 void runSimulation(int id, const string&, unordered_map<string, double>&, vector<Day>&);
 void runParamCombos(size_t, vector<string>&, vector<vector<double>>&, unordered_map<string, double>, const string&, vector<Day>&,
 	ctpl::thread_pool& tp, vector<future<void>>&, mutex&, const string&);
+void paramCombosRecursion(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> &params,
+	vector<unordered_map<string, double>> &paramCombos);
 
 const int quoteDivFactor = 10'000; // by how much we need to divide the quotes to represent them in dollars
 const double commission = 5; // amount in dollars for selling a stock
@@ -57,24 +60,26 @@ int main(int argc, char* argv[]) {
 		i >> config;
 	}
 
+	vector<unordered_map<string, double>> paramCombos = buildParamCombos(config);
+
 	/* One task per ticker will be queued, and each one of those tasks will queue up several other tasks (max 8 total) and then
 	block. 8 = 1 thread per core. When each thread per ticker blocks, we still want one thread per core to be active, so we
 	have 8 + tickers.size threads in the pool. */
 	ctpl::thread_pool tp(8 + tickers.size());
 	vector<future<void>> taskReturns;
 	mutex(m);
-	for (const string &ticker : tickers) {
+	for (auto &ticker : tickers) {
 		taskReturns.push_back(
 		tp.push([&](int id) {
 			const string ultimateFile = backtesterRootDir + "/ultimate_files/" + ticker + ".txt";
 			vector<Day> days;
 			loadUltimateFile(days, ultimateFile);
 			log << "DATA LOADED FOR " + ticker << endl;
-			backtestAlgo(days, config, tp, algoName, m, ticker);
+			backtestAlgo(days, tp, algoName, m, ticker, paramCombos);
 		}));
 	}
 	
-	for (future<void> &result : taskReturns) {
+	for (auto &result : taskReturns) {
 		result.get();
 	}
 	
@@ -87,12 +92,14 @@ string buildbacktesterRootDir(char* exeDir) {
 	size_t sectionRemoveCount = 2;
 	size_t endPos = dir.length() - 1;
 	char c;
+
 	for (size_t i = 0; i < sectionRemoveCount; --endPos) {
 		c = dir.at(endPos);
 		if (c == '/' || c == '\\') {
 			++i;
 		}
 	}
+
 	return dir.substr(0, endPos+1);
 }
 
@@ -119,6 +126,53 @@ unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
 	}
 
 	return args;
+}
+
+vector<unordered_map<string, double>> buildParamCombos(json &config) {
+	vector<string> rangeNames;
+	vector<vector<double>> ranges;
+	unordered_map<string, double> params;
+	vector<unordered_map<string, double>> paramCombos;
+
+	for (json::iterator it = config.begin(); it != config.end(); ++it) {
+		try {
+			vector<double> range = it.value().get<vector<double>>();
+			ranges.push_back(range);
+			rangeNames.push_back(it.key());
+		}
+		catch (domain_error) {
+			params[it.key()] = it.value().get<double>();
+		}
+	}
+
+	if (params.find("timeBufferStart") == params.end()) {
+		params["timeBufferStart"] = 0;
+	}
+	if (params.find("timeBufferEnd") == params.end()) {
+		params["timeBufferEnd"] = 0;
+	}
+
+	paramCombosRecursion(0, rangeNames, ranges, params, paramCombos);
+
+	return paramCombos;
+}
+
+void paramCombosRecursion(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> &params,
+						  vector<unordered_map<string, double>> &paramCombos) {
+	double start = ranges[i][0];
+	double end = ranges[i][1];
+	double increment = ranges[i][2];
+
+	while (start <= end) {
+		params[rangeNames[i]] = start;
+		if (i == ranges.size() - 1) {
+			paramCombos.push_back(params);
+		}
+		else {
+			paramCombosRecursion(i + 1, rangeNames, ranges, params, paramCombos);
+		}
+		start += increment;
+	}
 }
 
 void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
@@ -198,53 +252,18 @@ void addQuotes(const double open, const double high, const double low, const dou
 	day.quotes.push_back(quote);
 }
 
-void backtestAlgo(vector<Day> &days, json &config, ctpl::thread_pool &tp, const string &algoName, mutex &m, const string &ticker) {
-	unordered_map<string, double> params;
-	vector<string> rangeNames;
-	vector<vector<double>> ranges;
-	for (json::iterator it = config.begin(); it != config.end(); ++it) {
-		try {
-			vector<double> range = it.value().get<vector<double>>();
-			ranges.push_back(range);
-			rangeNames.push_back(it.key());
-		}
-		catch (domain_error) {
-			params[it.key()] = it.value().get<double>();
-		}
-	}
-
-	if (params.find("timeBufferStart") == params.end()) {
-		params["timeBufferStart"] = 0;
-	}
-	if (params.find("timeBufferEnd") == params.end()) {
-		params["timeBufferEnd"] = 0;
-	}
-
+void backtestAlgo(vector<Day> &days, ctpl::thread_pool &tp, const string &algoName, mutex &m, const string &ticker,
+				  vector<unordered_map<string, double>> &paramCombos) {
 	vector<future<void>> futures;
-	runParamCombos(0, rangeNames, ranges, params, algoName, days, tp, futures, m, ticker);
-
-	for (future<void> &result : futures) {
-		result.get();
+	
+	for (auto &params : paramCombos) {
+		// TODO: multithread this part. One simulation and upload = one iteration = one task = one thread
+		runSimulation(0, algoName, params, days);
+		uploadResults(days, ticker, algoName, m, params);
 	}
-}
 
-void runParamCombos(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> params,
-					const string &algoName, vector<Day> &days, ctpl::thread_pool &tp, vector<future<void>> &futures, mutex &m,
-					const string &ticker) {
-	double start = ranges[i][0];
-	double end = ranges[i][1];
-	double increment = ranges[i][2];
-
-	while (start <= end) {
-		params[rangeNames[i]] = start;
-		if (i == ranges.size() - 1) {
-			runSimulation(0, algoName, params, days);
-			uploadResults(days, ticker, algoName, m);
-		} 
-		else {
-			runParamCombos(i + 1, rangeNames, ranges, params, algoName, days, tp, futures, m, ticker);
-		}
-		start += increment;
+	for (auto &result : futures) {
+		result.get();
 	}
 }
 
@@ -252,18 +271,18 @@ void runSimulation(int id, const string &algoName, unordered_map<string, double>
 	log << "Running a simulation...\n";
 	unique_ptr<Algorithm> algo = getAlgo(algoName, params);
 	Result result;
-	result.params = params;
-	double cumulativeCash = result.params["cash"];
+	double cumulativeCash = params["cash"];
 	double dailyCashReset;
 	double dailyCashNoReset;
 	result.cumulativeProfitNoReset = 0;
 	result.cumulativeProfitReset = 0;
+
 	for (Day &day : days) {
 		result.trades.clear();
-		dailyCashReset = result.params["cash"];
+		dailyCashReset = params["cash"];
 		dailyCashNoReset = cumulativeCash;
-		simulateDay(dailyCashReset, dailyCashNoReset, result, algo, day);
-		result.dailyProfitReset = dailyCashReset - result.params["cash"];
+		simulateDay(dailyCashReset, dailyCashNoReset, result, algo, day, params);
+		result.dailyProfitReset = dailyCashReset - params["cash"];
 		result.dailyProfitNoReset = dailyCashNoReset - cumulativeCash;
 		cumulativeCash = dailyCashNoReset;
 		result.cumulativeProfitNoReset += result.dailyProfitNoReset;
@@ -272,15 +291,16 @@ void runSimulation(int id, const string &algoName, unordered_map<string, double>
 	}
 }
 
-void simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &result, unique_ptr<Algorithm> &algo, Day &day) {
+void simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &result, unique_ptr<Algorithm> &algo, Day &day,
+				 unordered_map<string, double> &params) {
 	bool activePositions = false;
 	Action action;
 	Trade trade;
 	bool keepTrading = false;
 
-	for (size_t i = 0; i < day.quotes.size(); ++i) {
-		action = algo->processQuote(day.quotes[i]);
-		keepTrading = handleAction(result, dailyCashReset, dailyCashNoReset, action, day.quotes[i], trade, activePositions);
+	for (auto &quote : day.quotes) {
+		action = algo->processQuote(quote);
+		keepTrading = handleAction(result, dailyCashReset, dailyCashNoReset, action, quote, trade, activePositions, params);
 		if (!keepTrading) {
 			break;
 		}
@@ -288,7 +308,7 @@ void simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &resul
 }
 
 bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, Quote &quote, Trade &trade,
-				  bool &activePositions) {
+				  bool &activePositions, unordered_map<string, double> &params) {
 	if (action != nop) {
 		trade.price = quote.price;
 		trade.timestamp = quote.timestamp;
@@ -297,8 +317,8 @@ bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoRes
 
 	if (action == buy && !activePositions) {
 		activePositions = true;
-		trade.quantityReset = (dailyCashReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / quote.price;
-		trade.quantityNoReset = (dailyCashNoReset * (1 - result.params["maxLossPerTrade"])) / result.params["margin"] / quote.price;
+		trade.quantityReset = (dailyCashReset * (1 - params["maxLossPerTrade"])) / params["margin"] / quote.price;
+		trade.quantityNoReset = (dailyCashNoReset * (1 - params["maxLossPerTrade"])) / params["margin"] / quote.price;
 		dailyCashReset -= trade.price * trade.quantityReset;
 		dailyCashNoReset -= trade.price * trade.quantityNoReset;
 		result.trades.push_back(trade);
@@ -311,22 +331,24 @@ bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoRes
 		trade.quantityReset = 0;
 		trade.quantityNoReset = 0;
 
-		if (dailyCashReset < dailyCashReset * (1 - result.params["maxDailyLoss"])) {
+		if (dailyCashReset < dailyCashReset * (1 - params["maxDailyLoss"])) {
 			return false;
 		}
 	}
 	return true;
 }
 
-void uploadResults(const vector<Day> &days, const string &ticker, const string &algoName, mutex &m) {
+void uploadResults(const vector<Day> &days, const string &ticker, const string &algoName, mutex &m,
+				   unordered_map<string, double> &params) {
 	unique_lock<mutex> lock(m);
 
 	size_t simulationId = days[0].results.size();
 	json j_sim;
 	j_sim["id"] = simulationId;
+	j_sim["params"] = json(params);
 	json j_resList;
 
-	for (const Day &day : days) {
+	for (auto &day : days) {
 		json j_res;
 		j_res["date"] = day.date;
 		j_res["result"] = json(day.results.back());
@@ -343,6 +365,7 @@ unique_ptr<Algorithm> getAlgo(const string &algoName, const unordered_map<string
 	if (algoName.compare("simple") == 0) {
 		return make_unique<Simple>(params);
 	}
+
 	throwException("Algorithm with name " + algoName + " is not implemented.");
 }
 

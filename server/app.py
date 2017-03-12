@@ -68,6 +68,7 @@ def run_backtester(algorithm, params, tickers):
     while line != 'BACKTESTER DONE':
         line = proc.stdout.readline().rstrip('\r\n')
         print line
+		# TODO: parse this json line, convert it into DB models and upload them to the DB
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
