@@ -2,7 +2,11 @@
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
+from flask import request
+
 import os
+import json
+import subprocess
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -57,5 +61,20 @@ def quote(id):
     quote = Quote.query.get(id)
     return jsonify(quote.serialize)
 
+@app.route('/backtester/run', methods=['POST'])
+def run_backtester():
+    post_data = request.get_json()
+    params = "".join(str(post_data['params']).split())
+    exe = os.path.dirname(os.path.abspath(__file__)) + '/../backtester/backtester/Release/backtester.exe'
+    proc = subprocess.Popen([exe, '--algoName', post_data['algorithm'], '--params', params, '--tickers'] +
+                            post_data['tickers'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    while 1:
+        line = proc.stdout.readline().rstrip('\r\n')
+        if line == 'BACKTESTER DONE':
+            break
+        simulation_results = json.loads(line)
+        # TODO: convert simulation_results into DB models and upload them to the DB
+    return jsonify({'BACKTESTER RUN SUCCESSFUL': "TRUE"})
+
 if __name__ == '__main__':
-    app.run(debug=app.config['DEBUG'])
+    app.run(debug=app.config['DEBUG'], threaded=True)

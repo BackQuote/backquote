@@ -75,15 +75,15 @@ class Controls extends React.Component {
   launchBacktest() {
     // TODO: unify saveTemplate and launchBacktest
     if (this.checkForErrors()) return;
-    api.post('backtests', {
+    api.post('backtester/run', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        algorithm: parseInt(this.refs.algorithm.value, 10),
-        params: JSON.parse(this.refs.template.value),
-        ticker: this.refs.ticker.value
+        algorithm: this.refs.algorithm.value,
+        params: this.state.parameters,
+        tickers: [this.refs.ticker.value]
       })
     }) // TODO: show some confirmation in the UI
       .then(() => {
@@ -114,7 +114,7 @@ class Controls extends React.Component {
                         onChange={() => {this.handleAlgorithmChange();}}>
                   {
                     this.props.algorithms.map((algorithm) => {
-                      return <option key={algorithm.id} value={algorithm.id}>{algorithm.name}</option>;
+                      return <option key={algorithm.id} value={algorithm.name}>{algorithm.name}</option>;
                     })
                   }
                 </select>
