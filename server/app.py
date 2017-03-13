@@ -22,6 +22,16 @@ def algorithms():
     algos = Algorithm.query.all()
     return jsonify([i.serialize for i in algos])
 
+@app.route('/templates')
+def templates():
+    templates = Template.query.all()
+    return jsonify([i.serialize for i in templates])
+
+@app.route('/tickers')
+def tickers():
+    tickers = Ticker.query.all()
+    return jsonify([i.serialize for i in tickers])
+
 @app.route('/algorithms/<id>')
 def algorithm(id):
     algorithm = Algorithm.query.get(id)
