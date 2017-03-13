@@ -31,7 +31,7 @@ void loadUltimateFile(vector<Day>&, const string&);
 void backtestAlgo(vector<Day>&, ctpl::thread_pool&, const string&, mutex&, const string&, vector<unordered_map<string, double>>&);
 void throwException(const string& message);
 void uploadResults(const vector<Day>&, const string&, const string&, mutex&, unordered_map<string, double>&);
-unordered_map<string, vector<string>> parseArgs(int, char*[]);
+unordered_map<string, vector<char*>> parseArgs(int, char*[]);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
 void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&, unordered_map<string, double>&);
 bool handleAction(Result&, double&, double&, Action&, Quote&, Trade&, bool&, unordered_map<string, double>&);
@@ -47,13 +47,13 @@ const size_t lineElementCount = 5; // 5 = number of elements we want in a line o
 
 int main(int argc, char* argv[]) {
 	const string backtesterRootDir = buildbacktesterRootDir(argv[0]);
-	unordered_map<string, vector<string>> args = parseArgs(argc, argv);
+	unordered_map<string, vector<char*>> args = parseArgs(argc, argv);
 	const string algoName = args["--algoName"][0];
-	vector<string> tickers = args["--tickers"];
+	vector<char*> tickers = args["--tickers"];
 	json config;
 
 	if (args["--params"].size() > 0) {
-		config = args["--params"][0];
+		config = json::parse(args["--params"][0]);
 	}
 	else {
 		ifstream i(backtesterRootDir + "/algorithms/configs/" + algoName + ".json");
@@ -103,8 +103,8 @@ string buildbacktesterRootDir(char* exeDir) {
 	return dir.substr(0, endPos+1);
 }
 
-unordered_map<string, vector<string>> parseArgs(int argc, char* argv[]) {
-	unordered_map<string, vector<string>> args;
+unordered_map<string, vector<char*>> parseArgs(int argc, char* argv[]) {
+	unordered_map<string, vector<char*>> args;
 	args["--algoName"] = {};
 	args["--tickers"] = {};
 	args["--params"] = {};
