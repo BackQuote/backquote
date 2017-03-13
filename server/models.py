@@ -25,6 +25,36 @@ class Algorithm(db.Model):
             'name': self.name
         }
 
+class Template(db.Model):
+    __tablename__ = "template"
+
+    id = db.Column(db.Integer, primary_key=True)
+    algorithm = db.Column(db.Integer)
+    params = db.Column(db.String)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'algorithm': self.algorithm,
+            'params': self.params # Todo: fix params parsing
+        }
+
+class Ticker(db.Model):
+    __tablename__ = "ticker"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    code = db.Column(db.String)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'code': self.code
+        }
+
 class Trade(db.Model):
     __tablename__ = "trade"
 
