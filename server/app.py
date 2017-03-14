@@ -1,12 +1,22 @@
 #!/usr/bin/env python
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+<<<<<<< HEAD
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from Queue import Queue
 from models import *
 import os, json, subprocess
 from time import sleep
+=======
+from flask_cors import CORS, cross_origin
+from flask import request
+from utils import fill_models
+
+import os
+import json
+import subprocess
+>>>>>>> updated models, started uploading
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -78,6 +88,7 @@ def execute_backtest():
         if line == 'BACKTESTER DONE':
             break
         simulation_results = json.loads(line)
+<<<<<<< HEAD
         # TODO: convert simulation_results into DB models and upload them to the DB
 
     if not backtest_queue.empty():
@@ -99,6 +110,10 @@ def run_backtester():
         socketio.start_background_task(target=execute_backtest)
 
     return jsonify({"status": "ok"})
+=======
+        fill_models(simulation_results, backtest_id=1)
+    return jsonify({'BACKTESTER RUN SUCCESSFUL': "TRUE"})
+>>>>>>> updated models, started uploading
 
 if __name__ == '__main__':
     socketio.run(app, debug=app.config['DEBUG'])
