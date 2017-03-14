@@ -10,6 +10,7 @@ class ControlsPage extends React.Component {
   componentDidMount() {
     this.props.actions.fetchAlgorithms();
     this.props.actions.fetchTickers();
+    this.props.actions.fetchTemplates();
   }
 
   render() {

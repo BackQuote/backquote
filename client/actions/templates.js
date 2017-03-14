@@ -22,10 +22,10 @@ export function templatesFetchDataSuccess(templates) {
   };
 }
 
-export function fetchTemplates(algorithm) {
+export function fetchTemplates() {
   return (dispatch) => {
     dispatch(templatesIsLoading(true));
-    api.get(`templates${algorithm}`)
+    api.get('templates')
       .then((templates) => {
         dispatch(templatesFetchDataSuccess(templates));
         dispatch(templatesIsLoading(false));

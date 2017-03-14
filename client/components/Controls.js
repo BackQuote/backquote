@@ -26,14 +26,6 @@ class Controls extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.handleAlgorithmChange();
-  }
-
-  handleAlgorithmChange() {
-    this.props.actions.fetchTemplates(this.refs.algorithm.value);
-  }
-
   handleTemplateChange() {
     this.setState({
       parameters: JSON.stringify(
