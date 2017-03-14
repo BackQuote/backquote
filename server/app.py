@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
 from flask import request
+from utils import fill_models
 
 import os
 import json
@@ -73,7 +74,7 @@ def run_backtester():
         if line == 'BACKTESTER DONE':
             break
         simulation_results = json.loads(line)
-        # TODO: convert simulation_results into DB models and upload them to the DB
+        fill_models(simulation_results, backtest_id=1)
     return jsonify({'BACKTESTER RUN SUCCESSFUL': "TRUE"})
 
 if __name__ == '__main__':
