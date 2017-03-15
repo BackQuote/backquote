@@ -23,7 +23,7 @@ using json = nlohmann::json;
 using Trade = trade_ns::Trade;
 using Result = result_ns::Result;
 
-vector<unordered_map<string, double>> buildParamCombos(json&);
+void buildParamCombos(json&, vector<unordered_map<string, double>>&);
 string buildbacktesterRootDir(char*);
 void split(const string&, string[], const char*);
 void addQuotes(const double, const double, const double, const double, Day&, size_t);
@@ -31,7 +31,7 @@ void loadUltimateFile(vector<Day>&, const string&);
 void backtestAlgo(vector<Day>&, ctpl::thread_pool&, const string&, mutex&, const string&, vector<unordered_map<string, double>>&);
 void throwException(const string& message);
 void uploadResults(const vector<Day>&, const string&, const string&, mutex&, unordered_map<string, double>&);
-unordered_map<string, vector<char*>> parseArgs(int, char*[]);
+void parseArgs(int, char*[], unordered_map<string, vector<char*>>&);
 unique_ptr<Algorithm> getAlgo(const string&, const unordered_map<string, double>&);
 void simulateDay(double&, double&, Result&, unique_ptr<Algorithm>&, Day&, unordered_map<string, double>&);
 bool handleAction(Result&, double&, double&, Action&, Quote&, Trade&, bool&, unordered_map<string, double>&);
@@ -47,7 +47,8 @@ const size_t lineElementCount = 5; // 5 = number of elements we want in a line o
 
 int main(int argc, char* argv[]) {
 	const string backtesterRootDir = buildbacktesterRootDir(argv[0]);
-	unordered_map<string, vector<char*>> args = parseArgs(argc, argv);
+	unordered_map<string, vector<char*>> args;
+	parseArgs(argc, argv, args);
 	const string algoName = args["--algoName"][0];
 	vector<char*> tickers = args["--tickers"];
 	json config;
@@ -60,7 +61,8 @@ int main(int argc, char* argv[]) {
 		i >> config;
 	}
 
-	vector<unordered_map<string, double>> paramCombos = buildParamCombos(config);
+	vector<unordered_map<string, double>> paramCombos;
+	buildParamCombos(config, paramCombos);
 
 	/* One task per ticker will be queued, and each one of those tasks will queue up several other tasks (max 8 total) and then
 	block. 8 = 1 thread per core. When each thread per ticker blocks, we still want one thread per core to be active, so we
@@ -103,8 +105,7 @@ string buildbacktesterRootDir(char* exeDir) {
 	return dir.substr(0, endPos+1);
 }
 
-unordered_map<string, vector<char*>> parseArgs(int argc, char* argv[]) {
-	unordered_map<string, vector<char*>> args;
+void parseArgs(int argc, char* argv[], unordered_map<string, vector<char*>> &args) {
 	args["--algoName"] = {};
 	args["--tickers"] = {};
 	args["--params"] = {};
@@ -124,15 +125,12 @@ unordered_map<string, vector<char*>> parseArgs(int argc, char* argv[]) {
 
 		i = j;
 	}
-
-	return args;
 }
 
-vector<unordered_map<string, double>> buildParamCombos(json &config) {
+void buildParamCombos(json &config, vector<unordered_map<string, double>> &paramCombos) {
 	vector<string> rangeNames;
 	vector<vector<double>> ranges;
 	unordered_map<string, double> params;
-	vector<unordered_map<string, double>> paramCombos;
 
 	for (json::iterator it = config.begin(); it != config.end(); ++it) {
 		try {
@@ -153,8 +151,6 @@ vector<unordered_map<string, double>> buildParamCombos(json &config) {
 	}
 
 	paramCombosRecursion(0, rangeNames, ranges, params, paramCombos);
-
-	return paramCombos;
 }
 
 void paramCombosRecursion(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> &params,
