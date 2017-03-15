@@ -1,22 +1,25 @@
 #!/usr/bin/env python
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
-from flask import request
-
-import os
-import json
-import subprocess
+from flask_socketio import SocketIO
+from flask_cors import CORS
+from Queue import Queue
+from models import *
+import os, json, subprocess
+from time import sleep
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 
-from models import *
-
 db = SQLAlchemy(app)
+socketio = SocketIO(app)
 
+executing = False
+backtest_queue = Queue()
+
+### Routes
 @app.route('/')
 def api_root():
     return '<h1>BackQuote API</h1>'
@@ -61,20 +64,41 @@ def quote(id):
     quote = Quote.query.get(id)
     return jsonify(quote.serialize)
 
-@app.route('/backtester/run', methods=['POST'])
-def run_backtester():
-    post_data = request.get_json()
-    params = "".join(str(post_data['params']).split())
+def execute_backtest():
+    global executing, backtest_queue
+
+    executing = True
+    args = backtest_queue.get()
+
     exe = os.path.dirname(os.path.abspath(__file__)) + '/../backtester/backtester/Release/backtester.exe'
-    proc = subprocess.Popen([exe, '--algoName', post_data['algorithm'], '--params', params, '--tickers'] +
-                            post_data['tickers'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    proc = subprocess.Popen([exe, '--algoName', args['algorithm'], '--params', args['params'], '--tickers'] +
+                            args['tickers'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     while 1:
         line = proc.stdout.readline().rstrip('\r\n')
         if line == 'BACKTESTER DONE':
             break
         simulation_results = json.loads(line)
         # TODO: convert simulation_results into DB models and upload them to the DB
-    return jsonify({'BACKTESTER RUN SUCCESSFUL': "TRUE"})
+
+    if not backtest_queue.empty():
+        #starts the next enqueued backtest
+        execute_backtest()
+    executing = False
+
+
+@app.route('/backtester/run', methods=['POST'])
+def run_backtester():
+    global executing, backtest_queue
+
+    post_data = request.get_json()
+    post_data['params'] = "".join(str(post_data['params']).split())
+
+    backtest_queue.put(post_data)
+
+    if executing is False:
+        socketio.start_background_task(target=execute_backtest)
+
+    return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
-    app.run(debug=app.config['DEBUG'], threaded=True)
+    socketio.run(app, debug=app.config['DEBUG'])
