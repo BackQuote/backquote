@@ -68,6 +68,7 @@ int main(int argc, char* argv[]) {
 
 	vector<unordered_map<string, double>> paramCombos;
 	buildParamCombos(config, paramCombos);
+	cout << paramCombos.size() * tickers.size() << endl; // communicating to the server how many simulations will run
 
 	/* One task per ticker will be queued, and each one of those tasks will queue up several other tasks (max 8 total) and then
 	block. 8 = 1 thread per core. When each thread per ticker blocks, we still want one thread per core to be active, so we
@@ -77,12 +78,12 @@ int main(int argc, char* argv[]) {
 	mutex(m);
 	for (auto &ticker : tickers) {
 		taskReturns.push_back(
-		tp.push([&](int id) {
-			const string ultimateFile = backtesterRootDir + "/ultimate_files/" + ticker + ".txt";
-			vector<Day> days;
-			loadUltimateFile(days, ultimateFile);
-			log << "DATA LOADED FOR " + ticker << endl;
-			backtestAlgo(days, tp, algoName, m, ticker, paramCombos);
+			tp.push([&](int id) {
+				const string ultimateFile = backtesterRootDir + "/ultimate_files/" + ticker + ".txt";
+				vector<Day> days;
+				loadUltimateFile(days, ultimateFile);
+				log << "DATA LOADED FOR " + ticker << endl;
+				backtestAlgo(days, tp, algoName, m, ticker, paramCombos);
 		}));
 	}
 	
@@ -93,7 +94,7 @@ int main(int argc, char* argv[]) {
 	backtestDuration = (clock() - startTime) / (double)CLOCKS_PER_SEC;
 	cout << "Backtester done." << endl;
 	cout << "Backtest duration: " << backtestDuration << endl;
-	cout << "Number of simulations ran: " << paramCombos.size() * tickers.size() << endl;
+	log << "Number of simulations ran: " << paramCombos.size() * tickers.size() << endl;
 	return 0;
 }
 
