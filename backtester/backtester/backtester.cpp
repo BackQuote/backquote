@@ -7,6 +7,7 @@
 #include <thread>
 #include <unordered_map>
 #include <mutex>
+#include <ctime>
 #include "external_dependencies/json.hpp"
 #include "external_dependencies/ctpl_stl.h"
 #include "algorithms/Simple.h"
@@ -46,6 +47,10 @@ const double commission = 5; // amount in dollars for selling a stock
 const size_t lineElementCount = 5; // 5 = number of elements we want in a line of an ultimate file (time, open, high, low, close) 
 
 int main(int argc, char* argv[]) {
+	std::clock_t startTime;
+	double backtestDuration;
+	startTime = clock();
+
 	const string backtesterRootDir = buildbacktesterRootDir(argv[0]);
 	unordered_map<string, vector<char*>> args;
 	parseArgs(argc, argv, args);
@@ -85,7 +90,10 @@ int main(int argc, char* argv[]) {
 		result.get();
 	}
 	
-	cout << "BACKTESTER DONE" << endl;
+	backtestDuration = (clock() - startTime) / (double)CLOCKS_PER_SEC;
+	cout << "Backtester done." << endl;
+	cout << "Backtest duration: " << backtestDuration << endl;
+	cout << "Number of simulations ran: " << paramCombos.size() * tickers.size() << endl;
 	return 0;
 }
 
