@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { app } from '../styles/app.scss';
 import { mainPanel, content } from '../styles/mainPanel.scss';
+require('font-awesome/css/font-awesome.css');
 
 const App = ({ children }) =>
   <div className={app}>
