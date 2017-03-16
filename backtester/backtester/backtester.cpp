@@ -348,8 +348,6 @@ bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoRes
 
 void uploadResults(const vector<Day> &days, const string &ticker, const string &algoName, mutex &m,
 				   unordered_map<string, double> &params, vector<Result> &results) {
-	unique_lock<mutex> lock(m);
-
 	json j_sim;
 	j_sim["params"] = json(params);
 	json j_resList;
@@ -360,10 +358,11 @@ void uploadResults(const vector<Day> &days, const string &ticker, const string &
 		j_res["result"] = json(results[i]);
 		j_resList.push_back(j_res);
 	}
-	
-	j_sim["results"] = j_resList;
-	cout << j_sim << endl;
 
+	j_sim["results"] = j_resList;
+	
+	unique_lock<mutex> lock(m);
+	cout << j_sim << endl;
 	lock.unlock();
 }
 
