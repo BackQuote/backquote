@@ -59,15 +59,15 @@ backtest_ticker = db.Table('backtest_ticker',
 class Ticker(db.Model):
     __tablename__ = "ticker"
 
-    name = db.Column(db.String, primary_key=True)
+    ticker = db.Column(db.String, primary_key=True)
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, ticker):
+        self.ticker = ticker
 
     @property
     def serialize(self):
         return {
-            'name': self.name
+            'ticker': self.ticker
         }
 
 
@@ -108,7 +108,7 @@ class Quote(db.Model):
     last_of_day = db.Column(db.Boolean)
     timestamp = db.Column(db.TIMESTAMP)
     day_id = db.Column(db.Integer, db.ForeignKey('day.id'))
-    ticker = db.Column(db.String, db.ForeignKey('ticker.name'))
+    ticker = db.Column(db.String, db.ForeignKey('ticker.ticker'))
 
     @property
     def serialize(self):
@@ -189,7 +189,7 @@ class Simulation(db.Model):
     profit_reset = db.Column(db.Numeric)
     results = db.relationship('Result', backref='simulation')
     backtest_id = db.Column(db.Integer, db.ForeignKey('backtest.id'))
-    ticker = db.Column(db.String, db.ForeignKey('ticker'))
+    ticker = db.Column(db.String, db.ForeignKey('ticker.ticker'))
 
     def __init__(self, params, profit_no_reset, profit_reset, backtest_id, ticker):
         self.params = params
