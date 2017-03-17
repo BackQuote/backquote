@@ -6,7 +6,6 @@ from flask_cors import CORS
 from Queue import Queue
 from models import *
 import os, json, subprocess
-from time import sleep
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -79,7 +78,6 @@ def execute_backtest():
         if line == 'Backtester done.':
             break
         simulation_results = json.loads(line)
-        # TODO: convert simulation_results into DB models and upload them to the DB
 
     backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
 
