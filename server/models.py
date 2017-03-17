@@ -34,18 +34,15 @@ class Template(db.Model):
     __tablename__ = "template"
 
     id = db.Column(db.Integer, primary_key=True)
-    algorithm = db.Column(db.Integer)
     params = db.Column(db.String)
 
-    def __init__(self, algorithm, params):
-        self.algorithm = algorithm
+    def __init__(self, params):
         self.params = params
 
     @property
     def serialize(self):
         return {
             'id': self.id,
-            'algorithm': self.algorithm,
             'params': self.params # Todo: fix params parsing
         }
 

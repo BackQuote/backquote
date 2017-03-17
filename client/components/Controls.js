@@ -53,7 +53,7 @@ class Controls extends React.Component {
       },
       body: JSON.stringify({
         algorithm: parseInt(this.refs.algorithm.value, 10),
-        params: JSON.parse(this.state.parameters)
+        params: (JSON.parse(this.state.parameters))
       })
     }) // TODO: show some confirmation in the UI
       .then(() => {
@@ -67,13 +67,15 @@ class Controls extends React.Component {
   launchBacktest() {
     // TODO: unify saveTemplate and launchBacktest
     if (this.checkForErrors()) return;
+    let algorithm = JSON.parse(this.refs.algorithm.value);
     api.post('backtester/run', {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        algorithm: this.refs.algorithm.value,
+        algorithm: algorithm.name,
+        algorithmId: algorithm.id,
         params: this.state.parameters,
         tickers: [this.refs.ticker.value]
       })
@@ -106,18 +108,18 @@ class Controls extends React.Component {
                         onChange={() => {this.handleAlgorithmChange();}}>
                   {
                     this.props.algorithms.map((algorithm) => {
-                      return <option key={algorithm.id} value={algorithm.name}>{algorithm.name}</option>;
+                      return <option key={algorithm.id} value={[JSON.stringify(algorithm)]}>{algorithm.name}</option>;
                     })
                   }
                 </select>
               </div>
               <div className="two columns">
-                <label htmlFor="algorithm">Ticker</label>
+                <label htmlFor="algorithm">Tickers</label>
                 <select className="u-full-width" id="ticker" ref="ticker">
                   <option value="">Select</option>
                   {
                     this.props.tickers.map((ticker) => {
-                      return <option key={ticker.id} value={ticker.code}>{ticker.name}</option>;
+                      return <option key={ticker.ticker} value={ticker.ticker}>{ticker.ticker}</option>;
                     })
                   }
                 </select>
