@@ -8,7 +8,9 @@ class EditorErrors extends React.Component {
       <div>
         {errors.length > 0 ? (
           <pre>
-            Errors in parameters. Please correct them before saving a template or executing a Backtest.
+            <small>
+              Errors in parameters. Please correct them before saving a template or executing a Backtest.
+            </small>
             <code style={{color: 'red', margin: 0}}>
             { errors.map((error, index) => {
               return <SyntaxError key={index} error={error} />;

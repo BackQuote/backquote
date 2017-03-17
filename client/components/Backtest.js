@@ -16,7 +16,6 @@ class Backtest extends React.Component {
             <thead>
             <tr>
               <th>Simulation</th>
-              <th>Algorithm</th>
               <th>Parameters</th>
               <th>Ticker</th>
               <th>Profit</th>
