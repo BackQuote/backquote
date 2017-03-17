@@ -350,6 +350,9 @@ void uploadResults(const vector<Day> &days, const string &ticker, const string &
 				   unordered_map<string, double> &params, vector<Result> &results) {
 	json j_sim;
 	j_sim["params"] = json(params);
+	j_sim["ticker"] = ticker;
+	j_sim["profitReset"] = results.back().cumulativeProfitReset;
+	j_sim["profitNoReset"] = results.back().cumulativeProfitNoReset;
 	json j_resList;
 
 	for (size_t i = 0; i < results.size(); ++i) {
