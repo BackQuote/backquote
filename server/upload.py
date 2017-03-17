@@ -1,5 +1,6 @@
 from models import *
-from app import db
+from sqlalchemy import update
+import time
 
 
 def fill_models(simulation_results, backtest_id):
@@ -8,6 +9,9 @@ def fill_models(simulation_results, backtest_id):
     profit_reset = simulation_results['profitReset']
     profit_no_reset = simulation_results['profitNoReset']
     ticker = simulation_results['ticker']
+
+    # update backtest
+    update(Backtest).where()(Backtest.id == backtest_id).values(success=True)
 
     # add simulation
     simulation = Simulation(params, profit_no_reset, profit_reset, backtest_id, ticker)
@@ -35,3 +39,10 @@ def fill_models(simulation_results, backtest_id):
 
         db.session.add_all(trade_models)
         db.session.commit()
+
+
+def save_backtest(args):
+    backtest = Backtest(args['params'], time.time(), False, args['algorithmId'], args['tickers'])
+    db.session.add(backtest)
+    db.session.commit()
+    return backtest.id
