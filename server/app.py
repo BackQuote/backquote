@@ -33,6 +33,15 @@ def templates():
     templates = Template.query.all()
     return jsonify([i.serialize for i in templates])
 
+@app.route('/templates', methods=['POST'])
+def save_template():
+    post_data = request.get_json()
+    template = Template(json.dumps(post_data['params']))
+    db.session.add(template)
+    db.session.commit()
+
+    return jsonify(template.serialize)
+
 @app.route('/tickers')
 def tickers():
     tickers = Ticker.query.all()
