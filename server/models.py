@@ -50,23 +50,24 @@ class Template(db.Model):
         }
 
 
+backtest_ticker = db.Table('backtest_ticker',
+    db.Column('id', db.Integer, primary_key=True),
+    db.Column('backtestId', db.Integer, db.ForeignKey('backtest.id')),
+    db.Column('tickerId', db.Integer, db.ForeignKey('ticker.id')))
+
+
 class Ticker(db.Model):
     __tablename__ = "ticker"
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    code = db.Column(db.String)
+    name = db.Column(db.String, primary_key=True)
 
-    def __init__(self, name, code):
+    def __init__(self, name):
         self.name = name
-        self.code = code
 
     @property
     def serialize(self):
         return {
-            'id': self.id,
-            'name': self.name,
-            'code': self.code
+            'name': self.name
         }
 
 
@@ -107,6 +108,7 @@ class Quote(db.Model):
     last_of_day = db.Column(db.Boolean)
     timestamp = db.Column(db.TIMESTAMP)
     day_id = db.Column(db.Integer, db.ForeignKey('day.id'))
+    ticker = db.Column(db.String, db.ForeignKey('ticker.name'))
 
     @property
     def serialize(self):
@@ -115,7 +117,8 @@ class Quote(db.Model):
             'price': decimal(self.price),
             'lastOfDay': self.last_of_day,
             'timestamp': self.timestamp,
-            'dayId': self.day_id
+            'dayId': self.day_id,
+            'ticker': self.ticker
         }
 
 
@@ -182,20 +185,29 @@ class Simulation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     params = db.Column(db.String)
+    profit_no_reset = db.Column(db.Numeric)
+    profit_reset = db.Column(db.Numeric)
     results = db.relationship('Result', backref='simulation')
     backtest_id = db.Column(db.Integer, db.ForeignKey('backtest.id'))
+    ticker = db.Column(db.String, db.ForeignKey('ticker'))
 
-    def __init__(self, params, backtest_id):
+    def __init__(self, params, profit_no_reset, profit_reset, backtest_id, ticker):
         self.params = params
+        self.profit_no_reset = profit_no_reset
+        self.profit_reset = profit_reset
         self.backtest_id = backtest_id
+        self.ticker = ticker
 
     @property
     def serialize(self):
         return {
             'id': self.id,
             'params': self.params,
+            'profitNoReset': self.profit_no_reset,
+            'profitReset': self.profit_reset,
             'results': serialize(self.results),
-            'backtestId': self.backtest_id
+            'backtestId': self.backtest_id,
+            'ticker': self.ticker
         }
 
 
@@ -203,20 +215,28 @@ class Backtest(db.Model):
     __tablename__ = "backtest"
 
     id = db.Column(db.Integer, primary_key=True)
+    params = db.Column(db.String)
     timestamp = db.Column(db.TIMESTAMP)
     success = db.Column(db.Boolean)
     simulations = db.relationship('Simulation', backref='backtest')
+    algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
+    tickers = db.relationship('Ticker', secondary=backtest_ticker, backref='backtest')
 
-    def __init__(self, date, success, simulations):
-        self.date = date
+    def __init__(self, params, timestamp, success, algorithm_id, tickers):
+        self.params = params
+        self.timestamp = timestamp
         self.success = success
-        self.simulations = simulations
+        self.algorithm_id = algorithm_id
+        self.tickers = tickers
 
     @property
     def serialize(self):
         return {
             'id': self.id,
-            'date': str(self.date),
+            'params': self.params,
+            'timestamp': str(self.timestamp),
             'success': self.success,
-            'simulations': serialize(self.simulations)
+            'simulations': serialize(self.simulations),
+            'algorithmId': self.algorithm_id,
+            'tickers': self.tickers
         }

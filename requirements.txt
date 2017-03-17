@@ -22,5 +22,4 @@ python-socketio==1.7.2
 pytz==2016.10
 six==1.10.0
 SQLAlchemy==1.1.5
-ujson==1.35
 Werkzeug==0.11.15
