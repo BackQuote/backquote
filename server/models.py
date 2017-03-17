@@ -132,7 +132,7 @@ class Result(db.Model):
     cumulative_profit_reset = db.Column(db.Numeric)
     cumulative_profit_no_reset = db.Column(db.Numeric)
     day_id = db.Column(db.Integer, db.ForeignKey('day.id'))
-    simulation_id = db.column(db.Integer, db.ForeighKey('simulation.id'))
+    simulation_id = db.column(db.Integer, db.ForeignKey('simulation.id'))
 
     def __init__(self, daily_profit_reset, daily_profit_no_reset, cumulative_profit_reset,
                  cumulative_profit_no_reset, day_id, simulation_id):
