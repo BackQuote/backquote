@@ -5,6 +5,7 @@ from flask_socketio import SocketIO
 from flask_cors import CORS
 from Queue import Queue
 from models import *
+from utils import fill_models
 import os, json, subprocess
 
 app = Flask(__name__)
@@ -87,6 +88,7 @@ def execute_backtest():
         if line == 'Backtester done.':
             break
         simulation_results = json.loads(line)
+        fill_models(simulation_results, backtest_id=1)
 
     backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
 

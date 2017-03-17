@@ -50,7 +50,7 @@ class Template(db.Model):
 backtest_ticker = db.Table('backtest_ticker',
     db.Column('id', db.Integer, primary_key=True),
     db.Column('backtestId', db.Integer, db.ForeignKey('backtest.id')),
-    db.Column('tickerId', db.Integer, db.ForeignKey('ticker.ticker')))
+    db.Column('ticker', db.Integer, db.ForeignKey('ticker.ticker')))
 
 
 class Ticker(db.Model):
