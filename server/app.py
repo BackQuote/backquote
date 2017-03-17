@@ -73,18 +73,20 @@ def execute_backtest():
     exe = os.path.dirname(os.path.abspath(__file__)) + '/../backtester/backtester/Release/backtester.exe'
     proc = subprocess.Popen([exe, '--algoName', args['algorithm'], '--params', args['params'], '--tickers'] +
                             args['tickers'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    simulation_count = proc.stdout.readline().rstrip('\r\n')
     while 1:
         line = proc.stdout.readline().rstrip('\r\n')
-        if line == 'BACKTESTER DONE':
+        if line == 'Backtester done.':
             break
         simulation_results = json.loads(line)
         # TODO: convert simulation_results into DB models and upload them to the DB
+
+    backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
 
     if not backtest_queue.empty():
         #starts the next enqueued backtest
         execute_backtest()
     executing = False
-
 
 @app.route('/backtester/run', methods=['POST'])
 def run_backtester():
