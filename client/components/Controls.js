@@ -137,27 +137,25 @@ class Controls extends React.Component {
                 </select>
               </div>
               <div className="six columns">
-                <div className="row">
-                  <label htmlFor="parameters">Parameters </label>
-                  <div>
-                    <AceEditor
-                      mode="json"
-                      theme="monokai"
-                      ref="editor"
-                      name="editor"
-                      height="300px"
-                      width="100%"
-                      setOptions={this.state.editorOptions}
-                      value={this.state.parameters}
-                      onChange={(event) => {this.handleParametersChange(event);}}
-                    />
-                    <a href="javascript:void(0)" className="button u-pull-right"
-                       style={{position: 'relative', bottom: '41px', right: '2px'}}
-                       onClick={() => {this.saveTemplate();}}>Save
-                    </a>
-                    <EditorErrors errors={this.state.syntaxErrors} />
-                  </div>
+                <label htmlFor="parameters">Parameters </label>
+                <div>
+                  <AceEditor
+                    mode="json"
+                    theme="monokai"
+                    ref="editor"
+                    name="editor"
+                    height="300px"
+                    width="100%"
+                    setOptions={this.state.editorOptions}
+                    value={this.state.parameters}
+                    onChange={(event) => {this.handleParametersChange(event);}}
+                  />
+                  <a href="javascript:void(0)" className="button u-pull-right"
+                     style={{position: 'relative', bottom: '41px', right: '2px'}}
+                     onClick={() => {this.saveTemplate();}}>Save
+                  </a>
                 </div>
+                <EditorErrors errors={this.state.syntaxErrors} />
               </div>
             </div>
           </form>
