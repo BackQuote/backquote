@@ -101,17 +101,33 @@ class Quote(db.Model):
     __tablename__ = "quote"
 
     id = db.Column(db.Integer, primary_key=True)
-    price = db.Column(db.Numeric)
+    open = db.Column(db.Numeric)
+    high = db.Column(db.Numeric)
+    low = db.Column(db.Numeric)
+    close = db.Column(db.Numeric)
     last_of_day = db.Column(db.Boolean)
     timestamp = db.Column(db.TIMESTAMP)
     day_id = db.Column(db.Integer, db.ForeignKey('day.id'))
     ticker = db.Column(db.String, db.ForeignKey('ticker.ticker'))
 
+    def __init__(self, timestamp, open, high, low, close, last_of_day, day_id, ticker):
+        self.open = open
+        self.high = high
+        self.low = low
+        self.close = close
+        self.last_of_day = last_of_day
+        self.timestamp = timestamp
+        self.day_id = day_id
+        self.ticker = ticker
+
     @property
     def serialize(self):
         return {
             'id': self.id,
-            'price': decimal(self.price),
+            'open': decimal(self.open),
+            'close': decimal(self.close),
+            'high': decimal(self.high),
+            'low': decimal(self.low),
             'lastOfDay': self.last_of_day,
             'timestamp': self.timestamp,
             'dayId': self.day_id,
@@ -162,10 +178,8 @@ class Day(db.Model):
     quotes = db.relationship('Quote', backref='day')
     results = db.relationship('Result', backref='day')
 
-    def __init__(self, date, quotes, results):
+    def __init__(self, date):
         self.date = date
-        self.quotes = quotes
-        self.results = results
 
     @property
     def serialize(self):
