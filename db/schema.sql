@@ -260,8 +260,7 @@ ALTER SEQUENCE simulation_id_seq OWNED BY simulation.id;
 
 CREATE TABLE template (
     id integer NOT NULL,
-    params text,
-    algorithm integer
+    params text
 );
 
 
@@ -307,7 +306,7 @@ CREATE TABLE trade (
     id integer NOT NULL,
     quantity_reset integer,
     quantity_no_reset integer,
-    action integer,
+    action varchar(10),
     timestamp timestamp without time zone,
     result_id integer
 );

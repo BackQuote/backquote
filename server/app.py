@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from Queue import Queue
-from models import *
+from upload import *
 import os, json, subprocess
 
 app = Flask(__name__)
@@ -36,9 +36,7 @@ def templates():
 @app.route('/templates', methods=['POST'])
 def save_template():
     post_data = request.get_json()
-    template = Template(json.dumps(post_data['params']))
-    db.session.add(template)
-    db.session.commit()
+    template = save_template(json.dumps(post_data['params']))
 
     return jsonify(template.serialize)
 
@@ -78,6 +76,8 @@ def execute_backtest():
     executing = True
     args = backtest_queue.get()
 
+    backtest_id = save_backtest(args)
+
     exe = os.path.dirname(os.path.abspath(__file__)) + '/../backtester/backtester/Release/backtester.exe'
     proc = subprocess.Popen([exe, '--algoName', args['algorithm'], '--params', args['params'], '--tickers'] +
                             args['tickers'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -87,6 +87,9 @@ def execute_backtest():
         if line == 'Backtester done.':
             break
         simulation_results = json.loads(line)
+        save_models(simulation_results, backtest_id)
+
+    backtest_completed(backtest_id)
 
     backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
 
