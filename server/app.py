@@ -36,7 +36,7 @@ def templates():
 @app.route('/templates', methods=['POST'])
 def save_template():
     post_data = request.get_json()
-    template = save_template(json.dumps(post_data['params']))
+    template = upload_template(json.dumps(post_data['params']))
 
     return jsonify(template.serialize)
 

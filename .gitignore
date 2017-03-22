@@ -44,3 +44,4 @@ node_modules
 .vscode
 *.log
 *.css.map
+server/ENV

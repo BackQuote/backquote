@@ -53,14 +53,14 @@ class Controls extends React.Component {
       },
       body: JSON.stringify({
         algorithm: parseInt(this.refs.algorithm.value, 10),
-        params: (JSON.parse(this.state.parameters))
+        params: (JSON.parse(this.state.parameters || '{}'))
       })
-    }) // TODO: show some confirmation in the UI
+    }) // TODO: show better confirmation in the UI
       .then(() => {
-        this.setState({templateSaved: true});
+        alert('Template saved');
       })
       .catch((error) => {
-        this.setState({templateSaved: false, templateError: error});
+        alert('Error: ' + error);
       });
   }
 
@@ -79,12 +79,12 @@ class Controls extends React.Component {
         params: this.state.parameters,
         tickers: [this.refs.ticker.value]
       })
-    }) // TODO: show some confirmation in the UI
+    }) // TODO: show better confirmation in the UI
       .then(() => {
-        this.setState({templateSaved: true});
+        alert('Backtest started');
       })
       .catch((error) => {
-        this.setState({templateSaved: false, templateError: error});
+        alert('Error: ' + error);
       });
   }
 
