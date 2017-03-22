@@ -3,20 +3,23 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Simulation from '../components/Simulation';
 import * as simulationAction from '../actions/simulation';
+import * as quotesAction from '../actions/dailyResult';
+import * as tradesAction from '../actions/dailyResult';
 
 class SimulationPage extends React.Component {
   componentDidMount() {
     this.props.actions.fetchSimulation(this.props.params.id);
   }
 
-  updateDailyResultChart(id) {
-    this.props.actions.fetchDailyResult();
+  updateDailyResultChart(id, dayId, ticker) {
+    this.props.actions.fetchDailyResult(id, dayId, ticker);
   }
 
   render() {
-    let {simulation} = this.props;
+    let {simulation, quotes, trades} = this.props;
     return (
-      <Simulation simulation={simulation} updateDailyResultChart={() => {this.updateDailyResultChart();}}/>
+      <Simulation simulation={simulation} quotes={quotes} trades={trades}
+                  updateDailyResultChart={(id, dayId, ticker) => {this.updateDailyResultChart(id, dayId, ticker);}}/>
     );
   }
 }
@@ -28,7 +31,9 @@ SimulationPage.propTypes = {
 
 const mapStateToProps = (state) => {
   return {
-    simulation: state.simulation
+    simulation: state.simulation,
+    quotes: state.quotes,
+    trades: state.trades
   };
 };
 
@@ -36,6 +41,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
       ...simulationAction,
+      ...quotesAction,
+      ...tradesAction
     }, dispatch)
   };
 };

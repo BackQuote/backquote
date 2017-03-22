@@ -16,7 +16,8 @@ class SimulationChart extends React.Component {
           cursor: 'pointer',
           events: {
             click: () => {
-              this.props.updateDailyResultChart(1);
+              let result = this.props.results[event.point.index];
+              this.props.updateDailyResultChart(result.id, result.dayId);
             }
           },
           zones: [{
@@ -50,18 +51,17 @@ class SimulationChart extends React.Component {
   }
 
   render() {
-    this.config.series[0].data = this.props.days.map((day) => {
-      let date = day.date.split('-');
+    this.config.series[0].data = this.props.results.map((result) => {
+      let date = result.date.split('-');
       date = [Date.UTC(date[0], date[1], date[2])];
-      console.log(date);
-      return [date, day.cumulativeProfitNoReset];
+      return [date, result.dailyProfitNoReset];
     });
     return <ReactHighstock config={this.config}> </ReactHighstock>;
   }
 }
 
 SimulationChart.propTypes = {
-  days: PropTypes.array,
+  results: PropTypes.array,
   updateDailyResultChart: PropTypes.func
 };
 
