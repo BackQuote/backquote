@@ -18,8 +18,10 @@ export function dailyResultIsLoading(state = false, action) {
 }
 export function dailyResult(state = {}, action) {
   switch (action.type) {
-    case types.DAILY_RESULT_FETCH_DATA_SUCCESS:
-      return action.dailyResult;
+    case types.QUOTES_FETCH_DATA_SUCCESS:
+      return action.quotes;
+    case types.TRADES_FETCH_DATA_SUCCESS:
+      return action.trades;
     default:
       return state;
   }
