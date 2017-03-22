@@ -65,6 +65,19 @@ def trade(id):
     trade = Trade.query.get(id)
     return jsonify(trade.serialize)
 
+@app.route('/trades/results/<id>')
+def trade_results(id):
+    trades = Trade.query.filter_by(result_id = id).all()
+    return jsonify([i.serialize for i in trades])
+
+@app.route('/quotes/<day_id>/<ticker>')
+def quote_by_day_ticker(day_id, ticker):
+    quotes = Quote.query \
+        .filter_by(day_id=day_id) \
+        .filter_by(ticker=ticker) \
+        .all()
+    return jsonify([i.serialize for i in quotes])
+
 @app.route('/quotes/<id>')
 def quote(id):
     quote = Quote.query.get(id)
