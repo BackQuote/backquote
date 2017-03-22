@@ -7,7 +7,7 @@ class SimulationRow extends React.Component {
     return (
       <tr key={this.props.simulation.id}>
         <td>
-          <Link to={`/simulation/${this.props.simulation.id}`}>{this.props.simulation.id}</Link>
+          <Link to={`/simulation/${this.props.simulation.id}`}>{this.props.index}</Link>
         </td>
         <td>
           <JSONTree data={JSON.parse(String(this.props.simulation.params))} hideRoot />

@@ -23,8 +23,8 @@ class Backtest extends React.Component {
             </thead>
             <tbody>
             {
-              this.props.simulations.map((simulation) => {
-                return <SimulationRow key={simulation.id} simulation={simulation}/>;
+              this.props.simulations.map((simulation, index) => {
+                return <SimulationRow key={simulation.id} index={index + 1} simulation={simulation}/>;
               })
             }
             </tbody>
