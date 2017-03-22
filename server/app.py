@@ -70,6 +70,26 @@ def quote(id):
     quote = Quote.query.get(id)
     return jsonify(quote.serialize)
 
+@app.route('/simulations')
+def simulations():
+    simulations = Simulation.query.all()
+    return jsonify([i.serialize for i in simulations])
+
+@app.route('/simulations/<id>')
+def simulation(id):
+    simulation = Simulation.query.get(id)
+    return jsonify(simulation.serialize)
+
+@app.route('/backtests')
+def backtests():
+    backtests = Backtest.query.all()
+    return jsonify([i.serialize for i in backtests])
+
+@app.route('/backtests/<id>')
+def backtest(id):
+    backtest = Backtest.query.get(id)
+    return jsonify([i.serialize for i in backtest.simulations])
+
 def execute_backtest():
     global executing, backtest_queue
 

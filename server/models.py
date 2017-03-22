@@ -215,8 +215,8 @@ class Simulation(db.Model):
         return {
             'id': self.id,
             'params': self.params,
-            'profitNoReset': self.profit_no_reset,
-            'profitReset': self.profit_reset,
+            'profitNoReset': str(self.profit_no_reset),
+            'profitReset': str(self.profit_reset),
             'results': serialize(self.results),
             'backtestId': self.backtest_id,
             'ticker': self.ticker
@@ -247,7 +247,7 @@ class Backtest(db.Model):
             'params': self.params,
             'timestamp': str(self.timestamp),
             'success': self.success,
-            'simulations': serialize(self.simulations),
+            'simulations': [i.serialize for i in self.simulations],
             'algorithmId': self.algorithm_id,
-            'tickers': self.tickers
+            'tickers': [i.serialize for i in self.tickers]
         }

@@ -9,8 +9,9 @@ class Simulation extends React.Component {
   }
 
   render() {
-    let {days, dailyResult} = this.props;
-    let {quotes, trades, profit} = dailyResult;
+    let {simulation} = this.props;
+    console.log(simulation);
+    //let {quotes, trades, profit} = dailyResult;
     return (
       <div className={card}>
         <header>
@@ -20,11 +21,7 @@ class Simulation extends React.Component {
         </header>
         <section>
           <div className="container">
-            <SimulationChart days={days} updateDailyResultChart={() => {this.updateDailyResultChart();}}/>
-            { Object.keys(dailyResult).length > 0 ?
-              <DailyResultChart quotes={quotes} trades={trades} profit={profit} />
-              : null
-            }
+            <SimulationChart days={[]} updateDailyResultChart={() => {this.updateDailyResultChart();}}/>
           </div>
         </section>
       </div>
@@ -33,8 +30,7 @@ class Simulation extends React.Component {
 }
 
 Simulation.propTypes = {
-  days: PropTypes.array,
-  dailyResult: PropTypes.object,
+  simulation: PropTypes.object,
   updateDailyResultChart: PropTypes.func
 };
 

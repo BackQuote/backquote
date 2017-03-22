@@ -6,7 +6,7 @@ import * as simulationsActions from '../actions/simulations';
 
 class BacktestPage extends React.Component {
   componentDidMount() {
-    this.props.actions.fetchSimulations();
+    this.props.actions.fetchSimulations(this.props.params.id);
   }
 
   render() {

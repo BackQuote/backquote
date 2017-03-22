@@ -22,10 +22,10 @@ export function simulationsFetchDataSuccess(simulations) {
   };
 }
 
-export function fetchSimulations() {
+export function fetchSimulations(id) {
   return (dispatch) => {
     dispatch(simulationsIsLoading(true));
-    api.get('simulations')
+    api.get(`backtests/${id}`)
       .then((simulations) => {
         dispatch(simulationsFetchDataSuccess(simulations));
         dispatch(simulationsIsLoading(false));
