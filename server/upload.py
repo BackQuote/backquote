@@ -11,9 +11,6 @@ def save_models(simulation_results, backtest_id):
     profit_no_reset = simulation_results['profitNoReset']
     ticker = simulation_results['ticker']
 
-    # update backtest
-    update(Backtest).where(Backtest.id == backtest_id).values(success=True)
-
     # add simulation
     simulation = Simulation(json.dumps(params), profit_no_reset, profit_reset, backtest_id, str(ticker))
     db.session.add(simulation)
@@ -27,9 +24,8 @@ def save_models(simulation_results, backtest_id):
         result = day_result['result']
         trades = result['trades']
 
-        # TODO: fix typo in cumulativeProfitNoRest
         result_model = Result(result['dailyProfitReset'], result['dailyProfitNoReset'], result['cumulativeProfitReset'],
-                              result['cumulativeProfitNoRest'], day.id, simulation_id)
+                              result['cumulativeProfitNoReset'], day.id, simulation_id)
         db.session.add(result_model)
         db.session.commit()
 
@@ -55,6 +51,10 @@ def save_backtest(args):
         db.session.execute(backtest_ticker.insert().values((backtest.id, ticker)))
 
     return backtest.id
+
+
+def backtest_completed(backtest_id):
+    update(Backtest).where(Backtest.id == backtest_id).values(success=True)
 
 
 def save_template(args):

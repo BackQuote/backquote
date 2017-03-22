@@ -89,6 +89,8 @@ def execute_backtest():
         simulation_results = json.loads(line)
         save_models(simulation_results, backtest_id)
 
+    backtest_completed(backtest_id)
+
     backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
 
     if not backtest_queue.empty():
