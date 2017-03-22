@@ -11,7 +11,7 @@ class BacktestRow extends React.Component {
         </td>
         <td>{this.props.backtest.algorithmId}</td>
         <td>
-          <JSONTree data={JSON.parse(String(this.props.backtest.params))} hideRoot />
+          <JSONTree data={this.props.backtest.params} hideRoot />
         </td>
         <td>
           {

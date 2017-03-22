@@ -49,9 +49,10 @@ class SimulationChart extends React.Component {
   render() {
     this.config.series[0].data = this.props.days.map((day) => {
       let date = day.date.split('-');
-      return [Date.UTC(date[0], date[1], date[2]), day.profit];
+      date = [Date.UTC(date[0], date[1], date[2])];
+      return [date, day.cumulativeProfitNoReset];
     });
-    return <ReactHighstock config={this.config}></ReactHighstock>;
+    return <ReactHighstock config={this.config}> </ReactHighstock>;
   }
 }
 
