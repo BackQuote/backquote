@@ -9,11 +9,17 @@ class BacktestRow extends React.Component {
         <td>
           <Link to={`/backtest/${this.props.backtest.id}`}>{this.props.backtest.id}</Link>
         </td>
-        <td>Algorithm {this.props.backtest.algorithm}</td>
+        <td>{this.props.backtest.algorithmId}</td>
         <td>
           <JSONTree data={JSON.parse(String(this.props.backtest.params))} hideRoot />
         </td>
-        <td>TODO: Ticker</td>
+        <td>
+          {
+            this.props.backtest.tickers.map((ticker) => {
+              return ticker.ticker;
+            })
+          }
+        </td>
       </tr>
     );
   }

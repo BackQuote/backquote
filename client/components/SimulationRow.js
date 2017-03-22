@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 
 class SimulationRow extends React.Component {
   render() {
+    console.log(this.props.simulation);
     return (
       <tr key={this.props.simulation.id}>
         <td>
@@ -12,8 +13,9 @@ class SimulationRow extends React.Component {
         <td>
           <JSONTree data={JSON.parse(String(this.props.simulation.params))} hideRoot />
         </td>
-        <td>TODO: Ticker</td>
-        <td>{this.props.simulation.profit}</td>
+        <td>{this.props.simulation.ticker}</td>
+        <td>{this.props.simulation.profitReset}</td>
+        <td>{this.props.simulation.profitNoReset}</td>
       </tr>
     );
   }
