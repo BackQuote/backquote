@@ -36,9 +36,7 @@ def templates():
 @app.route('/templates', methods=['POST'])
 def save_template():
     post_data = request.get_json()
-    template = Template(json.dumps(post_data['params']))
-    db.session.add(template)
-    db.session.commit()
+    template = save_template(json.dumps(post_data['params']))
 
     return jsonify(template.serialize)
 
@@ -89,7 +87,7 @@ def execute_backtest():
         if line == 'Backtester done.':
             break
         simulation_results = json.loads(line)
-        fill_models(simulation_results, backtest_id)
+        save_models(simulation_results, backtest_id)
 
     backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
 

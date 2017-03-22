@@ -307,7 +307,7 @@ CREATE TABLE trade (
     id integer NOT NULL,
     quantity_reset integer,
     quantity_no_reset integer,
-    action integer,
+    action varchar(10),
     timestamp timestamp without time zone,
     result_id integer
 );

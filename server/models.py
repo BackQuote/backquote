@@ -48,9 +48,8 @@ class Template(db.Model):
 
 
 backtest_ticker = db.Table('backtest_ticker',
-    db.Column('id', db.Integer, primary_key=True),
-    db.Column('backtestId', db.Integer, db.ForeignKey('backtest.id')),
-    db.Column('ticker', db.Integer, db.ForeignKey('ticker.ticker')))
+    db.Column('backtest_id', db.Integer, db.ForeignKey('backtest.id'), primary_key=True),
+    db.Column('ticker', db.Integer, db.ForeignKey('ticker.ticker'), primary_key=True))
 
 
 class Ticker(db.Model):
@@ -74,7 +73,7 @@ class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity_reset = db.Column(db.Numeric)
     quantity_no_reset = db.Column(db.Numeric)
-    action = db.Column(db.Integer)
+    action = db.Column(db.String)
     timestamp = db.Column(db.TIMESTAMP)
     result_id = db.Column(db.Integer, db.ForeignKey('result.id'))
 
@@ -233,12 +232,11 @@ class Backtest(db.Model):
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
     tickers = db.relationship('Ticker', secondary=backtest_ticker, backref='backtest')
 
-    def __init__(self, params, timestamp, success, algorithm_id, tickers):
+    def __init__(self, params, timestamp, success, algorithm_id):
         self.params = params
         self.timestamp = timestamp
         self.success = success
         self.algorithm_id = algorithm_id
-        self.tickers = tickers
 
     @property
     def serialize(self):
