@@ -20,10 +20,9 @@ class Simulation extends React.Component {
         <section>
           <div className="container">
             <SimulationChart results={simulation.results || []} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
-            { Object.keys(result).length > 0 ?
-              <DailyResultChart quotes={quotes} trades={trades} profit={profit} />
-              : null
-            }
+            { (quotes.length > 0 || trades.length > 0) ?
+              <DailyResultChart quotes={quotes} trades={trades} />
+              : null }
           </div>
         </section>
       </div>

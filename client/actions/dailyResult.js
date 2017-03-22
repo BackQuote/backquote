@@ -43,5 +43,6 @@ export function fetchDailyResult(id, dayId, ticker) {
         dispatch(tradesFetchDataSuccess(trades));
         dispatch(dailyResultIsLoading(false));
       })
+      .catch(() => dispatch(dailyResultHasErrored(true)));
   };
 }
