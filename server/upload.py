@@ -57,7 +57,7 @@ def backtest_completed(backtest_id):
     update(Backtest).where(Backtest.id == backtest_id).values(success=True)
 
 
-def save_template(args):
+def upload_template(args):
     template = Template(args)
     db.session.add(template)
     db.session.commit()
