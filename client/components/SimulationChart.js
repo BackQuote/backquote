@@ -24,7 +24,10 @@ class SimulationChart extends React.Component {
             color: '#f93943'
           }, {
             color: '#6cd899'
-          }]
+          }],
+          dataGrouping: {
+            enabled: false
+          }
         }
       },
       rangeSelector: {
@@ -50,6 +53,7 @@ class SimulationChart extends React.Component {
     this.config.series[0].data = this.props.days.map((day) => {
       let date = day.date.split('-');
       date = [Date.UTC(date[0], date[1], date[2])];
+      console.log(date);
       return [date, day.cumulativeProfitNoReset];
     });
     return <ReactHighstock config={this.config}> </ReactHighstock>;
