@@ -78,6 +78,11 @@ def simulations():
 @app.route('/simulations/<id>')
 def simulation(id):
     simulation = Simulation.query.get(id)
+
+    # HACK : this should be in the model
+    for s in simulation.results:
+        s.day = Day.query.get(s.day_id)
+
     return jsonify(simulation.serialize)
 
 @app.route('/backtests')

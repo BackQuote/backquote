@@ -10,8 +10,6 @@ class Simulation extends React.Component {
 
   render() {
     let {simulation} = this.props;
-    console.log(simulation);
-    //let {quotes, trades, profit} = dailyResult;
     return (
       <div className={card}>
         <header>
@@ -21,7 +19,7 @@ class Simulation extends React.Component {
         </header>
         <section>
           <div className="container">
-            <SimulationChart days={[]} updateDailyResultChart={() => {this.updateDailyResultChart();}}/>
+            <SimulationChart days={simulation.results || []} updateDailyResultChart={(id) => {this.updateDailyResultChart(id);}}/>
           </div>
         </section>
       </div>

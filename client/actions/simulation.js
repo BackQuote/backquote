@@ -15,10 +15,10 @@ export function simulationIsLoading(isLoading) {
   };
 }
 
-export function simulationFetchDataSuccess(days) {
+export function simulationFetchDataSuccess(simulation) {
   return {
     type: types.SIMULATION_FETCH_DATA_SUCCESS,
-    days
+    simulation
   };
 }
 
