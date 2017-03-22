@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import * as algorithms from './algorithms';
 import * as templates from './templates';
 import * as backtests from './backtests';
-import * as days from './days';
+import * as simulation from './simulation';
 import * as dailyResult from './dailyResult';
 import * as simulations from './simulations';
 import * as tickers from './tickers';
@@ -13,7 +13,7 @@ const reducers = Object.assign({},
   algorithms,
   templates,
   backtests,
-  days,
+  simulation,
   dailyResult,
   simulations,
   tickers
