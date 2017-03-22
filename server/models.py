@@ -1,4 +1,6 @@
 from app import db
+from decimal import Decimal
+import json
 
 ###
 # Utility functions
@@ -43,7 +45,7 @@ class Template(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'params': self.params # Todo: fix params parsing
+            'params': json.loads(self.params, parse_float=Decimal)
         }
 
 
