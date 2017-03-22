@@ -22,7 +22,7 @@ namespace result_ns {
 	void to_json(json& j, const Result& result) {
 		j = json{ { "trades", json(result.trades) }, { "dailyProfitReset", result.dailyProfitReset },
 			{ "cumulativeProfitReset", result.cumulativeProfitReset }, { "dailyProfitNoReset", result.dailyProfitNoReset },
-			{ "cumulativeProfitNoRest", result.cumulativeProfitNoReset } };
+			{ "cumulativeProfitNoReset", result.cumulativeProfitNoReset } };
 	}
 }
 #endif //BACKTESTER_RESULT_H
