@@ -47,9 +47,8 @@ const double commission = 5; // amount in dollars for selling a stock
 const size_t lineElementCount = 5; // 5 = number of elements we want in a line of an ultimate file (time, open, high, low, close) 
 
 int main(int argc, char* argv[]) {
-	std::clock_t startTime;
+	clock_t startTime = clock();
 	double backtestDuration;
-	startTime = clock();
 
 	const string backtesterRootDir = buildbacktesterRootDir(argv[0]);
 	unordered_map<string, vector<char*>> args;
@@ -70,10 +69,9 @@ int main(int argc, char* argv[]) {
 	buildParamCombos(config, paramCombos);
 	cout << paramCombos.size() * tickers.size() << endl; // communicating to the server how many simulations will run
 
-	/* One task per ticker will be queued, and each one of those tasks will queue up several other tasks (max 8 total) and then
-	block. 8 = 1 thread per core. When each thread per ticker blocks, we still want one thread per core to be active, so we
-	have 8 + tickers.size threads in the pool. */
-	ctpl::thread_pool tp(8 + tickers.size());
+	// One task per ticker will be queued, and each one of those tasks will queue up several other tasks (one per simulation). The number
+	//  of active tasks is equal to the number of cores on your system, which is the number used to initialize the thread pool.
+	ctpl::thread_pool tp(std::thread::hardware_concurrency());
 	vector<future<void>> taskReturns;
 	mutex(m);
 	for (auto &ticker : tickers) {
@@ -82,7 +80,7 @@ int main(int argc, char* argv[]) {
 				const string ultimateFile = backtesterRootDir + "/ultimate_files/" + ticker + ".txt";
 				vector<Day> days;
 				loadUltimateFile(days, ultimateFile);
-				log << "DATA LOADED FOR " + ticker << endl;
+				log << "DATA LOADED FOR " + (string)ticker << endl;
 				backtestAlgo(days, tp, algoName, m, ticker, paramCombos);
 		}));
 	}
@@ -98,6 +96,7 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
+// Example of the string this function returns on a Windows system: C:\projects\backquote\backtester\backtester
 string buildbacktesterRootDir(char* exeDir) {
 	string dir = exeDir;
 	size_t sectionRemoveCount = 2;
@@ -114,6 +113,7 @@ string buildbacktesterRootDir(char* exeDir) {
 	return dir.substr(0, endPos+1);
 }
 
+// Fills the args unordered map with the arguments received in the main's argv with key=argName, value=argValue
 void parseArgs(int argc, char* argv[], unordered_map<string, vector<char*>> &args) {
 	args["--algoName"] = {};
 	args["--tickers"] = {};
@@ -136,6 +136,7 @@ void parseArgs(int argc, char* argv[], unordered_map<string, vector<char*>> &arg
 	}
 }
 
+// Finds all the parameter combinations possible with the given json config (params) and stores them in paramCombos.
 void buildParamCombos(json &config, vector<unordered_map<string, double>> &paramCombos) {
 	vector<string> rangeNames;
 	vector<vector<double>> ranges;
@@ -152,16 +153,11 @@ void buildParamCombos(json &config, vector<unordered_map<string, double>> &param
 		}
 	}
 
-	if (params.find("timeBufferStart") == params.end()) {
-		params["timeBufferStart"] = 0;
-	}
-	if (params.find("timeBufferEnd") == params.end()) {
-		params["timeBufferEnd"] = 0;
-	}
-
 	paramCombosRecursion(0, rangeNames, ranges, params, paramCombos);
 }
 
+// Used in the buildParamCombos function to find recursively all the parameter combinations. Recursion is used because the number of
+// parameters and ranges is variable depending on the config.
 void paramCombosRecursion(size_t i, vector<string> &rangeNames, vector<vector<double>> &ranges, unordered_map<string, double> &params,
 						  vector<unordered_map<string, double>> &paramCombos) {
 	double start = ranges[i][0];
@@ -180,6 +176,7 @@ void paramCombosRecursion(size_t i, vector<string> &rangeNames, vector<vector<do
 	}
 }
 
+// Gets all the quotes information from the ultimate files and loads it in memory.
 void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
 	log << "Loading " + ultimateFile + " ...\n";
 	ifstream ultimateFileStream;
@@ -217,6 +214,7 @@ void loadUltimateFile(vector<Day> &days, const string &ultimateFile) {
 	ultimateFileStream.close();
 }
 
+// Splits a string separated by a comma and stores the separated strings in the lineInfo string array.
 void split(const string &line, string lineInfo[], const char* delimiter) {
 	char* charLine = new char[line.size() + 1];
 	const char* tempCharLine = line.c_str();
@@ -233,6 +231,8 @@ void split(const string &line, string lineInfo[], const char* delimiter) {
 	delete[] charLine;
 }
 
+// Quotes are added to each corresponding day. The logic present in the function is to determine if the high must be added before the low and
+// vice versa.
 void addQuotes(const double open, const double high, const double low, const double close, Day &day, size_t timestamp) {
 	Quote quote;
 	quote.timestamp = timestamp;
@@ -315,6 +315,8 @@ void simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &resul
 	}
 }
 
+// Initiates trades based on actions returned by an algorithm. Returns a boolean to determine if we should keep trading or not based on
+// the maximum daily loss constraint.
 bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, Quote &quote, Trade &trade,
 				  bool &activePositions, unordered_map<string, double> &params) {
 	if (action != nop) {
@@ -346,6 +348,7 @@ bool handleAction(Result &result, double &dailyCashReset, double &dailyCashNoRes
 	return true;
 }
 
+// Serializes all the results for a simulation and sends them to the server through stdout.
 void uploadResults(const vector<Day> &days, const string &ticker, const string &algoName, mutex &m,
 				   unordered_map<string, double> &params, vector<Result> &results) {
 	json j_sim;
