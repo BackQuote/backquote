@@ -8,3 +8,12 @@ export function simulation(state = {}, action) {
       return state;
   }
 }
+
+export function simulationResults(state = [], action) {
+  switch (action.type) {
+    case types.FETCH_SIMULATION_RESULTS_SUCCESS:
+      return action.simulationResults;
+    default:
+      return state;
+  }
+}

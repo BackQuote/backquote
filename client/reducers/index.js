@@ -16,6 +16,7 @@ const reducers = Object.assign({},
   templates,
   backtests,
   simulation,
+  simulation,
   dailyResult,
   simulations,
   tickers

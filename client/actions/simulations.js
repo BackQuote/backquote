@@ -10,10 +10,10 @@ export function simulationsFetchSuccess(simulations) {
   };
 }
 
-export function fetchSimulations(id) {
+export function fetchSimulations(backtestId) {
   return (dispatch) => {
     dispatch(showLoading());
-    api.get(`backtests/${id}`)
+    api.get(`backtests/${backtestId}/simulations`)
       .then((simulations) => {
         dispatch(simulationsFetchSuccess(simulations));
         dispatch(hideLoading());

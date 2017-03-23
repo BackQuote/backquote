@@ -9,7 +9,7 @@ class Simulation extends React.Component {
   }
 
   render() {
-    let {simulation, quotes, trades} = this.props;
+    let {results, quotes, trades} = this.props;
     return (
       <div className={card}>
         <header>
@@ -19,7 +19,7 @@ class Simulation extends React.Component {
         </header>
         <section>
           <div className="container">
-            <SimulationChart results={simulation.results || []} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
+            <SimulationChart results={results} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
             { (quotes.length > 0 || trades.length > 0) ?
               <DailyResultChart quotes={quotes} trades={trades} />
               : null }
