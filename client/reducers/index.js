@@ -1,6 +1,7 @@
-import { routerReducer as routing } from 'react-router-redux';
 import { combineReducers } from 'redux';
-import { loadingBarReducer } from 'react-redux-loading-bar';
+import { routerReducer as routing } from 'react-router-redux';
+import { reducer as notifications } from 'react-notification-system-redux';
+import { loadingBarReducer as loadingBar } from 'react-redux-loading-bar';
 import * as algorithms from './algorithms';
 import * as templates from './templates';
 import * as backtests from './backtests';
@@ -10,8 +11,8 @@ import * as simulations from './simulations';
 import * as tickers from './tickers';
 
 const reducers = Object.assign({},
-  routing,
   algorithms,
+  notifications,
   templates,
   backtests,
   simulation,
@@ -22,8 +23,9 @@ const reducers = Object.assign({},
 
 const rootReducer = combineReducers({
   routing,
+  loadingBar,
+  notifications,
   ...reducers,
-  loadingBar: loadingBarReducer,
 });
 
 export default rootReducer;

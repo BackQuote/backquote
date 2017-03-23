@@ -46,46 +46,21 @@ class Controls extends React.Component {
 
   saveTemplate() {
     if (this.checkForErrors()) return;
-    api.post('templates', {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        algorithm: parseInt(this.refs.algorithm.value, 10),
-        params: (JSON.parse(this.state.parameters || '{}'))
-      })
-    }) // TODO: show better confirmation in the UI
-      .then(() => {
-        alert('Template saved');
-      })
-      .catch((error) => {
-        alert('Error: ' + error);
-      });
+    this.props.actions.saveTemplate(
+      parseInt(this.refs.algorithm.value, 10),
+      JSON.parse(this.state.parameters || '{}')
+    );
   }
 
   launchBacktest() {
-    // TODO: unify saveTemplate and launchBacktest
     if (this.checkForErrors()) return;
     let algorithm = JSON.parse(this.refs.algorithm.value);
-    api.post('backtester/run', {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        algorithm: algorithm.name,
-        algorithmId: algorithm.id,
-        params: this.state.parameters,
-        tickers: [this.refs.ticker.value]
-      })
-    }) // TODO: show better confirmation in the UI
-      .then(() => {
-        alert('Backtest started');
-      })
-      .catch((error) => {
-        alert('Error: ' + error);
-      });
+    this.props.actions.launchBacktest(
+      algorithm.name,
+      algorithm.id,
+      this.state.parameters,
+      [this.refs.ticker.value]
+    );
   }
 
   render() {
