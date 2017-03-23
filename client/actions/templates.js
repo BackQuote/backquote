@@ -3,16 +3,9 @@ import Notifications from 'react-notification-system-redux';
 import * as types from './types';
 import api from '../api';
 
-export function templatesHasErrored(hasErrored) {
+export function templatesFetchSuccess(templates) {
   return {
-    type: types.TEMPLATES_HAS_ERRORED,
-    hasErrored: hasErrored
-  };
-}
-
-export function templatesFetchDataSuccess(templates) {
-  return {
-    type: types.TEMPLATES_FETCH_DATA_SUCCESS,
+    type: types.FETCH_TEMPLATES_SUCCESS,
     templates
   };
 }
@@ -22,10 +15,15 @@ export function fetchTemplates() {
     dispatch(showLoading());
     api.get('templates')
       .then((templates) => {
-        dispatch(templatesFetchDataSuccess(templates));
+        dispatch(templatesFetchSuccess(templates));
         dispatch(hideLoading());
       })
-      .catch(() => dispatch(templatesHasErrored(true)));
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to fetch templates',
+          message: error.message
+        }));
+      });
   };
 }
 
