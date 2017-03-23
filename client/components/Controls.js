@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import AceEditor from 'react-ace';
 import EditorErrors from './EditorErrors';
+import Executions from './Executions';
 import { card } from '../styles/card.scss';
 import * as styles from '../styles/controls.scss';
 
@@ -74,90 +75,96 @@ class Controls extends React.Component {
 
   render() {
     return (
-      <div className={card}>
-        <header>
-          <h4 className="title">
-            Backtest on historical data
-          </h4>
-          <p>
-            Fill the fields below to proceed
-          </p>
-        </header>
-        <section>
-          <form>
-            <div className="row">
-              <div className="four columns">
-                <label htmlFor="algorithm">Algorithm</label>
-                <select className="u-full-width" id="algorithm" ref="algorithm"
-                        onChange={() => {this.handleAlgorithmChange();}}>
-                  {
-                    this.props.algorithms.map((algorithm) => {
-                      return <option key={algorithm.id} value={[JSON.stringify(algorithm)]}>{algorithm.name}</option>;
-                    })
-                  }
-                </select>
-              </div>
-              <div className="four columns">
-                <label htmlFor="algorithm">Tickers</label>
-                <select className="u-full-width" id="ticker" ref="ticker">
-                  {
-                    this.props.tickers.map((ticker) => {
-                      return <option key={ticker.ticker} value={ticker.ticker}>{ticker.ticker}</option>;
-                    })
-                  }
-                </select>
-              </div>
-            </div>
-            <div className="row">
-              <div className="column">
-                <label htmlFor="parameters">Parameters </label>
-                <div>
-
-                  <div className={styles.actionBar}>
-                    <i className={`fa fa-code ${styles.editorIcon}`} aria-hidden="true"> </i>
-                    <select className={`u-full-width ${styles.template}`} id="templates" ref="template"
-                            onChange={() => {this.handleTemplateChange();}}>
-                      <option value="{}">Load template</option>
-                      {
-                        this.props.templates.map((templates) => {
-                          return <option key={templates.id} value={JSON.stringify(templates.params)}>{JSON.stringify(templates.params)}</option>;
-                        })
-                      }
-                    </select>
-                    <a href="javascript:void(0)" className={`${styles.saveTemplate}`}
-                       style={{position: 'relative', bottom: '41px', right: '2px'}}
-                       onClick={() => {this.saveTemplate();}}>Save template
-                    </a>
-                  </div>
-                  <AceEditor
-                    mode="json"
-                    theme="monokai"
-                    ref="editor"
-                    name="editor"
-                    height="300px"
-                    width="100%"
-                    setOptions={this.state.editorOptions}
-                    value={this.state.parameters}
-                    onChange={(event) => {this.handleParametersChange(event);}}
-                  />
+      <div>
+        <div className={card}>
+          <header>
+            <h4 className="title">
+              Backtest on historical data
+            </h4>
+            <p>
+              Fill the fields below to proceed
+            </p>
+          </header>
+          <section>
+            <form>
+              <div className="row">
+                <div className="four columns">
+                  <label htmlFor="algorithm">Algorithm</label>
+                  <select className="u-full-width" id="algorithm" ref="algorithm"
+                          onChange={() => {this.handleAlgorithmChange();}}>
+                    {
+                      this.props.algorithms.map((algorithm) => {
+                        return <option key={algorithm.id} value={[JSON.stringify(algorithm)]}>{algorithm.name}</option>;
+                      })
+                    }
+                  </select>
                 </div>
-                <EditorErrors errors={this.state.syntaxErrors} />
+                <div className="four columns">
+                  <label htmlFor="algorithm">Tickers</label>
+                  <select className="u-full-width" id="ticker" ref="ticker">
+                    {
+                      this.props.tickers.map((ticker) => {
+                        return <option key={ticker.ticker} value={ticker.ticker}>{ticker.ticker}</option>;
+                      })
+                    }
+                  </select>
+                </div>
               </div>
+              <div className="row">
+                <div className="column">
+                  <label htmlFor="parameters">Parameters </label>
+                  <div>
+
+                    <div className={styles.actionBar}>
+                      <i className={`fa fa-code ${styles.editorIcon}`} aria-hidden="true"> </i>
+                      <select className={`u-full-width ${styles.template}`} id="templates" ref="template"
+                              onChange={() => {this.handleTemplateChange();}}>
+                        <option value="{}">Load template</option>
+                        {
+                          this.props.templates.map((templates) => {
+                            return <option key={templates.id} value={JSON.stringify(templates.params)}>{JSON.stringify(templates.params)}</option>;
+                          })
+                        }
+                      </select>
+                      <a href="javascript:void(0)" className={`${styles.saveTemplate}`}
+                         style={{position: 'relative', bottom: '41px', right: '2px'}}
+                         onClick={() => {this.saveTemplate();}}>Save template
+                      </a>
+                    </div>
+                    <AceEditor
+                      mode="json"
+                      theme="monokai"
+                      ref="editor"
+                      name="editor"
+                      height="300px"
+                      width="100%"
+                      setOptions={this.state.editorOptions}
+                      value={this.state.parameters}
+                      onChange={(event) => {this.handleParametersChange(event);}}
+                    />
+                  </div>
+                  <EditorErrors errors={this.state.syntaxErrors} />
+                </div>
+              </div>
+            </form>
+            <div className="row">
+              <a href="javascript:void(0)" className="button button-primary u-pull-right"
+                 onClick={() => {this.launchBacktest();}}>Execute
+              </a>
             </div>
-          </form>
-          <div className="row">
-            <a href="javascript:void(0)" className="button button-primary u-pull-right"
-               onClick={() => {this.launchBacktest();}}>Execute
-            </a>
-          </div>
-        </section>
+          </section>
+        </div>
+        <Executions/>
       </div>
     );
   }
 }
 
 Controls.propTypes = {
-  fetchTemplates: PropTypes.func
+  actions: PropTypes.object,
+  algorithms: PropTypes.array,
+  tickers: PropTypes.array,
+  templates: PropTypes.array
 };
 
 export default Controls;
