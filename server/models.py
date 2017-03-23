@@ -149,6 +149,7 @@ class Result(db.Model):
     cumulative_profit_no_reset = db.Column(db.Numeric)
     day_id = db.Column(db.Integer, db.ForeignKey('day.id'))
     simulation_id = db.Column(db.Integer, db.ForeignKey('simulation.id'))
+    date = None
 
     def __init__(self, daily_profit_reset, daily_profit_no_reset, cumulative_profit_reset,
                  cumulative_profit_no_reset, day_id, simulation_id):
@@ -158,7 +159,6 @@ class Result(db.Model):
         self.cumulative_profit_no_reset = cumulative_profit_no_reset
         self.day_id = day_id
         self.simulation_id = simulation_id
-        self.day = None
 
     @property
     def serialize(self):
@@ -171,7 +171,7 @@ class Result(db.Model):
             'cumulativeProfitNoReset': decimal(self.cumulative_profit_no_reset),
             'dayId': self.day_id,
             'simulationId': self.simulation_id,
-            'date': str(self.day.date)
+            'date': str(self.date)
         }
 
 
