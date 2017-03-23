@@ -8,12 +8,21 @@ import 'brace/mode/json';
 import 'brace/theme/monokai';
 import 'brace/ext/language_tools';
 
+const defaultParameters = {
+  'timeBufferStart': [0, 0, 1],
+  'timeBufferEnd': [0, 0, 1],
+  'cash': 15000,
+  'margin': 0.3,
+  'maxLossPerTrade': 0.05,
+  'maxDailyLoss': 0.3
+};
+
 class Controls extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      parameters: '',
+      parameters: JSON.stringify(defaultParameters, null, '\t'),
       syntaxErrors: [],
       editorOptions: {
         tabSize: 2,
@@ -91,7 +100,6 @@ class Controls extends React.Component {
               <div className="two columns">
                 <label htmlFor="algorithm">Tickers</label>
                 <select className="u-full-width" id="ticker" ref="ticker">
-                  <option value="">Select</option>
                   {
                     this.props.tickers.map((ticker) => {
                       return <option key={ticker.ticker} value={ticker.ticker}>{ticker.ticker}</option>;
