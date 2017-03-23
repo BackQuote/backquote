@@ -9,7 +9,7 @@ class Simulation extends React.Component {
   }
 
   render() {
-    let {simulation, result, quotes, trades} = this.props;
+    let {simulation, quotes, trades} = this.props;
     return (
       <div className={card}>
         <header>
@@ -32,7 +32,6 @@ class Simulation extends React.Component {
 
 Simulation.propTypes = {
   simulation: PropTypes.object,
-  result: PropTypes.object,
   quotes: PropTypes.array,
   trades: PropTypes.array,
   updateDailyResultChart: PropTypes.func
