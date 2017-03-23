@@ -1,3 +1,4 @@
+import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import * as types from './types';
 import api from '../api';
 
@@ -8,27 +9,33 @@ export function dailyResultHasErrored(hasErrored) {
   };
 }
 
-export function dailyResultIsLoading(isLoading) {
+export function quotesFetchDataSuccess(quotes) {
   return {
-    type: types.DAILY_RESULT_IS_LOADING,
-    isLoading: isLoading
+    type: types.QUOTES_FETCH_DATA_SUCCESS,
+    quotes
   };
 }
 
-export function dailyResultFetchDataSuccess(dailyResult) {
+export function tradesFetchDataSuccess(trades) {
   return {
-    type: types.DAILY_RESULT_FETCH_DATA_SUCCESS,
-    dailyResult
+    type: types.TRADES_FETCH_DATA_SUCCESS,
+    trades
   };
 }
 
-export function fetchDailyResult() {
+export function fetchDailyResult(id, dayId, ticker) {
   return (dispatch) => {
-    dispatch(dailyResultIsLoading(true));
-    api.get('daily_result')
-      .then((dailyResult) => {
-        dispatch(dailyResultFetchDataSuccess(dailyResult));
-        dispatch(dailyResultIsLoading(false));
+    dispatch(showLoading());
+    api.get(`quotes/${dayId}/${ticker}`)
+      .then((quotes) => {
+        dispatch(quotesFetchDataSuccess(quotes));
+        dispatch(hideLoading());
+      })
+      .catch(() => dispatch(dailyResultHasErrored(true)));
+    api.get(`trades/results/${id}`)
+      .then((trades) => {
+        dispatch(tradesFetchDataSuccess(trades));
+        dispatch(hideLoading());
       })
       .catch(() => dispatch(dailyResultHasErrored(true)));
   };

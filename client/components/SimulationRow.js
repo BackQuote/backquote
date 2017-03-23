@@ -8,12 +8,11 @@ class SimulationRow extends React.Component {
     return (
       <tr key={this.props.simulation.id}>
         <td>
-          <Link to={`/simulation/${this.props.simulation.id}`}>{this.props.simulation.id}</Link>
+          <Link to={`/simulation/${this.props.simulation.id}`}>{this.props.index}</Link>
         </td>
         <td>
-          <JSONTree data={JSON.parse(String(this.props.simulation.params))} hideRoot />
+          <JSONTree data={this.props.simulation.params} hideRoot />
         </td>
-        <td>TODO: Ticker</td>
         <td>{this.props.simulation.profit}</td>
         <td>{this.props.simulation.ticker}</td>
         <td><ProfitNumber value={this.props.simulation.profitReset}/></td>

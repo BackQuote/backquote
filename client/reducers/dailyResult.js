@@ -8,18 +8,20 @@ export function dailyResultHasErrored(state = false, action) {
       return state;
   }
 }
-export function dailyResultIsLoading(state = false, action) {
+
+export function quotes(state = [], action) {
   switch (action.type) {
-    case types.DAILY_RESULT_IS_LOADING:
-      return action.isLoading;
+    case types.QUOTES_FETCH_DATA_SUCCESS:
+      return action.quotes;
     default:
       return state;
   }
 }
-export function dailyResult(state = {}, action) {
+
+export function trades(state = [], action) {
   switch (action.type) {
-    case types.DAILY_RESULT_FETCH_DATA_SUCCESS:
-      return action.dailyResult;
+    case types.TRADES_FETCH_DATA_SUCCESS:
+      return action.trades;
     default:
       return state;
   }

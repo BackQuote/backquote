@@ -2,9 +2,10 @@ import React, { PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Controls from '../components/Controls';
-import * as algorithmsActionCreators from '../actions/algorithms';
-import * as templatesActionCreators from '../actions/templates';
-import * as tickersActionCreators from '../actions/tickers';
+import * as backtestsActions from '../actions/backtests';
+import * as algorithmsActions from '../actions/algorithms';
+import * as templatesActions from '../actions/templates';
+import * as tickersActions from '../actions/tickers';
 
 class ControlsPage extends React.Component {
   componentDidMount() {
@@ -31,16 +32,16 @@ const mapStateToProps = (state) => {
     templates: state.templates,
     tickers: state.tickers,
     hasErrored: state.algorithmsHasErrored,
-    isLoading: state.algorithmsIsLoading
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
-      ...algorithmsActionCreators,
-      ...templatesActionCreators,
-      ...tickersActionCreators
+      ...backtestsActions,
+      ...algorithmsActions,
+      ...templatesActions,
+      ...tickersActions
     }, dispatch),
   };
 };

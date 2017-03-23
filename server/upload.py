@@ -35,7 +35,7 @@ def save_models(simulation_results, backtest_id):
             date = datetime.combine(day.date, datetime.min.time())
             date = date + timedelta(milliseconds=trade['timestamp'])
             time = datetime.strftime(date, "%Y-%m-%d %H:%M:%S.%f")
-            trade_models.append(Trade(trade['quantityReset'], trade['quantityNoReset'], trade['action'],
+            trade_models.append(Trade(trade['price'], trade['quantityReset'], trade['quantityNoReset'], trade['action'],
                                       time, result_id))
 
         db.session.add_all(trade_models)

@@ -28,7 +28,10 @@ config.tooltip = {
 
 config.series = [{
   name: 'Quote',
-  data: []
+  data: [],
+  dataGrouping: {
+    enabled: false
+  }
 }, {
   name: 'Trade',
   data: [],
@@ -60,15 +63,28 @@ config.title = {
 };
 
 class DailyResultChart extends React.Component {
+
   updateDataSet() {
-    const sets = ['quotes', 'trades', 'profit'];
-    sets.forEach((serie, index) => {
-      config.series[index].data = this.props[serie];
+    let { quotes, trades } = this.props;
+
+    config.series[0].data = quotes.map((quote) => {
+      let date = quote.timestamp.substring(0, 10).split('-');
+      let time = quote.timestamp.substring(11, 19).split(':');
+      let dateTime = Date.UTC(date[0], date[1], date[2], time[0], time[1], time[2]);
+      return [dateTime, quote.open];
+    });
+
+    config.series[1].data = trades.map((trade) => {
+      let date = trade.timestamp.substring(0, 10).split('-');
+      let time = trade.timestamp.substring(11, 19).split(':');
+      let dateTime = Date.UTC(date[0], date[1], date[2], time[0], time[1], time[2]);
+      return [dateTime, trade.price];
     });
   }
 
   render() {
     this.updateDataSet();
+
     return (
       <ReactHighstock config={config} ref="chart"> </ReactHighstock>
     );

@@ -65,10 +65,48 @@ def trade(id):
     trade = Trade.query.get(id)
     return jsonify(trade.serialize)
 
+@app.route('/trades/results/<id>')
+def trade_results(id):
+    trades = Trade.query.filter_by(result_id = id).all()
+    return jsonify([i.serialize for i in trades])
+
+@app.route('/quotes/<day_id>/<ticker>')
+def quote_by_day_ticker(day_id, ticker):
+    quotes = Quote.query \
+        .filter_by(day_id=day_id) \
+        .filter_by(ticker=ticker) \
+        .all()
+    return jsonify([i.serialize for i in quotes])
+
 @app.route('/quotes/<id>')
 def quote(id):
     quote = Quote.query.get(id)
     return jsonify(quote.serialize)
+
+@app.route('/simulations')
+def simulations():
+    simulations = Simulation.query.all()
+    return jsonify([i.serialize for i in simulations])
+
+@app.route('/simulations/<id>')
+def simulation(id):
+    simulation = Simulation.query.get(id)
+
+    # HACK : this should be in the model
+    for s in simulation.results:
+        s.day = Day.query.get(s.day_id)
+
+    return jsonify(simulation.serialize)
+
+@app.route('/backtests')
+def backtests():
+    backtests = Backtest.query.all()
+    return jsonify([i.serialize for i in backtests])
+
+@app.route('/backtests/<id>')
+def backtest(id):
+    backtest = Backtest.query.get(id)
+    return jsonify([i.serialize for i in backtest.simulations])
 
 def execute_backtest():
     global executing, backtest_queue

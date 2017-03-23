@@ -2,44 +2,47 @@ import React, { PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Simulation from '../components/Simulation';
-import * as daysAction from '../actions/days';
-import * as dailyResultAction from '../actions/dailyResult';
+import * as simulationAction from '../actions/simulation';
+import * as quotesAction from '../actions/dailyResult';
+import * as tradesAction from '../actions/dailyResult';
 
 class SimulationPage extends React.Component {
   componentDidMount() {
-    this.props.actions.fetchDays();
+    this.props.actions.fetchSimulation(this.props.params.id);
   }
 
-  updateDailyResultChart(id) {
-    this.props.actions.fetchDailyResult();
+  updateDailyResultChart(id, dayId, ticker) {
+    this.props.actions.fetchDailyResult(id, dayId, ticker);
   }
 
   render() {
-    let {days, dailyResult} = this.props;
+    let {simulation, quotes, trades} = this.props;
     return (
-      <Simulation days={days} dailyResult={dailyResult} updateDailyResultChart={() => {this.updateDailyResultChart();}}/>
+      <Simulation simulation={simulation} quotes={quotes} trades={trades}
+                  updateDailyResultChart={(id, dayId, ticker) => {this.updateDailyResultChart(id, dayId, ticker);}}/>
     );
   }
 }
 
 SimulationPage.propTypes = {
-  days: PropTypes.array,
-  dailyResult: PropTypes.object,
+  simulation: PropTypes.object,
   actions: PropTypes.object
 };
 
 const mapStateToProps = (state) => {
   return {
-    days: state.days,
-    dailyResult: state.dailyResult,
+    simulation: state.simulation,
+    quotes: state.quotes,
+    trades: state.trades
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
-      ...daysAction,
-      ...dailyResultAction,
+      ...simulationAction,
+      ...quotesAction,
+      ...tradesAction
     }, dispatch)
   };
 };

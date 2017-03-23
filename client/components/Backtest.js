@@ -18,13 +18,14 @@ class Backtest extends React.Component {
               <th>Simulation</th>
               <th>Parameters</th>
               <th>Ticker</th>
-              <th>Profit</th>
+              <th>Profit with reset</th>
+              <th>Profit without reset</th>
             </tr>
             </thead>
             <tbody>
             {
-              this.props.simulations.map((simulation) => {
-                return <SimulationRow key={simulation.id} simulation={simulation}/>;
+              this.props.simulations.map((simulation, index) => {
+                return <SimulationRow key={simulation.id} index={index + 1} simulation={simulation}/>;
               })
             }
             </tbody>

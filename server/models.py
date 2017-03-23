@@ -72,13 +72,15 @@ class Trade(db.Model):
     __tablename__ = "trade"
 
     id = db.Column(db.Integer, primary_key=True)
+    price = db.Column(db.Numeric)
     quantity_reset = db.Column(db.Numeric)
     quantity_no_reset = db.Column(db.Numeric)
     action = db.Column(db.String)
     timestamp = db.Column(db.TIMESTAMP)
     result_id = db.Column(db.Integer, db.ForeignKey('result.id'))
 
-    def __init__(self, quantity_reset, quantity_no_reset, action, timestamp, result_id):
+    def __init__(self, price, quantity_reset, quantity_no_reset, action, timestamp, result_id):
+        self.price = price
         self.quantity_reset = quantity_reset
         self.quantity_no_reset = quantity_no_reset
         self.action = action
@@ -89,10 +91,11 @@ class Trade(db.Model):
     def serialize(self):
         return {
             'id': self.id,
+            'price': decimal(self.price),
             'quantityReset': decimal(self.quantity_reset),
             'quantityNoReset': decimal(self.quantity_no_reset),
             'action': self.action,
-            'timestamp': self.timestamp,
+            'timestamp': str(self.timestamp),
             'resultId': self.result_id
         }
 
@@ -129,7 +132,7 @@ class Quote(db.Model):
             'high': decimal(self.high),
             'low': decimal(self.low),
             'lastOfDay': self.last_of_day,
-            'timestamp': self.timestamp,
+            'timestamp': str(self.timestamp),
             'dayId': self.day_id,
             'ticker': self.ticker
         }
@@ -155,6 +158,7 @@ class Result(db.Model):
         self.cumulative_profit_no_reset = cumulative_profit_no_reset
         self.day_id = day_id
         self.simulation_id = simulation_id
+        self.day = None
 
     @property
     def serialize(self):
@@ -166,7 +170,8 @@ class Result(db.Model):
             'cumulativeProfitReset': decimal(self.cumulative_profit_reset),
             'cumulativeProfitNoReset': decimal(self.cumulative_profit_no_reset),
             'dayId': self.day_id,
-            'simulationId': self.simulation_id
+            'simulationId': self.simulation_id,
+            'date': str(self.day.date)
         }
 
 
@@ -213,9 +218,9 @@ class Simulation(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'params': self.params,
-            'profitNoReset': self.profit_no_reset,
-            'profitReset': self.profit_reset,
+            'params': json.loads(self.params),
+            'profitNoReset': str(self.profit_no_reset),
+            'profitReset': str(self.profit_reset),
             'results': serialize(self.results),
             'backtestId': self.backtest_id,
             'ticker': self.ticker
@@ -243,10 +248,10 @@ class Backtest(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'params': self.params,
+            'params': json.loads(self.params),
             'timestamp': str(self.timestamp),
             'success': self.success,
-            'simulations': serialize(self.simulations),
+            'simulations': [i.serialize for i in self.simulations],
             'algorithmId': self.algorithm_id,
-            'tickers': self.tickers
+            'tickers': [i.serialize for i in self.tickers]
         }

@@ -304,6 +304,7 @@ ALTER TABLE ticker OWNER TO postgres;
 
 CREATE TABLE trade (
     id integer NOT NULL,
+    price numeric(10,2),
     quantity_reset integer,
     quantity_no_reset integer,
     action varchar(10),

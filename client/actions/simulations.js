@@ -1,3 +1,4 @@
+import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import * as types from './types';
 import api from '../api';
 
@@ -8,13 +9,6 @@ export function simulationsHasErrored(hasErrored) {
   };
 }
 
-export function simulationsIsLoading(isLoading) {
-  return {
-    type: types.SIMULATIONS_IS_LOADING,
-    isLoading: isLoading
-  };
-}
-
 export function simulationsFetchDataSuccess(simulations) {
   return {
     type: types.SIMULATIONS_FETCH_DATA_SUCCESS,
@@ -22,13 +16,13 @@ export function simulationsFetchDataSuccess(simulations) {
   };
 }
 
-export function fetchSimulations() {
+export function fetchSimulations(id) {
   return (dispatch) => {
-    dispatch(simulationsIsLoading(true));
-    api.get('simulations')
+    dispatch(showLoading());
+    api.get(`backtests/${id}`)
       .then((simulations) => {
         dispatch(simulationsFetchDataSuccess(simulations));
-        dispatch(simulationsIsLoading(false));
+        dispatch(hideLoading());
       })
       .catch(() => dispatch(simulationsHasErrored(true)));
   };
