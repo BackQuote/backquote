@@ -9,15 +9,6 @@ export function tickersHasErrored(state = false, action) {
   }
 }
 
-export function tickersIsLoading(state = false, action) {
-  switch (action.type) {
-    case types.TICKERS_IS_LOADING:
-      return action.isLoading;
-    default:
-      return state;
-  }
-}
-
 export function tickers(state = [], action) {
   switch (action.type) {
     case types.TICKERS_FETCH_DATA_SUCCESS:

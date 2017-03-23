@@ -9,15 +9,6 @@ export function templatesHasErrored(state = false, action) {
   }
 }
 
-export function templatesIsLoading(state = false, action) {
-  switch (action.type) {
-    case types.TEMPLATES_IS_LOADING:
-      return action.isLoading;
-    default:
-      return state;
-  }
-}
-
 export function templates(state = [], action) {
   switch (action.type) {
     case types.TEMPLATES_FETCH_DATA_SUCCESS:

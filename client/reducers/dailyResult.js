@@ -9,15 +9,6 @@ export function dailyResultHasErrored(state = false, action) {
   }
 }
 
-export function dailyResultIsLoading(state = false, action) {
-  switch (action.type) {
-    case types.DAILY_RESULT_IS_LOADING:
-      return action.isLoading;
-    default:
-      return state;
-  }
-}
-
 export function quotes(state = [], action) {
   switch (action.type) {
     case types.QUOTES_FETCH_DATA_SUCCESS:
