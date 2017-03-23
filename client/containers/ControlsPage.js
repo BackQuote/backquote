@@ -30,8 +30,7 @@ const mapStateToProps = (state) => {
     algorithms: state.algorithms,
     templates: state.templates,
     tickers: state.tickers,
-    hasErrored: state.algorithmsHasErrored,
-    isLoading: state.algorithmsIsLoading
+    hasErrored: state.algorithmsHasErrored
   };
 };
 

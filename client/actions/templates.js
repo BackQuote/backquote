@@ -1,3 +1,4 @@
+import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import * as types from './types';
 import api from '../api';
 
@@ -5,13 +6,6 @@ export function templatesHasErrored(hasErrored) {
   return {
     type: types.TEMPLATES_HAS_ERRORED,
     hasErrored: hasErrored
-  };
-}
-
-export function templatesIsLoading(isLoading) {
-  return {
-    type: types.TEMPLATES_IS_LOADING,
-    isLoading: isLoading
   };
 }
 
@@ -24,11 +18,11 @@ export function templatesFetchDataSuccess(templates) {
 
 export function fetchTemplates() {
   return (dispatch) => {
-    dispatch(templatesIsLoading(true));
+    dispatch(showLoading());
     api.get('templates')
       .then((templates) => {
         dispatch(templatesFetchDataSuccess(templates));
-        dispatch(templatesIsLoading(false));
+        dispatch(hideLoading());
       })
       .catch(() => dispatch(templatesHasErrored(true)));
   };

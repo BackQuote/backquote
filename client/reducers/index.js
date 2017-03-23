@@ -1,5 +1,6 @@
 import { routerReducer as routing } from 'react-router-redux';
 import { combineReducers } from 'redux';
+import { loadingBarReducer } from 'react-redux-loading-bar';
 import * as algorithms from './algorithms';
 import * as templates from './templates';
 import * as backtests from './backtests';
@@ -21,7 +22,8 @@ const reducers = Object.assign({},
 
 const rootReducer = combineReducers({
   routing,
-  ...reducers
+  ...reducers,
+  loadingBar: loadingBarReducer,
 });
 
 export default rootReducer;

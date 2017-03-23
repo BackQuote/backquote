@@ -28,6 +28,7 @@
     "react-highcharts": "^11.5.0",
     "react-hot-loader": "^3.0.0-beta.2",
     "react-redux": "^4.4.5",
+    "react-redux-loading-bar": "^2.7.4",
     "react-router": "^2.4.0",
     "react-router-redux": "^4.0.4",
     "redux": "^3.5.2"

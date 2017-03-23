@@ -1,3 +1,4 @@
+import { showLoading, hideLoading } from 'react-redux-loading-bar';
 import * as types from './types';
 import api from '../api';
 
@@ -5,13 +6,6 @@ export function tickersHasErrored(hasErrored) {
   return {
     type: types.TICKERS_HAS_ERRORED,
     hasErrored: hasErrored
-  };
-}
-
-export function tickersIsLoading(isLoading) {
-  return {
-    type: types.TICKERS_IS_LOADING,
-    isLoading: isLoading
   };
 }
 
@@ -24,11 +18,11 @@ export function tickersFetchDataSuccess(tickers) {
 
 export function fetchTickers() {
   return (dispatch) => {
-    dispatch(tickersIsLoading(true));
+    dispatch(showLoading());
     api.get('tickers')
       .then((tickers) => {
         dispatch(tickersFetchDataSuccess(tickers));
-        dispatch(tickersIsLoading(false));
+        dispatch(hideLoading());
       })
       .catch(() => dispatch(tickersHasErrored(true)));
   };
