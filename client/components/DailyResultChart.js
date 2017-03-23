@@ -67,15 +67,18 @@ class DailyResultChart extends React.Component {
   updateDataSet() {
     let { quotes, trades } = this.props;
 
-    // TODO: fix date
-    config.series[0].data = quotes.map((result, notADate) => {
-      return [notADate, result.open];
+    config.series[0].data = quotes.map((quote) => {
+      let date = quote.timestamp.substring(0, 10).split('-');
+      let time = quote.timestamp.substring(11, 19).split(':');
+      let dateTime = Date.UTC(date[0], date[1], date[2], time[0], time[1], time[2]);
+      return [dateTime, quote.open];
     });
 
-    // TODO: fix date
-    config.series[1].data = trades.map((result, notADate) => {
-      // TODO: fix trade value
-      return [notADate, quotes[0].open];
+    config.series[1].data = trades.map((trade) => {
+      let date = quotes[0].timestamp.substring(0, 10).split('-');
+      let time = trade.timestamp.split(':');
+      let dateTime = Date.UTC(date[0], date[1], date[2], time[0], time[1], time[2]);
+      return [dateTime, trade.price];
     });
   }
 
