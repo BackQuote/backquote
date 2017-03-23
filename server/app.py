@@ -150,5 +150,16 @@ def run_backtester():
 
     return jsonify({"status": "ok"})
 
+@app.route('/stats')
+def stats():
+    bestSimulation = Simulation.query.order_by(Simulation.profit_no_reset).first()
+    numberOfBacktests = Backtest.query.count()
+    numberOfSimulations = Simulation.query.count()
+    return jsonify({
+        "numberOfBacktests": numberOfBacktests,
+        "numberOfSimulations": numberOfSimulations,
+        "bestSimulation": bestSimulation.serialize
+    })
+
 if __name__ == '__main__':
     socketio.run(app, debug=app.config['DEBUG'])
