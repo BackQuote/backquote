@@ -1,4 +1,5 @@
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import Notifications from 'react-notification-system-redux';
 import * as types from './types';
 import api from '../api';
 
@@ -25,5 +26,27 @@ export function fetchBacktests() {
         dispatch(hideLoading());
       })
       .catch(() => dispatch(backtestsHasErrored(true)));
+  };
+}
+
+export function launchBacktest(algorithm, algorithmId, params, tickers) {
+  return (dispatch) => {
+    api.post('backtester/run', {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({algorithm, algorithmId, params, tickers})
+    }).then(() => {
+      dispatch(Notifications.success({
+        title: 'Success',
+        message: 'Backtest started successfully.'
+      }));
+    }).catch((error) => {
+      dispatch(Notifications.error({
+        title: 'Unable to execute backtest',
+        message: error.message
+      }));
+    });
   };
 }
