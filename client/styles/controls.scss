@@ -1,0 +1,46 @@
+.actionBar {
+  height: 40px;
+  position: relative;
+  top: 0;
+  background: #2f3129;
+  width: 100%;
+}
+
+.actionBarItem {
+  font-size: .85em;
+  color: white;
+
+  &:hover {
+    color: white;
+    background-color: #202020;
+  }
+}
+
+.template {
+  @extend .actionBarItem;
+  width: 120px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 0!important;
+
+  &:focus {
+    border:0;
+  }
+}
+
+.saveTemplate {
+  @extend .actionBarItem;
+  position: relative;
+  left: 0;
+  bottom: -1px !important;
+
+  text-decoration: none;
+  padding: 12px 20px 13px 20px;
+}
+
+.editorIcon {
+  color: #d1d1d1;
+  padding: 0 16px 13px 16px;
+  border-bottom: 1px solid #272822;
+}
