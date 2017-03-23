@@ -1,17 +1,11 @@
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import Notifications from 'react-notification-system-redux';
 import * as types from './types';
 import api from '../api';
 
-export function tickersHasErrored(hasErrored) {
+export function tickersFetchSuccess(tickers) {
   return {
-    type: types.TICKERS_HAS_ERRORED,
-    hasErrored: hasErrored
-  };
-}
-
-export function tickersFetchDataSuccess(tickers) {
-  return {
-    type: types.TICKERS_FETCH_DATA_SUCCESS,
+    type: types.FETCH_TICKERS_SUCCESS,
     tickers
   };
 }
@@ -21,9 +15,14 @@ export function fetchTickers() {
     dispatch(showLoading());
     api.get('tickers')
       .then((tickers) => {
-        dispatch(tickersFetchDataSuccess(tickers));
+        dispatch(tickersFetchSuccess(tickers));
         dispatch(hideLoading());
       })
-      .catch(() => dispatch(tickersHasErrored(true)));
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to fetch tickers',
+          message: error.message
+        }));
+      });
   };
 }

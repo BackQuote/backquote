@@ -1,24 +1,18 @@
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import Notifications from 'react-notification-system-redux';
 import * as types from './types';
 import api from '../api';
 
-export function dailyResultHasErrored(hasErrored) {
+export function quotesFetchSuccess(quotes) {
   return {
-    type: types.DAILY_RESULT_HAS_ERRORED,
-    hasErrored: hasErrored
-  };
-}
-
-export function quotesFetchDataSuccess(quotes) {
-  return {
-    type: types.QUOTES_FETCH_DATA_SUCCESS,
+    type: types.FETCH_QUOTES_SUCCESS,
     quotes
   };
 }
 
-export function tradesFetchDataSuccess(trades) {
+export function tradesFetchSuccess(trades) {
   return {
-    type: types.TRADES_FETCH_DATA_SUCCESS,
+    type: types.FETCH_TRADES_SUCCESS,
     trades
   };
 }
@@ -28,15 +22,25 @@ export function fetchDailyResult(id, dayId, ticker) {
     dispatch(showLoading());
     api.get(`quotes/${dayId}/${ticker}`)
       .then((quotes) => {
-        dispatch(quotesFetchDataSuccess(quotes));
+        dispatch(quotesFetchSuccess(quotes));
         dispatch(hideLoading());
       })
-      .catch(() => dispatch(dailyResultHasErrored(true)));
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to fetch quotes',
+          message: error.message
+        }));
+      });
     api.get(`trades/results/${id}`)
       .then((trades) => {
-        dispatch(tradesFetchDataSuccess(trades));
+        dispatch(tradesFetchSuccess(trades));
         dispatch(hideLoading());
       })
-      .catch(() => dispatch(dailyResultHasErrored(true)));
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to fetch trades',
+          message: error.message
+        }));
+      });
   };
 }

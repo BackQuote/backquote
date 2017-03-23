@@ -1,17 +1,11 @@
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import Notifications from 'react-notification-system-redux';
 import * as types from './types';
 import api from '../api';
 
-export function algorithmsHasErrored(hasErrored) {
+export function algorithmsFetchSuccess(algorithms) {
   return {
-    type: types.ALGORITHMS_HAS_ERRORED,
-    hasErrored: hasErrored
-  };
-}
-
-export function algorithmsFetchDataSuccess(algorithms) {
-  return {
-    type: types.ALGORITHMS_FETCH_DATA_SUCCESS,
+    type: types.FETCH_ALGORITHMS_SUCCESS,
     algorithms
   };
 }
@@ -21,9 +15,14 @@ export function fetchAlgorithms() {
     dispatch(showLoading());
     api.get('algorithms')
       .then((algorithms) => {
-        dispatch(algorithmsFetchDataSuccess(algorithms));
+        dispatch(algorithmsFetchSuccess(algorithms));
         dispatch(hideLoading());
       })
-      .catch(() => dispatch(algorithmsHasErrored(true)));
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to fetch algorithms',
+          message: error.message
+        }));
+      });
   };
 }

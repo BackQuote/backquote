@@ -1,17 +1,11 @@
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import Notifications from 'react-notification-system-redux';
 import * as types from './types';
 import api from '../api';
 
-export function simulationsHasErrored(hasErrored) {
+export function simulationsFetchSuccess(simulations) {
   return {
-    type: types.SIMULATIONS_HAS_ERRORED,
-    hasErrored: hasErrored
-  };
-}
-
-export function simulationsFetchDataSuccess(simulations) {
-  return {
-    type: types.SIMULATIONS_FETCH_DATA_SUCCESS,
+    type: types.FETCH_SIMULATIONS_SUCCESS,
     simulations
   };
 }
@@ -21,9 +15,14 @@ export function fetchSimulations(id) {
     dispatch(showLoading());
     api.get(`backtests/${id}`)
       .then((simulations) => {
-        dispatch(simulationsFetchDataSuccess(simulations));
+        dispatch(simulationsFetchSuccess(simulations));
         dispatch(hideLoading());
       })
-      .catch(() => dispatch(simulationsHasErrored(true)));
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to fetch simulations',
+          message: error.message
+        }));
+      });
   };
 }
