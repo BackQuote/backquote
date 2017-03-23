@@ -8,14 +8,7 @@ export function backtestsHasErrored(state = false, action) {
       return state;
   }
 }
-export function backtestsIsLoading(state = false, action) {
-  switch (action.type) {
-    case types.BACKTESTS_IS_LOADING:
-      return action.isLoading;
-    default:
-      return state;
-  }
-}
+
 export function backtests(state = [], action) {
   switch (action.type) {
     case types.BACKTESTS_FETCH_DATA_SUCCESS:
