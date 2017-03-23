@@ -72,13 +72,15 @@ class Trade(db.Model):
     __tablename__ = "trade"
 
     id = db.Column(db.Integer, primary_key=True)
+    price = db.Column(db.Numeric)
     quantity_reset = db.Column(db.Numeric)
     quantity_no_reset = db.Column(db.Numeric)
     action = db.Column(db.String)
     timestamp = db.Column(db.TIMESTAMP)
     result_id = db.Column(db.Integer, db.ForeignKey('result.id'))
 
-    def __init__(self, quantity_reset, quantity_no_reset, action, timestamp, result_id):
+    def __init__(self, price, quantity_reset, quantity_no_reset, action, timestamp, result_id):
+        self.price = price
         self.quantity_reset = quantity_reset
         self.quantity_no_reset = quantity_no_reset
         self.action = action
@@ -89,6 +91,7 @@ class Trade(db.Model):
     def serialize(self):
         return {
             'id': self.id,
+            'price': decimal(self.price),
             'quantityReset': decimal(self.quantity_reset),
             'quantityNoReset': decimal(self.quantity_no_reset),
             'action': self.action,
