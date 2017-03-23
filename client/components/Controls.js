@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import AceEditor from 'react-ace';
 import EditorErrors from './EditorErrors';
 import { card } from '../styles/card.scss';
-import api from '../api';
+import * as styles from '../styles/controls.scss';
 
 import 'brace/mode/json';
 import 'brace/theme/monokai';
@@ -77,7 +77,7 @@ class Controls extends React.Component {
         <section>
           <form>
             <div className="row">
-              <div className="two columns">
+              <div className="four columns">
                 <label htmlFor="algorithm">Algorithm</label>
                 <select className="u-full-width" id="algorithm" ref="algorithm"
                         onChange={() => {this.handleAlgorithmChange();}}>
@@ -88,7 +88,7 @@ class Controls extends React.Component {
                   }
                 </select>
               </div>
-              <div className="two columns">
+              <div className="four columns">
                 <label htmlFor="algorithm">Tickers</label>
                 <select className="u-full-width" id="ticker" ref="ticker">
                   <option value="">Select</option>
@@ -99,21 +99,28 @@ class Controls extends React.Component {
                   }
                 </select>
               </div>
-              <div className="two columns">
-                <label htmlFor="algorithm">Template</label>
-                <select className="u-full-width" id="templates" ref="template"
-                        onChange={() => {this.handleTemplateChange();}}>
-                  <option value="">Select</option>
-                  {
-                    this.props.templates.map((templates) => {
-                      return <option key={templates.id} value={JSON.stringify(templates.params)}>{JSON.stringify(templates.params)}</option>;
-                    })
-                  }
-                </select>
-              </div>
-              <div className="six columns">
+            </div>
+            <div className="row">
+              <div className="column">
                 <label htmlFor="parameters">Parameters </label>
                 <div>
+
+                  <div className={styles.actionBar}>
+                    <i className={`fa fa-code ${styles.editorIcon}`} aria-hidden="true"> </i>
+                    <select className={`u-full-width ${styles.template}`} id="templates" ref="template"
+                            onChange={() => {this.handleTemplateChange();}}>
+                      <option value="{}">Load template</option>
+                      {
+                        this.props.templates.map((templates) => {
+                          return <option key={templates.id} value={JSON.stringify(templates.params)}>{JSON.stringify(templates.params)}</option>;
+                        })
+                      }
+                    </select>
+                    <a href="javascript:void(0)" className={`${styles.saveTemplate}`}
+                       style={{position: 'relative', bottom: '41px', right: '2px'}}
+                       onClick={() => {this.saveTemplate();}}>Save template
+                    </a>
+                  </div>
                   <AceEditor
                     mode="json"
                     theme="monokai"
@@ -125,10 +132,6 @@ class Controls extends React.Component {
                     value={this.state.parameters}
                     onChange={(event) => {this.handleParametersChange(event);}}
                   />
-                  <a href="javascript:void(0)" className="button u-pull-right"
-                     style={{position: 'relative', bottom: '41px', right: '2px'}}
-                     onClick={() => {this.saveTemplate();}}>Save
-                  </a>
                 </div>
                 <EditorErrors errors={this.state.syntaxErrors} />
               </div>
