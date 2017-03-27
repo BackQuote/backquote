@@ -4,8 +4,20 @@ import SimulationChart from './SimulationChart';
 import DailyResultChart from './DailyResultChart';
 
 class Simulation extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      profitType: 'dailyProfitNoReset'
+    };
+  }
+
   updateDailyResultChart(id, dayId) {
     this.props.updateDailyResultChart(id, dayId, this.props.simulation.ticker);
+  }
+
+  setProfitType() {
+    this.setState({profitType: this.refs.profitType.value});
   }
 
   render() {
@@ -19,9 +31,16 @@ class Simulation extends React.Component {
         </header>
         <section>
           <div className="container">
-            <SimulationChart results={results} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
+            <div className="u-pull-right">
+              Profit{' '}
+              <select name="profitType" ref="profitType" onChange={() => {this.setProfitType();}}>
+                <option value="dailyProfitNoReset">Without Reset</option>
+                <option value="dailyProfitReset">With Reset</option>
+              </select>
+            </div>
+            <SimulationChart results={results} profitType={this.state.profitType} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
             { (quotes.length > 0 || trades.length > 0) ?
-              <DailyResultChart quotes={quotes} trades={trades} />
+              <DailyResultChart quotes={quotes} trades={trades} profitType={this.state.profitType} />
               : null }
           </div>
         </section>

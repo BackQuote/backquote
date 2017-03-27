@@ -34,9 +34,6 @@ class SimulationChart extends React.Component {
       rangeSelector: {
         selected: 1
       },
-      title: {
-        text: 'Simulation Chart'
-      },
       xAxis: {
         type: 'datetime',
       },
@@ -54,15 +51,18 @@ class SimulationChart extends React.Component {
     this.config.series[0].data = this.props.results.map((result) => {
       let date = result.date.split('-');
       date = [Date.UTC(date[0], date[1], date[2])];
-      return [date, result.dailyProfitNoReset];
+      return [date, result[this.props.profitType]];
     });
-    return <ReactHighstock config={this.config}> </ReactHighstock>;
+    return (
+      <ReactHighstock config={this.config}> </ReactHighstock>
+    );
   }
 }
 
 SimulationChart.propTypes = {
   results: PropTypes.array,
-  updateDailyResultChart: PropTypes.func
+  updateDailyResultChart: PropTypes.func,
+  profitType: PropTypes.string
 };
 
 export default SimulationChart;
