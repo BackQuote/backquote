@@ -49,8 +49,8 @@ class Template(db.Model):
 
 
 backtest_ticker = db.Table('backtest_ticker',
-    db.Column('backtest_id', db.Integer, db.ForeignKey('backtest.id'), primary_key=True),
-    db.Column('ticker', db.Integer, db.ForeignKey('ticker.ticker'), primary_key=True))
+                           db.Column('backtest_id', db.Integer, db.ForeignKey('backtest.id'), primary_key=True),
+                           db.Column('ticker', db.Integer, db.ForeignKey('ticker.ticker'), primary_key=True))
 
 
 class Ticker(db.Model):
@@ -142,7 +142,7 @@ class Result(db.Model):
     __tablename__ = "result"
 
     id = db.Column(db.Integer, primary_key=True)
-    trades = db.relationship('Trade', backref='result')
+    trades = db.relationship('Trade', backref='result', lazy='dynamic')
     daily_profit_reset = db.Column(db.Numeric)
     daily_profit_no_reset = db.Column(db.Numeric)
     cumulative_profit_reset = db.Column(db.Numeric)
@@ -164,7 +164,6 @@ class Result(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'trades': serialize(self.trades),
             'dailyProfitReset': decimal(self.daily_profit_reset),
             'dailyProfitNoReset': decimal(self.daily_profit_no_reset),
             'cumulativeProfitReset': decimal(self.cumulative_profit_reset),
@@ -203,7 +202,7 @@ class Simulation(db.Model):
     params = db.Column(db.String)
     profit_no_reset = db.Column(db.Numeric)
     profit_reset = db.Column(db.Numeric)
-    results = db.relationship('Result', backref='simulation')
+    results = db.relationship('Result', backref='simulation', lazy='dynamic')
     backtest_id = db.Column(db.Integer, db.ForeignKey('backtest.id'))
     ticker = db.Column(db.String, db.ForeignKey('ticker.ticker'))
 
@@ -221,7 +220,6 @@ class Simulation(db.Model):
             'params': json.loads(self.params),
             'profitNoReset': str(self.profit_no_reset),
             'profitReset': str(self.profit_reset),
-            'results': serialize(self.results),
             'backtestId': self.backtest_id,
             'ticker': self.ticker
         }
@@ -234,7 +232,7 @@ class Backtest(db.Model):
     params = db.Column(db.String)
     timestamp = db.Column(db.TIMESTAMP)
     success = db.Column(db.Boolean)
-    simulations = db.relationship('Simulation', backref='backtest')
+    simulations = db.relationship('Simulation', backref='backtest', lazy='dynamic')
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
     tickers = db.relationship('Ticker', secondary=backtest_ticker, backref='backtest')
 
@@ -251,7 +249,6 @@ class Backtest(db.Model):
             'params': json.loads(self.params),
             'timestamp': str(self.timestamp),
             'success': self.success,
-            'simulations': [i.serialize for i in self.simulations],
             'algorithmId': self.algorithm_id,
             'tickers': [i.serialize for i in self.tickers]
         }

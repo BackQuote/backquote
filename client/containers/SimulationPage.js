@@ -8,7 +8,9 @@ import * as tradesAction from '../actions/dailyResult';
 
 class SimulationPage extends React.Component {
   componentDidMount() {
+    // TODO: we should not load that in here. already in the state from backtestPage
     this.props.actions.fetchSimulation(this.props.params.id);
+    this.props.actions.fetchSimulationResults(this.props.params.id);
   }
 
   updateDailyResultChart(id, dayId, ticker) {
@@ -16,9 +18,9 @@ class SimulationPage extends React.Component {
   }
 
   render() {
-    let {simulation, quotes, trades} = this.props;
+    let {simulation, simulationResults, quotes, trades} = this.props;
     return (
-      <Simulation simulation={simulation} quotes={quotes} trades={trades}
+      <Simulation simulation={simulation} results={simulationResults} quotes={quotes} trades={trades}
                   updateDailyResultChart={(id, dayId, ticker) => {this.updateDailyResultChart(id, dayId, ticker);}}/>
     );
   }
@@ -32,6 +34,7 @@ SimulationPage.propTypes = {
 const mapStateToProps = (state) => {
   return {
     simulation: state.simulation,
+    simulationResults: state.simulationResults,
     quotes: state.quotes,
     trades: state.trades
   };

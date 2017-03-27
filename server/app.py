@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import lazyload
 from flask_socketio import SocketIO
 from flask_cors import CORS
 from Queue import Queue
@@ -37,7 +38,6 @@ def templates():
 def save_template():
     post_data = request.get_json()
     template = upload_template(json.dumps(post_data['params']))
-
     return jsonify(template.serialize)
 
 @app.route('/tickers')
@@ -85,28 +85,35 @@ def quote(id):
 
 @app.route('/simulations')
 def simulations():
-    simulations = Simulation.query.all()
+    simulations = Simulation.query.options(lazyload('results')).all()
     return jsonify([i.serialize for i in simulations])
 
 @app.route('/simulations/<id>')
 def simulation(id):
     simulation = Simulation.query.get(id)
-
-    # HACK : this should be in the model
-    for s in simulation.results:
-        s.day = Day.query.get(s.day_id)
-
     return jsonify(simulation.serialize)
+
+@app.route('/simulations/<id>/results')
+def simulations_results(id):
+    results = Result.query.filter_by(simulation_id=id).all()
+    for r in results:
+       r.day = Day.query.get(r.day_id)
+    return jsonify([i.serialize for i in results])
 
 @app.route('/backtests')
 def backtests():
-    backtests = Backtest.query.all()
+    backtests = Backtest.query.options(lazyload('simulations')).all()
     return jsonify([i.serialize for i in backtests])
 
 @app.route('/backtests/<id>')
 def backtest(id):
     backtest = Backtest.query.get(id)
-    return jsonify([i.serialize for i in backtest.simulations])
+    return jsonify(backtest.serialize)
+
+@app.route('/backtests/<id>/simulations')
+def backtests_simulations(id):
+    simulations = Simulation.query.filter_by(backtest_id=id).all()
+    return jsonify([i.serialize for i in simulations])
 
 def execute_backtest():
     global executing, backtest_queue
