@@ -9,6 +9,7 @@ import * as simulation from './simulation';
 import * as dailyResult from './dailyResult';
 import * as simulations from './simulations';
 import * as tickers from './tickers';
+import * as stats from './stats';
 
 const reducers = Object.assign({},
   algorithms,
@@ -19,7 +20,8 @@ const reducers = Object.assign({},
   simulation,
   dailyResult,
   simulations,
-  tickers
+  tickers,
+  stats
 );
 
 const rootReducer = combineReducers({
