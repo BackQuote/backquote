@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import JSONTree from 'react-json-tree';
 import { Link } from 'react-router';
+import { theme } from '../themes/default';
 
 class BacktestRow extends React.Component {
   render() {
@@ -11,7 +12,7 @@ class BacktestRow extends React.Component {
         </td>
         <td>{this.props.backtest.algorithmId}</td>
         <td>
-          <JSONTree data={this.props.backtest.params} hideRoot />
+          <JSONTree data={this.props.backtest.params} theme={theme} hideRoot />
         </td>
         <td>
           {
