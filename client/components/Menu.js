@@ -20,7 +20,7 @@ const Menu = () =>
           </Link>
         </li>
         <li>
-          <Link to="/backtests" onlyActiveOnIndex activeClassName={active}>
+          <Link to="/backtests" activeClassName={active}>
             <i className={`fa fa-line-chart ${icon}`}> </i>{' '}Backtests
           </Link>
         </li>
