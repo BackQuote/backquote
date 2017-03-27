@@ -1,6 +1,34 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
-import BacktestRow from './BacktestRow';
+import ReactTable from 'react-table';
+import JSONTree from 'react-json-tree';
+import { Link } from 'react-router';
+import { theme } from '../themes/default';
+
+const columns = [ {
+  minWidth: 50,
+  header: 'Algorithm',
+  accessor: 'algorithmId', // Todo: get the actual algorithm name
+}, {
+  header: 'Parameters',
+  accessor: 'params',
+  render: row => <JSONTree data={row.value} theme={theme} hideRoot />
+}, {
+  minWidth: 50,
+  header: 'Tickers',
+  accessor: 'tickers',
+  render: row => <span>
+    {row.value.map(ticker => {
+      return ticker.ticker;
+    }).join(', ')}
+  </span>
+}, {
+  minWidth: 50,
+  header: '',
+  accessor: 'id',
+  style: {textAlign: 'center'},
+  render: row => <Link className="button" to={`/backtest/${row.value}`}>view</Link>
+}];
 
 class BacktestList extends React.Component {
   render() {
@@ -12,23 +40,11 @@ class BacktestList extends React.Component {
           </h4>
         </header>
         <section>
-          <table className="u-full-width">
-            <thead>
-            <tr>
-              <th>Backtest</th>
-              <th>Algorithm</th>
-              <th>Parameters</th>
-              <th>Tickers</th>
-            </tr>
-            </thead>
-            <tbody>
-            {
-              this.props.backtests.map((backtest) => {
-                return <BacktestRow key={backtest.id} backtest={backtest}/>;
-              })
-            }
-            </tbody>
-          </table>
+          <ReactTable
+            showPagination={false}
+            minRows={0}
+            data={this.props.backtests}
+            columns={columns} />
         </section>
       </div>
     );
