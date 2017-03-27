@@ -1,6 +1,36 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
-import SimulationRow from './SimulationRow';
+import ReactTable from 'react-table';
+import JSONTree from 'react-json-tree';
+import { Link } from 'react-router';
+import ProfitNumber from './ProfitNumber';
+import { theme } from '../themes/default';
+
+const columns = [{
+  header: 'Parameters',
+  accessor: 'params',
+  render: row => <JSONTree data={row.value} theme={theme} hideRoot />
+}, {
+  minWidth: 50,
+  header: 'Ticker',
+  accessor: 'ticker'
+}, {
+  minWidth: 50,
+  header: 'Profit',
+  accessor: 'profitNoReset',
+  render: row => <ProfitNumber value={row.value}/>
+}, {
+  minWidth: 50,
+  header: 'Profit (reset)',
+  accessor: 'profitReset',
+  render: row => <ProfitNumber value={row.value}/>
+}, {
+  minWidth: 50,
+  header: '',
+  accessor: 'id',
+  style: {textAlign: 'center'},
+  render: row => <Link className="button" to={`/simulation/${row.value}`}>view</Link>
+}];
 
 class Backtest extends React.Component {
   render() {
@@ -12,24 +42,11 @@ class Backtest extends React.Component {
           </h4>
         </header>
         <section>
-          <table className="u-full-width">
-            <thead>
-            <tr>
-              <th>Simulation</th>
-              <th>Parameters</th>
-              <th>Ticker</th>
-              <th>Profit with reset</th>
-              <th>Profit without reset</th>
-            </tr>
-            </thead>
-            <tbody>
-            {
-              this.props.simulations.map((simulation, index) => {
-                return <SimulationRow key={simulation.id} index={index + 1} simulation={simulation}/>;
-              })
-            }
-            </tbody>
-          </table>
+          <ReactTable
+            showPagination={false}
+            minRows={0}
+            data={this.props.simulations || []}
+            columns={columns} />
         </section>
       </div>
     );
