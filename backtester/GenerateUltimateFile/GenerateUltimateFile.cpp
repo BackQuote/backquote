@@ -69,8 +69,6 @@ void generateFileForTicker(string& ticker, string& quotesDir)
 	struct stat buffer;
 	int time;
 
-	if (stat(ultimateFilePath.c_str(), &buffer) == 0)
-		throwException(ultimateFilePath + " doesn't exist");
 	ultimateFileStream.open(ultimateFilePath);
 	if (!ultimateFileStream)
 		throwException("couldn't open " + ultimateFilePath);

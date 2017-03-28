@@ -1,5 +1,7 @@
+#include "stdafx.h"
 #include "Simple.h"
-#include <string>
+
+using namespace std;
 
 Simple::Simple(const unordered_map<string, double> params) : bought(false) {
 	algoParams = params;

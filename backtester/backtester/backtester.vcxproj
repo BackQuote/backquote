@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="algorithms\Algorithm.h" />
     <ClInclude Include="algorithms\Simple.h" />
+    <ClInclude Include="algorithms\stdafx.h" />
     <ClInclude Include="external_dependencies\ctpl_stl.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="models\action.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="models\models.h" />
     <ClInclude Include="models\quote.h" />
     <ClInclude Include="models\result.h" />
+    <ClInclude Include="models\stdafx.h" />
     <ClInclude Include="models\trade.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -166,6 +168,8 @@
     <ClCompile Include="algorithms\Algorithm.cpp" />
     <ClCompile Include="algorithms\Simple.cpp" />
     <ClCompile Include="backtester.cpp" />
+    <ClCompile Include="models\result.cpp" />
+    <ClCompile Include="models\trade.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

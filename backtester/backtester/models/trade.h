@@ -1,11 +1,11 @@
-#include "action.h"
-#include "../external_dependencies/json.hpp"
+#pragma once
 
-using json = nlohmann::json;
+#include "stdafx.h"
+#include "models.h"
 
-#ifndef BACKTESTER_TRADE_H
-#define BACKTESTER_TRADE_H
 namespace trade_ns {
+	using json = nlohmann::json;
+
 	struct Trade {
 		double price;
 		size_t quantityReset;
@@ -14,21 +14,5 @@ namespace trade_ns {
 		size_t timestamp;
 	};
 
-	void to_json(json& j, const Trade& trade) {
-		string actionString;
-		switch (trade.action) {
-			case buy:
-				actionString = "buy";
-				break;
-			case sell:
-				actionString = "sell";
-				break;
-			case nop:
-				actionString = "nop";
-				break;
-		}
-		j = json{ { "price", trade.price }, { "quantityReset", trade.quantityReset }, { "quantityNoReset", trade.quantityNoReset },
-			{ "action", actionString }, { "timestamp", trade.timestamp } };
-	}
+	void to_json(json& j, const Trade&);
 }
-#endif //BACKTESTER_TRADE_H

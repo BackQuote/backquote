@@ -1,15 +1,4 @@
 #include "stdafx.h"
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <vector>
-#include <thread>
-#include <unordered_map>
-#include <mutex>
-#include <ctime>
-#include "external_dependencies/json.hpp"
-#include "external_dependencies/ctpl_stl.h"
 #include "algorithms/Simple.h"
 #include "models/models.h"
 
@@ -71,7 +60,7 @@ int main(int argc, char* argv[]) {
 
 	// One task per ticker will be queued, and each one of those tasks will queue up several other tasks (one per simulation). The number
 	//  of active tasks is equal to the number of cores on your system, which is the number used to initialize the thread pool.
-	ctpl::thread_pool tp(std::thread::hardware_concurrency());
+	ctpl::thread_pool tp(thread::hardware_concurrency());
 	vector<future<void>> taskReturns;
 	mutex(m);
 	for (auto &ticker : tickers) {
@@ -99,14 +88,15 @@ int main(int argc, char* argv[]) {
 // Example of the string this function returns on a Windows system: C:\projects\backquote\backtester\backtester
 string buildbacktesterRootDir(char* exeDir) {
 	string dir = exeDir;
-	size_t sectionRemoveCount = 2;
+	string backtestercpp;
+	struct stat buffer;
 	size_t endPos = dir.length() - 1;
 	char c;
 
-	for (size_t i = 0; i < sectionRemoveCount; --endPos) {
+	for (size_t i = 0; stat(backtestercpp.c_str(), &buffer) != 0; --endPos) {
 		c = dir.at(endPos);
 		if (c == '/' || c == '\\') {
-			++i;
+			backtestercpp = dir.substr(0, endPos + 1) + "backtester.cpp";
 		}
 	}
 
@@ -126,7 +116,7 @@ void parseArgs(int argc, char* argv[], unordered_map<string, vector<char*>> &arg
 
 		int j = i + 1;
 		for (; j < argc; ++j) {
-			if (((string)argv[j]).find("--") != std::string::npos) {
+			if (((string)argv[j]).find("--") != string::npos) {
 				break;
 			}
 			args[argv[i]].push_back(argv[j]);
@@ -381,6 +371,6 @@ unique_ptr<Algorithm> getAlgo(const string &algoName, const unordered_map<string
 }
 
 void throwException(const string &message) {
-	cout << message << endl;
+	log << message << endl;
 	throw 20;
 }
