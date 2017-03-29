@@ -1,12 +1,13 @@
-#include "trade.h"
-#include "../external_dependencies/json.hpp"
+#pragma once
 
-using json = nlohmann::json;
-using Trade = trade_ns::Trade;
+#include "stdafx.h"
+#include "models.h"
 
-#ifndef BACKTESTER_RESULT_H
-#define BACKTESTER_RESULT_H
 namespace result_ns {
+	using namespace std;
+	using json = nlohmann::json;
+	using Trade = trade_ns::Trade;
+
 	struct Result {
 		/*
 		Daily profit vs cumulative profit: profit of that single day vs the profit of that single day + all the ones before it
@@ -19,10 +20,6 @@ namespace result_ns {
 		double cumulativeProfitNoReset;
 	};
 
-	void to_json(json& j, const Result& result) {
-		j = json{ { "trades", json(result.trades) }, { "dailyProfitReset", result.dailyProfitReset },
-			{ "cumulativeProfitReset", result.cumulativeProfitReset }, { "dailyProfitNoReset", result.dailyProfitNoReset },
-			{ "cumulativeProfitNoReset", result.cumulativeProfitNoReset } };
-	}
+	void to_json(json& j, const Result&);
 }
-#endif //BACKTESTER_RESULT_H
+

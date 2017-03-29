@@ -1,13 +1,13 @@
 #pragma once
+#include "stdafx.h"
 #include "Algorithm.h"
 
 class Simple : public Algorithm {
 public:
-	Simple(const unordered_map<string, double> params);
+	Simple(const std::unordered_map<std::string, double> params);
 	~Simple();
 	Action processQuote(Quote&);
 	
 private:
 	bool bought;
 };
-

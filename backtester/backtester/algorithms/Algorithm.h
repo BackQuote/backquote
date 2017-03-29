@@ -1,10 +1,6 @@
 #pragma once
-#include <string>
-#include <unordered_map>
-#include "../models/quote.h"
-#include "../models/action.h"
-
-using namespace std;
+#include "stdafx.h"
+#include "../models/models.h"
 
 class Algorithm {
 public:
@@ -14,7 +10,7 @@ public:
 
 protected:
 	bool Algorithm::checkDayActive(size_t);
-	unordered_map<string, double> algoParams;
+	std::unordered_map<std::string, double> algoParams;
 
 private:
 	const size_t marketOpenTime = 34'200'000; // milliseconds equivalent to 9h30

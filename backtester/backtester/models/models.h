@@ -1,5 +1,7 @@
+#pragma once
+
 #include "action.h"
-#include "day.h"
 #include "quote.h"
-#include "result.h"
+#include "day.h"
 #include "trade.h"
+#include "result.h"
