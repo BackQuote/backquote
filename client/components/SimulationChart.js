@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import ReactHighstock from 'react-highcharts/ReactHighstock';
+import { formatDataSet } from '../utilities/charts';
 
 class SimulationChart extends React.Component {
   constructor(props) {
@@ -48,11 +49,7 @@ class SimulationChart extends React.Component {
   }
 
   render() {
-    this.config.series[0].data = this.props.results.map((result) => {
-      let date = result.date.split('-');
-      date = [Date.UTC(date[0], date[1], date[2])];
-      return [date, result[this.props.profitType]];
-    });
+    this.config.series[0].data = formatDataSet(this.props.results, this.props.profitType);
     return (
       <ReactHighstock config={this.config}> </ReactHighstock>
     );

@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import ReactHighstock from 'react-highcharts/ReactHighstock';
+import { formatDataSet } from '../utilities/charts';
 
 let config = {};
 config.yAxis = [{
@@ -63,27 +64,10 @@ config.title = {
 };
 
 class DailyResultChart extends React.Component {
-
-  updateDataSet() {
-    let { quotes, trades } = this.props;
-
-    config.series[0].data = quotes.map((quote) => {
-      let date = quote.timestamp.substring(0, 10).split('-');
-      let time = quote.timestamp.substring(11, 19).split(':');
-      let dateTime = Date.UTC(date[0], date[1], date[2], time[0], time[1], time[2]);
-      return [dateTime, quote.open];
-    });
-
-    config.series[1].data = trades.map((trade) => {
-      let date = trade.timestamp.substring(0, 10).split('-');
-      let time = trade.timestamp.substring(11, 19).split(':');
-      let dateTime = Date.UTC(date[0], date[1], date[2], time[0], time[1], time[2]);
-      return [dateTime, trade.price];
-    });
-  }
-
   render() {
-    this.updateDataSet();
+    let { quotes, trades } = this.props;
+    config.series[0].data = formatDataSet(quotes, 'open', 'timestamp', true);
+    config.series[1].data = formatDataSet(trades, 'price', 'timestamp', true);
 
     return (
       <ReactHighstock config={config} ref="chart"> </ReactHighstock>
