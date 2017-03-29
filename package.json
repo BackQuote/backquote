@@ -6,8 +6,8 @@
   "scripts": {
     "test": "",
     "start": "node server",
-    "build": "rimraf dist && webpack --config ./webpack.production.config.js --progress --profile --colors",
-    "eslint": "eslint ."
+    "build": "rimraf dist && webpack --config ./webpack.config.js --progress --profile --colors",
+    "eslint": "eslint client"
   },
   "repository": {
     "type": "git",

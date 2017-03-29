@@ -45,3 +45,4 @@ node_modules
 *.log
 *.css.map
 server/ENV
+dist
