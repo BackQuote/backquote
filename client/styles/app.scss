@@ -3,3 +3,11 @@
   top: 0;
   height: 100vh;
 }
+
+.loadingBar {
+  background-color: #77b6ff;
+  position: fixed;
+  z-index: 40;
+  height: 2px;
+  top: 0;
+}

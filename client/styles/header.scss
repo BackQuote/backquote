@@ -1,5 +1,7 @@
+@import "constants";
+
 .header {
-  padding: 15px 15px;
-  background-color: rgba(255, 255, 255, 0.96);
+  height: $header-height;
+  background-color: #23272c;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
