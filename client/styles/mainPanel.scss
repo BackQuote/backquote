@@ -1,16 +1,22 @@
+@import "constants";
+
 .mainPanel {
   overflow: auto;
   background: #f7f7f7;
   position: relative;
   z-index: 2;
   float: right;
-  width: calc(100% - 220px);
+  width: $_menu-width;
   height: 100%;
   min-height: 100%;
   max-height: 100%;
+
+  @media screen and (max-width: $break-medium) {
+    width: $_menu-closed-width;
+  }
 }
 
 .content {
-  padding: 30px 15px;
-  min-height: calc(100% - 170px);
+  padding: 15px 15px;
+  min-height: calc(100% - 140px);
 }

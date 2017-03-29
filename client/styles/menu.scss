@@ -1,22 +1,24 @@
+@import "constants";
+
 .menu {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
-  width: 220px;
+  width: $menu-width;
   display: block;
   z-index: 1;
   color: #ffffff;
   font-weight: 200;
   background-size: cover;
-  background-color: #293a42;
+  background-color: #2e363e;
 
   nav {
-    margin-top: 20px;
     ul {
       list-style: none;
       li {
         margin: 0;
+        border-bottom: 1px solid #2b3035;
         a {
           color: #ffffff;
           position: relative;
@@ -25,30 +27,44 @@
           text-decoration: none;
 
           &:hover:not(.active) {
-            background-color: #172a3a;
+            background-color: rgba(17, 90, 152, 0.6);
             transition: all 150ms ease-in;
-            box-shadow: inset 5px 0 0 0 #4b968a;
+            box-shadow: inset 2px 0 0 0 #33c3f0;
           }
         }
       }
     }
   }
+
+  @media screen and (max-width: $break-medium) {
+    width: $menu-closed-width;
+    span {
+      display: none;
+    }
+  }
 }
 
 .active {
-  background-color: #172a3a;
+  background-color: rgba(17, 90, 152, 0.6);
   transition: all 150ms ease-in;
-  box-shadow: inset 5px 0 0 0 #60cec2;
+  box-shadow: inset 2px 0 0 0 #2898fb;
   border-bottom: none;
 }
 
 .logo {
-  padding: 15px 15px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: #0d1f2d;
+  height: $header-height;
+  background-color: #23272c;
+}
+
+.backquote {
+  color: #33C3F0;
+  font-size: 100px;
+  position: absolute;
+  top: -22px;
+  left: 20px;
 }
 
 .icon {
-  margin: 0 10px;
+  margin: 0 0 0 8px;
+  width: 40px;
 }

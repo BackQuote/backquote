@@ -1,21 +1,21 @@
+import 'font-awesome/css/font-awesome.css';
+import 'react-table/react-table.css';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import LoadingBar from 'react-redux-loading-bar';
+import Notifications from 'react-notification-system-redux';
 import Menu from '../components/Menu';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { app } from '../styles/app.scss';
+import { app, loadingBar} from '../styles/app.scss';
 import { mainPanel, content } from '../styles/mainPanel.scss';
-require('font-awesome/css/font-awesome.css');
-import 'react-table/react-table.css';
-import { connect } from 'react-redux';
-
-import Notifications from 'react-notification-system-redux';
-
 
 class App extends React.Component {
   render() {
     let { children, notifications } = this.props;
     return (
       <div className={app}>
+        <LoadingBar className={loadingBar} />
         <Notifications notifications={notifications}/>
         <Menu/>
         <div className={mainPanel}>
