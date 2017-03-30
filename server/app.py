@@ -166,7 +166,7 @@ def execute_backtest():
 
 @app.route('/backtester/run', methods=['POST'])
 def run_backtester():
-    global executing, executions, thread
+    global executing, executions, thread, completed_executions, pending_executions
 
     post_data = request.get_json()
     post_data['params'] = "".join(str(post_data['params']).split())
@@ -180,6 +180,8 @@ def run_backtester():
 
     if executing is False and thread is None:
         socketio.start_background_task(target=execute_backtest)
+    else:
+        socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
 
     return jsonify({"status": "ok"})
 
