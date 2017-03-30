@@ -140,6 +140,7 @@ def execute_backtest():
     simulation_count = 0
     number_of_simulations = proc.stdout.readline().rstrip('\r\n')
     current_execution["number_of_simulations"] = number_of_simulations
+    socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
 
     while 1:
         simulation_count += 1
@@ -150,8 +151,7 @@ def execute_backtest():
         save_models(simulation_results, backtest.id)
 
         current_execution["progress"] = float(simulation_count) / float(number_of_simulations) * 100
-        socketio.emit('executions',
-                      {'executions': json.dumps(completed_executions + executions + pending_executions)})
+        socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
 
     completed_executions.append(executions.pop(0))
     backtest_completed(backtest.id)
