@@ -25,6 +25,9 @@ socketio = SocketIO(app, async_mode=async_mode)
 executing = False
 backtest_queue = Queue()
 
+def jsonify_all(list):
+    return jsonify([item.serialize for item in list])
+
 ### Routes
 @app.route('/')
 def api_root():
@@ -33,12 +36,12 @@ def api_root():
 @app.route('/algorithms')
 def algorithms():
     algos = Algorithm.query.all()
-    return jsonify([i.serialize for i in algos])
+    return jsonify_all(algos)
 
 @app.route('/templates')
 def templates():
     templates = Template.query.all()
-    return jsonify([i.serialize for i in templates])
+    return jsonify_all(templates)
 
 @app.route('/templates', methods=['POST'])
 def save_template():
@@ -49,7 +52,7 @@ def save_template():
 @app.route('/tickers')
 def tickers():
     tickers = Ticker.query.all()
-    return jsonify([i.serialize for i in tickers])
+    return jsonify_all(tickers)
 
 @app.route('/algorithms/<id>')
 def algorithm(id):
@@ -74,7 +77,7 @@ def trade(id):
 @app.route('/trades/results/<id>')
 def trade_results(id):
     trades = Trade.query.filter_by(result_id = id).all()
-    return jsonify([i.serialize for i in trades])
+    return jsonify_all(trades)
 
 @app.route('/quotes/<day_id>/<ticker>')
 def quote_by_day_ticker(day_id, ticker):
@@ -82,7 +85,7 @@ def quote_by_day_ticker(day_id, ticker):
         .filter_by(day_id=day_id) \
         .filter_by(ticker=ticker) \
         .all()
-    return jsonify([i.serialize for i in quotes])
+    return jsonify_all(quotes)
 
 @app.route('/quotes/<id>')
 def quote(id):
@@ -92,7 +95,7 @@ def quote(id):
 @app.route('/simulations')
 def simulations():
     simulations = Simulation.query.options(lazyload('results')).all()
-    return jsonify([i.serialize for i in simulations])
+    return jsonify_all(simulations)
 
 @app.route('/simulations/<id>')
 def simulation(id):
@@ -104,12 +107,12 @@ def simulations_results(id):
     results = Result.query.filter_by(simulation_id=id).all()
     for r in results:
        r.day = Day.query.get(r.day_id)
-    return jsonify([i.serialize for i in results])
+    return jsonify_all(results)
 
 @app.route('/backtests')
 def backtests():
     backtests = Backtest.query.options(lazyload('simulations')).all()
-    return jsonify([i.serialize for i in backtests])
+    return jsonify_all(backtests)
 
 @app.route('/backtests/<id>')
 def backtest(id):
@@ -119,7 +122,11 @@ def backtest(id):
 @app.route('/backtests/<id>/simulations')
 def backtests_simulations(id):
     simulations = Simulation.query.filter_by(backtest_id=id).all()
-    return jsonify([i.serialize for i in simulations])
+    return jsonify_all(simulations)
+
+def emit_executions():
+    global executions, completed_executions, pending_executions
+    socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
 
 def execute_backtest():
     global executing, executions, completed_executions, pending_executions
@@ -140,7 +147,7 @@ def execute_backtest():
     simulation_count = 0
     number_of_simulations = proc.stdout.readline().rstrip('\r\n')
     current_execution["number_of_simulations"] = number_of_simulations
-    socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
+    emit_executions()
 
     while 1:
         simulation_count += 1
@@ -151,7 +158,7 @@ def execute_backtest():
         save_models(simulation_results, backtest.id)
 
         current_execution["progress"] = float(simulation_count) / float(number_of_simulations) * 100
-        socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
+        emit_executions()
 
     completed_executions.append(executions.pop(0))
     backtest_completed(backtest.id)
@@ -166,7 +173,7 @@ def execute_backtest():
 
 @app.route('/backtester/run', methods=['POST'])
 def run_backtester():
-    global executing, executions, thread, completed_executions, pending_executions
+    global executing, executions, thread
 
     post_data = request.get_json()
     post_data['params'] = "".join(str(post_data['params']).split())
@@ -181,7 +188,7 @@ def run_backtester():
     if executing is False and thread is None:
         socketio.start_background_task(target=execute_backtest)
     else:
-        socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
+        emit_executions()
 
     return jsonify({"status": "ok"})
 
