@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/BackQuote/backquote.svg?branch=master)](https://travis-ci.org/BackQuote/backquote)
+
+
+---
+
+
 # ![logo](https://avatars2.githubusercontent.com/u/25215892?v=3)
 
 # Summary
