@@ -4,6 +4,7 @@ import EditorErrors from './EditorErrors';
 import Executions from './Executions';
 import { card } from '../styles/card.scss';
 import * as styles from '../styles/controls.scss';
+import Select from 'react-select';
 
 import 'brace/mode/json';
 import 'brace/theme/monokai';
@@ -23,6 +24,7 @@ class Controls extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      tickers: [],
       parameters: JSON.stringify(defaultParameters, null, '\t'),
       syntaxErrors: [],
       editorOptions: {
@@ -36,12 +38,22 @@ class Controls extends React.Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.tickers.length === 0 && nextProps.tickers.length > 0) {
+      this.setState({tickers: [nextProps.tickers[0].ticker]});
+    }
+  }
+
   handleTemplateChange() {
     this.setState({
       parameters: JSON.stringify(
         JSON.parse(this.refs.template.value), null, '\t'
       )
     });
+  }
+
+  handleTickersChange(options) {
+    this.setState({ tickers: options.map(option => {return option.value;})});
   }
 
   handleParametersChange(event) {
@@ -69,11 +81,12 @@ class Controls extends React.Component {
       algorithm.name,
       algorithm.id,
       this.state.parameters,
-      [this.refs.ticker.value]
+      this.state.tickers
     );
   }
 
   render() {
+    let { algorithms, templates, tickers } = this.props;
     return (
       <div>
         <div className={card}>
@@ -93,7 +106,7 @@ class Controls extends React.Component {
                   <select className="u-full-width" id="algorithm" ref="algorithm"
                           onChange={() => {this.handleAlgorithmChange();}}>
                     {
-                      this.props.algorithms.map((algorithm) => {
+                      algorithms.map(algorithm => {
                         return <option key={algorithm.id} value={[JSON.stringify(algorithm)]}>{algorithm.name}</option>;
                       })
                     }
@@ -101,13 +114,12 @@ class Controls extends React.Component {
                 </div>
                 <div className="four columns">
                   <label htmlFor="algorithm">Tickers</label>
-                  <select className="u-full-width" id="ticker" ref="ticker">
-                    {
-                      this.props.tickers.map((ticker) => {
-                        return <option key={ticker.ticker} value={ticker.ticker}>{ticker.ticker}</option>;
-                      })
-                    }
-                  </select>
+                  <Select
+                    multi
+                    value={this.state.tickers}
+                    onChange={this.handleTickersChange.bind(this)}
+                    options={tickers.map(ticker => {return {value: ticker.ticker, label: ticker.ticker};})}
+                  />
                 </div>
               </div>
               <div className="row">
@@ -121,8 +133,8 @@ class Controls extends React.Component {
                               onChange={() => {this.handleTemplateChange();}}>
                         <option value="{}">Load template</option>
                         {
-                          this.props.templates.map((templates) => {
-                            return <option key={templates.id} value={JSON.stringify(templates.params)}>{JSON.stringify(templates.params)}</option>;
+                          templates.map(template => {
+                            return <option key={template.id} value={JSON.stringify(template.params)}>{JSON.stringify(template.params)}</option>;
                           })
                         }
                       </select>

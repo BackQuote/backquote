@@ -1,5 +1,6 @@
 import 'font-awesome/css/font-awesome.css';
 import 'react-table/react-table.css';
+import 'react-select/dist/react-select.css';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import LoadingBar from 'react-redux-loading-bar';
