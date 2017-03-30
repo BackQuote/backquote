@@ -1,10 +1,7 @@
+# ![logo](https://avatars2.githubusercontent.com/u/25215892?v=3&size=50) Backquote 
+
 [![Build Status](https://travis-ci.org/BackQuote/backquote.svg?branch=master)](https://travis-ci.org/BackQuote/backquote)
-
-
----
-
-
-# ![logo](https://avatars2.githubusercontent.com/u/25215892?v=3)
+[![Coverage Status](https://codeclimate.com/github/BackQuote/backquote.svg?branch=master)](https://codeclimate.com/github/BackQuote/backquote)
 
 # Summary
 The goal of this project is to develop a performant, reliable infrastructure to backtest stock trading algorithms against large amounts of historical stock data and visualize the results with graphs. 
