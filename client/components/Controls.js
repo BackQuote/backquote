@@ -20,7 +20,6 @@ const defaultParameters = {
 };
 
 class Controls extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -36,6 +35,12 @@ class Controls extends React.Component {
         enableBasicAutocompletion: true
       }
     };
+  }
+
+  componentDidMount() {
+    if (this.props.tickers.length > 0) {
+      this.setState({tickers: [this.props.tickers[0].ticker]});
+    }
   }
 
   componentWillReceiveProps(nextProps) {

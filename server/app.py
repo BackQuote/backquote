@@ -203,19 +203,15 @@ def stats():
         "bestSimulation": bestSimulation.serialize
     })
 
-@socketio.on('connect')
-def disconnect():
-    print('Client connected', request.sid)
-
-@socketio.on('disconnect', request)
-def disconnect():
-    print('Client disconnected', request.sid)
+@socketio.on('request_executions')
+def get_latest_executions():
+    emit_executions()
 
 @socketio.on('clear_executions')
 def clear_executions():
     global completed_executions
     del completed_executions[:]
-
+    emit_executions()
 
 if __name__ == '__main__':
     socketio.run(app, debug=app.config['DEBUG'])
