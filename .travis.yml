@@ -8,3 +8,7 @@ install:
 script: 
   - npm run eslint
   - npm run build
+
+addons:
+    code_climate:
+        repo_token: 9ff6a394226da1eb15630b6d2aa38ac6753af66f792c99e5a02d4a6917074705
