@@ -63,7 +63,7 @@ class Controls extends React.Component {
   checkForErrors() {
     let errors = this.refs.editor.editor.getSession().getAnnotations();
     this.setState({syntaxErrors: errors});
-    return errors.length > 0;
+    return errors.length > 0 || this.state.tickers.length === 0;
   }
 
   saveTemplate() {
@@ -75,7 +75,10 @@ class Controls extends React.Component {
   }
 
   launchBacktest() {
-    if (this.checkForErrors()) return;
+    if (this.checkForErrors()) {
+      alert('Please fill all fields');
+      return;
+    }
     let algorithm = JSON.parse(this.refs.algorithm.value);
     this.props.actions.launchBacktest(
       algorithm.name,
