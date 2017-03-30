@@ -20,7 +20,7 @@ new WebpackDevServer(webpack(config), {
     chunks: false,
     chunkModules: false
   }
-}).listen(3000, 'localhost', function (err) {
+}).listen(3000, 'localhost', err => {
   if (err) {
     console.log(err);
   }
