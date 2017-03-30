@@ -22,6 +22,7 @@
   "dependencies": {
     "brace": "^0.10.0",
     "highcharts": "^5.0.7",
+    "rc-progress": "^2.1.0",
     "react": "^15.4.2",
     "react-ace": "^4.1.6",
     "react-dom": "^15.0.2",
@@ -34,7 +35,8 @@
     "react-router": "^2.4.0",
     "react-router-redux": "^4.0.4",
     "react-table": "^5.3.4",
-    "redux": "^3.5.2"
+    "redux": "^3.5.2",
+    "socket.io-client": "^1.7.3"
   },
   "devDependencies": {
     "amcharts3": "github:amcharts/amcharts3",

@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO, emit
 from sqlalchemy.orm import lazyload
-from flask_socketio import SocketIO
 from flask_cors import CORS
 from Queue import Queue
 from upload import *
 import os, json, subprocess
+
+async_mode = None
+thread = None
+executions = []
+completed_executions = []
+pending_executions = []
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -14,7 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 
 db = SQLAlchemy(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode=async_mode)
 
 executing = False
 backtest_queue = Queue()
@@ -116,43 +122,63 @@ def backtests_simulations(id):
     return jsonify([i.serialize for i in simulations])
 
 def execute_backtest():
-    global executing, backtest_queue
+    global executing, executions, completed_executions, pending_executions
 
     executing = True
-    args = backtest_queue.get()
+    current_execution = pending_executions.pop(0)
+    current_execution["pending"] = False
+    executions.append(current_execution)
 
-    backtest_id = save_backtest(args)
+    backtest = Backtest.query.get(current_execution['id'])
+    algorithm = Algorithm.query.get(backtest.algorithm_id)
+    tickers = [i.ticker for i in backtest.tickers]
 
     exe = os.path.dirname(os.path.abspath(__file__)) + '/../backtester/backtester/Release/backtester.exe'
-    proc = subprocess.Popen([exe, '--algoName', args['algorithm'], '--params', args['params'], '--tickers'] +
-                            args['tickers'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    simulation_count = proc.stdout.readline().rstrip('\r\n')
+    proc = subprocess.Popen([exe, '--algoName', algorithm.name, '--params', backtest.params, '--tickers'] +
+                            tickers, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    simulation_count = 0
+    number_of_simulations = proc.stdout.readline().rstrip('\r\n')
+    current_execution["number_of_simulations"] = number_of_simulations
+    socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
+
     while 1:
+        simulation_count += 1
         line = proc.stdout.readline().rstrip('\r\n')
         if line == 'Backtester done.':
             break
         simulation_results = json.loads(line)
-        save_models(simulation_results, backtest_id)
+        save_models(simulation_results, backtest.id)
 
-    backtest_completed(backtest_id)
+        current_execution["progress"] = float(simulation_count) / float(number_of_simulations) * 100
+        socketio.emit('executions', {'executions': json.dumps(completed_executions + executions + pending_executions)})
 
+    completed_executions.append(executions.pop(0))
+    backtest_completed(backtest.id)
+
+    # TODO: do something with that
     backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
 
-    if not backtest_queue.empty():
-        #starts the next enqueued backtest
+    if pending_executions:
+        # starts the next enqueued backtest
         execute_backtest()
     executing = False
 
 @app.route('/backtester/run', methods=['POST'])
 def run_backtester():
-    global executing, backtest_queue
+    global executing, executions, thread
 
     post_data = request.get_json()
     post_data['params'] = "".join(str(post_data['params']).split())
 
-    backtest_queue.put(post_data)
+    backtest_id = save_backtest(post_data)
+    pending_executions.append({
+        "id": backtest_id,
+        "progress": 0,
+        "pending": True
+    })
 
-    if executing is False:
+    if executing is False and thread is None:
         socketio.start_background_task(target=execute_backtest)
 
     return jsonify({"status": "ok"})
@@ -167,6 +193,20 @@ def stats():
         "numberOfSimulations": numberOfSimulations,
         "bestSimulation": bestSimulation.serialize
     })
+
+@socketio.on('connect')
+def disconnect():
+    print('Client connected', request.sid)
+
+@socketio.on('disconnect', request)
+def disconnect():
+    print('Client disconnected', request.sid)
+
+@socketio.on('clear_executions')
+def clear_executions():
+    global completed_executions
+    del completed_executions[:]
+
 
 if __name__ == '__main__':
     socketio.run(app, debug=app.config['DEBUG'])
