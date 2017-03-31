@@ -46,7 +46,7 @@ class Dashboard extends React.Component {
         </div>
       );
     }
-    return <div></div>;
+    return <div>Please execute at least one backtest to get stats.</div>;
   }
 }
 
