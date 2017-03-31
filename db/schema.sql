@@ -1,29 +1,38 @@
 --
--- PostgreSQL database schema
+-- PostgreSQL database dump
 --
 
---
--- Cleaning up tables and sequences
---
-DROP TABLE IF EXISTS algorithm CASCADE;
-DROP TABLE IF EXISTS backtest CASCADE;
-DROP TABLE IF EXISTS backtest_ticker CASCADE;
-DROP TABLE IF EXISTS day CASCADE;
-DROP TABLE IF EXISTS quote CASCADE;
-DROP TABLE IF EXISTS result CASCADE;
-DROP TABLE IF EXISTS simulation CASCADE;
-DROP TABLE IF EXISTS ticker CASCADE;
-DROP TABLE IF EXISTS trade CASCADE;
-DROP TABLE IF EXISTS template CASCADE;
+-- Dumped from database version 9.6.2
+-- Dumped by pg_dump version 9.6.2
 
-DROP SEQUENCE IF EXISTS algorithm_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS backtest_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS day_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS quote_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS result_result_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS simulation_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS trade_id_seq CASCADE;
-DROP SEQUENCE IF EXISTS template_id_seq CASCADE;
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
 
 --
 -- Name: algorithm; Type: TABLE; Schema: public; Owner: postgres
@@ -31,7 +40,7 @@ DROP SEQUENCE IF EXISTS template_id_seq CASCADE;
 
 CREATE TABLE algorithm (
     id bigint NOT NULL,
-    name VARCHAR(60)
+    name character varying(60)
 );
 
 
@@ -64,7 +73,7 @@ ALTER SEQUENCE algorithm_id_seq OWNED BY algorithm.id;
 
 CREATE TABLE backtest (
     id integer NOT NULL,
-    timestamp timestamp without time zone,
+    "timestamp" timestamp without time zone,
     params text,
     success boolean DEFAULT false NOT NULL,
     algorithm_id integer
@@ -145,14 +154,14 @@ ALTER SEQUENCE day_id_seq OWNED BY day.id;
 
 CREATE TABLE quote (
     id integer NOT NULL,
-    open NUMERIC(7,2) NOT NULL,
-    high NUMERIC(7,2) NOT NULL,
-    low NUMERIC(7,2) NOT NULL,
-    close NUMERIC(7,2) NOT NULL,
-    timestamp TIMESTAMP,
+    open numeric(7,2) NOT NULL,
+    high numeric(7,2) NOT NULL,
+    low numeric(7,2) NOT NULL,
+    close numeric(7,2) NOT NULL,
+    "timestamp" timestamp without time zone,
     last_of_day boolean DEFAULT false NOT NULL,
     day_id integer,
-    ticker VARCHAR(10)
+    ticker character varying(10)
 );
 
 
@@ -224,7 +233,7 @@ ALTER SEQUENCE result_result_id_seq OWNED BY result.id;
 CREATE TABLE simulation (
     id integer NOT NULL,
     backtest_id integer,
-    ticker VARCHAR(10),
+    ticker character varying(10),
     params text,
     profit_reset numeric(10,2),
     profit_no_reset numeric(10,2)
@@ -292,7 +301,7 @@ ALTER SEQUENCE template_id_seq OWNED BY template.id;
 --
 
 CREATE TABLE ticker (
-    ticker VARCHAR(10) NOT NULL
+    ticker character varying(10) NOT NULL
 );
 
 
@@ -307,8 +316,8 @@ CREATE TABLE trade (
     price numeric(10,2),
     quantity_reset integer,
     quantity_no_reset integer,
-    action varchar(10),
-    timestamp timestamp without time zone,
+    action character varying(10),
+    "timestamp" timestamp without time zone,
     result_id integer
 );
 
@@ -393,13 +402,6 @@ ALTER TABLE ONLY trade ALTER COLUMN id SET DEFAULT nextval('trade_id_seq'::regcl
 
 
 --
--- Name: trade_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('trade_id_seq', 1, false);
-
-
---
 -- Name: algorithm algorithms_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -476,7 +478,7 @@ ALTER TABLE ONLY trade
 --
 
 ALTER TABLE ONLY backtest
-    ADD CONSTRAINT backtest_algorithm_id_fk FOREIGN KEY (algorithm_id) REFERENCES algorithm(id);
+    ADD CONSTRAINT backtest_algorithm_id_fk FOREIGN KEY (algorithm_id) REFERENCES algorithm(id) ON DELETE CASCADE;
 
 
 --
@@ -484,7 +486,7 @@ ALTER TABLE ONLY backtest
 --
 
 ALTER TABLE ONLY backtest_ticker
-    ADD CONSTRAINT backtest_ticker_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id);
+    ADD CONSTRAINT backtest_ticker_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id) ON DELETE CASCADE;
 
 
 --
@@ -492,7 +494,7 @@ ALTER TABLE ONLY backtest_ticker
 --
 
 ALTER TABLE ONLY backtest_ticker
-    ADD CONSTRAINT backtest_ticker_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker);
+    ADD CONSTRAINT backtest_ticker_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
 
 
 --
@@ -500,7 +502,7 @@ ALTER TABLE ONLY backtest_ticker
 --
 
 ALTER TABLE ONLY quote
-    ADD CONSTRAINT quote_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker);
+    ADD CONSTRAINT quote_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
 
 
 --
@@ -508,7 +510,7 @@ ALTER TABLE ONLY quote
 --
 
 ALTER TABLE ONLY quote
-    ADD CONSTRAINT quotes_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id);
+    ADD CONSTRAINT quotes_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id) ON DELETE CASCADE;
 
 
 --
@@ -516,7 +518,7 @@ ALTER TABLE ONLY quote
 --
 
 ALTER TABLE ONLY result
-    ADD CONSTRAINT result_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id);
+    ADD CONSTRAINT result_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id) ON DELETE CASCADE;
 
 
 --
@@ -524,7 +526,7 @@ ALTER TABLE ONLY result
 --
 
 ALTER TABLE ONLY result
-    ADD CONSTRAINT result_simulation_id_fk FOREIGN KEY (simulation_id) REFERENCES simulation(id);
+    ADD CONSTRAINT result_simulation_id_fk FOREIGN KEY (simulation_id) REFERENCES simulation(id) ON DELETE CASCADE;
 
 
 --
@@ -532,7 +534,7 @@ ALTER TABLE ONLY result
 --
 
 ALTER TABLE ONLY simulation
-    ADD CONSTRAINT simulation_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id);
+    ADD CONSTRAINT simulation_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id) ON DELETE CASCADE;
 
 
 --
@@ -540,7 +542,7 @@ ALTER TABLE ONLY simulation
 --
 
 ALTER TABLE ONLY simulation
-    ADD CONSTRAINT simulation_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker);
+    ADD CONSTRAINT simulation_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
 
 
 --
@@ -548,6 +550,10 @@ ALTER TABLE ONLY simulation
 --
 
 ALTER TABLE ONLY trade
-    ADD CONSTRAINT trade_result_id_fk FOREIGN KEY (result_id) REFERENCES result(id);
+    ADD CONSTRAINT trade_result_id_fk FOREIGN KEY (result_id) REFERENCES result(id) ON DELETE CASCADE;
 
+
+--
+-- PostgreSQL database dump complete
+--
 
