@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
+import { center } from '../styles/tables.scss';
 import ReactTable from 'react-table';
 import JSONTree from 'react-json-tree';
 import { Link } from 'react-router';
@@ -13,20 +14,23 @@ const columns = [{
 }, {
   minWidth: 50,
   header: 'Ticker',
-  accessor: 'ticker'
+  accessor: 'ticker',
+  className: center
 }, {
   minWidth: 50,
   header: 'Profit',
   accessor: 'profitNoReset',
-  render: row => <ProfitNumber value={row.value}/>
+  render: row => <ProfitNumber value={row.value}/>,
+  className: center
 }, {
   minWidth: 50,
   header: 'Profit (reset)',
   accessor: 'profitReset',
-  render: row => <ProfitNumber value={row.value}/>
+  render: row => <ProfitNumber value={row.value}/>,
+  className: center
 }, {
   minWidth: 50,
-  header: '',
+  header: 'Actions',
   accessor: 'id',
   style: {textAlign: 'center'},
   render: row => <Link className="button" to={`/simulation/${row.value}`}>view</Link>
