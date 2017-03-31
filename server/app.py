@@ -112,6 +112,8 @@ def simulations_results(id):
 @app.route('/backtests')
 def backtests():
     backtests = Backtest.query.options(lazyload('simulations')).all()
+    for backtest in backtests:
+        backtest.simulation_count = Simulation.query.filter_by(backtest_id=backtest.id).count()
     return jsonify_all(backtests)
 
 @app.route('/backtests/<id>')

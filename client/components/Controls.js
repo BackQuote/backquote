@@ -161,6 +161,7 @@ class Controls extends React.Component {
                       setOptions={this.state.editorOptions}
                       value={this.state.parameters}
                       onChange={(event) => {this.handleParametersChange(event);}}
+                      editorProps={{$blockScrolling: true}}
                     />
                   </div>
                   <EditorErrors errors={this.state.syntaxErrors} />

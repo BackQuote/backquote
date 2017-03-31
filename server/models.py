@@ -235,6 +235,8 @@ class Backtest(db.Model):
     simulations = db.relationship('Simulation', backref='backtest', lazy='dynamic')
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
     tickers = db.relationship('Ticker', secondary=backtest_ticker, backref='backtest')
+    simulation_count = 0,
+    algorithm = ''
 
     def __init__(self, params, timestamp, success, algorithm_id):
         self.params = params
@@ -250,5 +252,7 @@ class Backtest(db.Model):
             'timestamp': str(self.timestamp),
             'success': self.success,
             'algorithmId': self.algorithm_id,
-            'tickers': [i.serialize for i in self.tickers]
+            'tickers': [i.serialize for i in self.tickers],
+            'simulation_count': self.simulation_count,
+            'algorithm': self.algorithm
         }
