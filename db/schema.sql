@@ -2,6 +2,18 @@
 -- PostgreSQL database schema
 --
 
+-- Dumped from database version 9.6.2
+-- Dumped by pg_dump version 9.6.2
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
 --
 -- Cleaning up tables and sequences
 --
@@ -64,12 +76,14 @@ ALTER SEQUENCE algorithm_id_seq OWNED BY algorithm.id;
 
 CREATE TABLE backtest (
     id integer NOT NULL,
+    "timestamp" timestamp without time zone,
     algorithm_id integer,
     params text,
     success boolean DEFAULT false NOT NULL,
-    timestamp timestamp without time zone,
+    algorithm_id integer,
     execution_time numeric(30,2)
 );
+
 
 ALTER TABLE backtest OWNER TO postgres;
 
