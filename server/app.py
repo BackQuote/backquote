@@ -149,7 +149,7 @@ def execute_backtest():
     current_execution["number_of_simulations"] = number_of_simulations
     emit_executions()
 
-    while 1:
+    while True:
         simulation_count += 1
         line = proc.stdout.readline().rstrip('\r\n')
         if line == 'Backtester done.':
@@ -157,6 +157,7 @@ def execute_backtest():
         simulation_results = json.loads(line)
         save_models(simulation_results, backtest.id)
 
+        current_execution["current_simulation"] = simulation_count + 1
         current_execution["progress"] = float(simulation_count) / float(number_of_simulations) * 100
         emit_executions()
 

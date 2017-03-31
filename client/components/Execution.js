@@ -11,7 +11,10 @@ export default class Execution extends React.Component {
         { execution.pending ? (
           <small>(pending...)</small>
         ) : execution.progress < 100  ? (
-          <i className="fa fa-refresh fa-spin"> </i>
+          <span>
+            <small>({execution.current_simulation}/{execution.number_of_simulations})</small>{' '}
+            <i className="fa fa-refresh fa-spin"> </i>
+          </span>
         ) : <i className="fa fa-check" style={{color: '#6CD899'}}> </i> }
         <Line percent={execution.progress} strokeColor="#33c3f0" trailColor="#f6f6f6" />
       </div>
