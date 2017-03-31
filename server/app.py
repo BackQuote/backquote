@@ -140,7 +140,7 @@ def execute_backtest():
     algorithm = Algorithm.query.get(backtest.algorithm_id)
     tickers = [i.ticker for i in backtest.tickers]
 
-    exe = os.path.dirname(os.path.abspath(__file__)) + '/../backtester/backtester/Release/backtester.exe'
+    exe = os.path.dirname(os.path.abspath(__file__)) + '/../backtester/backtester/backtester.exe'
     proc = subprocess.Popen([exe, '--algoName', algorithm.name, '--params', backtest.params, '--tickers'] +
                             tickers, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 

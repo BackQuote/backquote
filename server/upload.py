@@ -25,7 +25,7 @@ def save_models(simulation_results, backtest_id):
         trades = result['trades']
 
         result_model = Result(result['dailyProfitReset'], result['dailyProfitNoReset'], result['cumulativeProfitReset'],
-                              result['cumulativeProfitNoRest'], day.id, simulation_id)
+                              result['cumulativeProfitNoReset'], day.id, simulation_id)
         db.session.add(result_model)
         db.session.commit()
 
