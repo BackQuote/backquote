@@ -12,6 +12,7 @@ engine = create_engine(os.environ['DATABASE_URL'], echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 quotes_file = open('quotes', 'w')
+days_uploaded = True
 
 for ultimate in os.listdir(ultimate_dir):
     ticker_name = ultimate[:-4]
@@ -22,14 +23,18 @@ for ultimate in os.listdir(ultimate_dir):
     ultimate_file = open(os.path.join(ultimate_dir, ultimate))
     day = None
     date = None
+    day_id = 0
 
     for line in ultimate_file:
         if 'new day' in line:
             dinfo = line.split()
             date = dinfo[3]
-            day = Day(date)
-            session.add(day)
-            session.commit()
+            day_id += 1
+
+            if not days_uploaded:    
+                day = Day(date)
+                session.add(day)
+                session.commit()
         else:
             qinfo = line.split(',')
             # example format: 2011-05-16 15:36:38
@@ -46,9 +51,10 @@ for ultimate in os.listdir(ultimate_dir):
 
             quotes_file.write(
                 '{}\t{}\t{}\t{}\t{}\t{}\t{}\n'
-                    .format(open_price, high_price, low_price, close_price, timestamp, day.id, ticker_name)
+                    .format(open_price, high_price, low_price, close_price, timestamp, day_id, ticker_name)
             )
 
+    days_uploaded = True
     ultimate_file.close()
 
 quotes_file.close()
