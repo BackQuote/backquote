@@ -1,4 +1,4 @@
-#Backtester
+# Backtester
 The backtester is a performant multithreaded program meant to backtest large amounts of historical stock data with any algorithm.
 It is meant to be independent from parameter configurations and algorithm implementation.
 ### How it works
