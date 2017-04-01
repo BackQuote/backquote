@@ -9,7 +9,7 @@ public:
 	virtual Action processQuote(Quote&) = 0;
 
 protected:
-	bool Algorithm::checkDayActive(size_t);
+	bool checkDayActive(size_t currentTime);
 	std::unordered_map<std::string, double> algoParams;
 
 private:
