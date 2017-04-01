@@ -35,6 +35,29 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Cleaning up tables and sequences
+--
+DROP TABLE IF EXISTS algorithm CASCADE;
+DROP TABLE IF EXISTS backtest CASCADE;
+DROP TABLE IF EXISTS backtest_ticker CASCADE;
+DROP TABLE IF EXISTS day CASCADE;
+DROP TABLE IF EXISTS quote CASCADE;
+DROP TABLE IF EXISTS result CASCADE;
+DROP TABLE IF EXISTS simulation CASCADE;
+DROP TABLE IF EXISTS ticker CASCADE;
+DROP TABLE IF EXISTS trade CASCADE;
+DROP TABLE IF EXISTS template CASCADE;
+
+DROP SEQUENCE IF EXISTS algorithm_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS backtest_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS day_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS quote_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS result_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS simulation_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS trade_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS template_id_seq CASCADE;
+
+--
 -- Name: algorithm; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -206,10 +229,10 @@ CREATE TABLE result (
 ALTER TABLE result OWNER TO postgres;
 
 --
--- Name: result_result_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: result_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE result_result_id_seq
+CREATE SEQUENCE result_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -217,13 +240,13 @@ CREATE SEQUENCE result_result_id_seq
     CACHE 1;
 
 
-ALTER TABLE result_result_id_seq OWNER TO postgres;
+ALTER TABLE result_id_seq OWNER TO postgres;
 
 --
--- Name: result_result_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: result_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE result_result_id_seq OWNED BY result.id;
+ALTER SEQUENCE result_id_seq OWNED BY result.id;
 
 
 --
@@ -377,7 +400,7 @@ ALTER TABLE ONLY quote ALTER COLUMN id SET DEFAULT nextval('quote_id_seq'::regcl
 -- Name: result id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY result ALTER COLUMN id SET DEFAULT nextval('result_result_id_seq'::regclass);
+ALTER TABLE ONLY result ALTER COLUMN id SET DEFAULT nextval('result_id_seq'::regclass);
 
 
 --
@@ -472,88 +495,32 @@ ALTER TABLE ONLY ticker
 ALTER TABLE ONLY trade
     ADD CONSTRAINT trade_pkey PRIMARY KEY (id);
 
+ALTER TABLE trade DROP CONSTRAINT trade_result_id_fk;
+ALTER TABLE trade ADD CONSTRAINT trade_result_id_fk FOREIGN KEY(result_id) REFERENCES result(id) ON DELETE CASCADE;
 
---
--- Name: backtest backtest_algorithm_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
+ALTER TABLE result DROP CONSTRAINT result_day_id_fk;
+ALTER TABLE result ADD CONSTRAINT result_day_id_fk FOREIGN KEY(day_id) REFERENCES day(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY backtest
-    ADD CONSTRAINT backtest_algorithm_id_fk FOREIGN KEY (algorithm_id) REFERENCES algorithm(id) ON DELETE CASCADE;
+ALTER TABLE result DROP CONSTRAINT result_simulation_id_fk;
+ALTER TABLE result ADD CONSTRAINT result_simulation_id_fk FOREIGN KEY(simulation_id) REFERENCES simulation(id) ON DELETE CASCADE;
 
+ALTER TABLE simulation DROP CONSTRAINT simulation_backtest_id_fk;
+ALTER TABLE simulation ADD CONSTRAINT simulation_backtest_id_fk FOREIGN KEY(backtest_id) REFERENCES backtest(id)  ON DELETE CASCADE;
 
---
--- Name: backtest_ticker backtest_ticker_backtest_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
+ALTER TABLE simulation DROP CONSTRAINT simulation_ticker_ticker_fk;
+ALTER TABLE simulation ADD CONSTRAINT simulation_ticker_ticker_fk FOREIGN KEY(ticker) REFERENCES ticker(ticker)  ON DELETE CASCADE;
 
-ALTER TABLE ONLY backtest_ticker
-    ADD CONSTRAINT backtest_ticker_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id) ON DELETE CASCADE;
+ALTER TABLE backtest_ticker DROP CONSTRAINT backtest_ticker_backtest_id_fk;
+ALTER TABLE backtest_ticker ADD CONSTRAINT backtest_ticker_backtest_id_fk FOREIGN KEY(backtest_id) REFERENCES backtest(id) ON DELETE CASCADE;
 
+ALTER TABLE backtest_ticker DROP CONSTRAINT backtest_ticker_ticker_ticker_fk;
+ALTER TABLE backtest_ticker ADD CONSTRAINT backtest_ticker_ticker_ticker_fk FOREIGN KEY(ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
 
---
--- Name: backtest_ticker backtest_ticker_ticker_ticker_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
+ALTER TABLE backtest DROP CONSTRAINT backtest_algorithm_id_fk;
+ALTER TABLE backtest ADD CONSTRAINT backtest_algorithm_id_fk FOREIGN KEY(algorithm_id) REFERENCES algorithm(id) ON DELETE CASCADE;
 
-ALTER TABLE ONLY backtest_ticker
-    ADD CONSTRAINT backtest_ticker_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
+ALTER TABLE quote DROP CONSTRAINT quotes_day_id_fk;
+ALTER TABLE quote ADD CONSTRAINT quotes_day_id_fk FOREIGN KEY(day_id) REFERENCES day(id) ON DELETE CASCADE;
 
-
---
--- Name: quote quote_ticker_ticker_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY quote
-    ADD CONSTRAINT quote_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
-
-
---
--- Name: quote quotes_day_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY quote
-    ADD CONSTRAINT quotes_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id) ON DELETE CASCADE;
-
-
---
--- Name: result result_day_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY result
-    ADD CONSTRAINT result_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id) ON DELETE CASCADE;
-
-
---
--- Name: result result_simulation_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY result
-    ADD CONSTRAINT result_simulation_id_fk FOREIGN KEY (simulation_id) REFERENCES simulation(id) ON DELETE CASCADE;
-
-
---
--- Name: simulation simulation_backtest_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY simulation
-    ADD CONSTRAINT simulation_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id) ON DELETE CASCADE;
-
-
---
--- Name: simulation simulation_ticker_ticker_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY simulation
-    ADD CONSTRAINT simulation_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
-
-
---
--- Name: trade trade_result_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY trade
-    ADD CONSTRAINT trade_result_id_fk FOREIGN KEY (result_id) REFERENCES result(id) ON DELETE CASCADE;
-
-
---
--- PostgreSQL database dump complete
---
-
+ALTER TABLE quote DROP CONSTRAINT quote_ticker_ticker_fk;
+ALTER TABLE quote ADD CONSTRAINT quote_ticker_ticker_fk FOREIGN KEY(ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
