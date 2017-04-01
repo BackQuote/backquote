@@ -15,9 +15,7 @@ export default class Executions extends React.Component {
   componentDidMount() {
     this.socket.emit('request_executions');
     this.socket.on('executions', (data) => {
-      if (this.refs.executions) {
-        this.setState({executions: JSON.parse(data.executions)});
-      }
+      this.setState({executions: JSON.parse(data.executions)});
     });
   }
 
@@ -28,7 +26,7 @@ export default class Executions extends React.Component {
   render() {
     if (this.state.executions.length > 0) {
       return (
-        <div className={card} ref="executions">
+        <div className={card}>
           <header>
             <a className="u-pull-right" href="javascript:void(0)" onClick={() => {this.clearExecutions();}}>Clear</a>
             <h4 className="title">
