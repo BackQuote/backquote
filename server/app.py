@@ -106,7 +106,7 @@ def simulation(id):
 def simulations_results(id):
     results = Result.query.filter_by(simulation_id=id).all()
     for r in results:
-       r.day = Day.query.get(r.day_id)
+        r.day = Day.query.get(r.day_id)
     return jsonify_all(results)
 
 @app.route('/backtests')
@@ -164,10 +164,9 @@ def execute_backtest():
         emit_executions()
 
     completed_executions.append(executions.pop(0))
-    backtest_completed(backtest.id)
 
-    # TODO: do something with that
-    backtest_duration = proc.stdout.readline().rstrip('\r\n').split()[-1]
+    execution_time = proc.stdout.readline().rstrip('\r\n').split()[-1]
+    backtest_completed(backtest.id, execution_time)
 
     if pending_executions:
         # starts the next enqueued backtest

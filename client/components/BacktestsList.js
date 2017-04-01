@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
-import { center } from '../styles/tables.scss';
+import { center, actions } from '../styles/tables.scss';
 import ReactTable from 'react-table';
 import JSONTree from 'react-json-tree';
 import { Link } from 'react-router';
@@ -40,8 +40,13 @@ const columns = [ {
   minWidth: 60,
   header: 'Actions',
   accessor: 'id',
-  style: {textAlign: 'center'},
-  render: row => <Link className="button" to={`/backtest/${row.value}`}>view</Link>
+  className: [center, actions],
+  render: row => <div className="content">
+    <small>
+      {JSON.stringify(row.row.executionTime)} sec
+    </small>
+    <Link className="button" to={`/backtest/${row.value}`}>view</Link>
+  </div>
 }];
 
 class BacktestList extends React.Component {

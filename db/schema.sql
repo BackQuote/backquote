@@ -64,12 +64,12 @@ ALTER SEQUENCE algorithm_id_seq OWNED BY algorithm.id;
 
 CREATE TABLE backtest (
     id integer NOT NULL,
-    timestamp timestamp without time zone,
+    algorithm_id integer,
     params text,
     success boolean DEFAULT false NOT NULL,
-    algorithm_id integer
+    timestamp timestamp without time zone,
+    execution_time numeric(30,2)
 );
-
 
 ALTER TABLE backtest OWNER TO postgres;
 

@@ -232,6 +232,7 @@ class Backtest(db.Model):
     params = db.Column(db.String)
     timestamp = db.Column(db.TIMESTAMP)
     success = db.Column(db.Boolean)
+    execution_time = db.Column(db.Numeric)
     simulations = db.relationship('Simulation', backref='backtest', lazy='dynamic')
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
     tickers = db.relationship('Ticker', secondary=backtest_ticker, backref='backtest')
@@ -251,6 +252,7 @@ class Backtest(db.Model):
             'params': json.loads(self.params),
             'timestamp': str(self.timestamp),
             'success': self.success,
+            'executionTime': self.execution_time,
             'algorithmId': self.algorithm_id,
             'tickers': [i.serialize for i in self.tickers],
             'simulation_count': self.simulation_count,

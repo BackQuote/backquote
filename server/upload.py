@@ -54,8 +54,9 @@ def save_backtest(args):
     return backtest.id
 
 
-def backtest_completed(backtest_id):
-    update(Backtest).where(Backtest.id == backtest_id).values(success=True)
+def backtest_completed(backtest_id, execution_time):
+    db.session.query(Backtest).filter(Backtest.id == backtest_id).update(dict(success=True, execution_time=execution_time))
+    db.session.commit()
 
 
 def upload_template(args):
