@@ -98,7 +98,6 @@ ALTER SEQUENCE algorithm_id_seq OWNED BY algorithm.id;
 CREATE TABLE backtest (
     id integer NOT NULL,
     "timestamp" timestamp without time zone,
-    algorithm_id integer,
     params text,
     success boolean DEFAULT false NOT NULL,
     algorithm_id integer,
@@ -511,7 +510,7 @@ ALTER TABLE ONLY trade
 --
 
 ALTER TABLE ONLY backtest
-    ADD CONSTRAINT backtest_algorithm_id_fk FOREIGN KEY (algorithm_id) REFERENCES algorithm(id);
+    ADD CONSTRAINT backtest_algorithm_id_fk FOREIGN KEY (algorithm_id) REFERENCES algorithm(id) ON DELETE CASCADE;
 
 
 --
@@ -519,7 +518,7 @@ ALTER TABLE ONLY backtest
 --
 
 ALTER TABLE ONLY backtest_ticker
-    ADD CONSTRAINT backtest_ticker_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id);
+    ADD CONSTRAINT backtest_ticker_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id) ON DELETE CASCADE;
 
 
 --
@@ -527,7 +526,7 @@ ALTER TABLE ONLY backtest_ticker
 --
 
 ALTER TABLE ONLY backtest_ticker
-    ADD CONSTRAINT backtest_ticker_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker);
+    ADD CONSTRAINT backtest_ticker_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
 
 
 --
@@ -535,7 +534,7 @@ ALTER TABLE ONLY backtest_ticker
 --
 
 ALTER TABLE ONLY quote
-    ADD CONSTRAINT quote_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker);
+    ADD CONSTRAINT quote_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
 
 
 --
@@ -543,7 +542,7 @@ ALTER TABLE ONLY quote
 --
 
 ALTER TABLE ONLY quote
-    ADD CONSTRAINT quotes_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id);
+    ADD CONSTRAINT quotes_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id) ON DELETE CASCADE;
 
 
 --
@@ -551,7 +550,7 @@ ALTER TABLE ONLY quote
 --
 
 ALTER TABLE ONLY result
-    ADD CONSTRAINT result_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id);
+    ADD CONSTRAINT result_day_id_fk FOREIGN KEY (day_id) REFERENCES day(id) ON DELETE CASCADE;
 
 
 --
@@ -559,7 +558,7 @@ ALTER TABLE ONLY result
 --
 
 ALTER TABLE ONLY result
-    ADD CONSTRAINT result_simulation_id_fk FOREIGN KEY (simulation_id) REFERENCES simulation(id);
+    ADD CONSTRAINT result_simulation_id_fk FOREIGN KEY (simulation_id) REFERENCES simulation(id) ON DELETE CASCADE;
 
 
 --
@@ -567,7 +566,7 @@ ALTER TABLE ONLY result
 --
 
 ALTER TABLE ONLY simulation
-    ADD CONSTRAINT simulation_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id);
+    ADD CONSTRAINT simulation_backtest_id_fk FOREIGN KEY (backtest_id) REFERENCES backtest(id) ON DELETE CASCADE;
 
 
 --
@@ -575,7 +574,7 @@ ALTER TABLE ONLY simulation
 --
 
 ALTER TABLE ONLY simulation
-    ADD CONSTRAINT simulation_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker);
+    ADD CONSTRAINT simulation_ticker_ticker_fk FOREIGN KEY (ticker) REFERENCES ticker(ticker) ON DELETE CASCADE;
 
 
 --
@@ -583,4 +582,4 @@ ALTER TABLE ONLY simulation
 --
 
 ALTER TABLE ONLY trade
-    ADD CONSTRAINT trade_result_id_fk FOREIGN KEY (result_id) REFERENCES result(id);
+    ADD CONSTRAINT trade_result_id_fk FOREIGN KEY (result_id) REFERENCES result(id) ON DELETE CASCADE;

@@ -1,7 +1,6 @@
 #!/bin/bash
 psql -U postgres -d backtester -a -f schema.sql
-virtualenv ENV  
-python upload_quotes.py >/dev/null
+python upload_quotes.py
 
 if [ "$(uname)" == "Darwin" ]; then
 	# Mac OS X platform

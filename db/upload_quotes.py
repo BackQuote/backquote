@@ -12,7 +12,7 @@ engine = create_engine(os.environ['DATABASE_URL'], echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 quotes_file = open('quotes', 'w')
-days_uploaded = True
+days_uploaded = False
 
 for ultimate in os.listdir(ultimate_dir):
     ticker_name = ultimate[:-4]
@@ -31,7 +31,7 @@ for ultimate in os.listdir(ultimate_dir):
             date = dinfo[3]
             day_id += 1
 
-            if not days_uploaded:    
+            if not days_uploaded:
                 day = Day(date)
                 session.add(day)
                 session.commit()
