@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
-import { center, actions, actionButton } from '../styles/tables.scss';
+import * as tableStyle from '../styles/tables.scss';
 import ReactTable from 'react-table';
 import JSONTree from 'react-json-tree';
 import { Link } from 'react-router';
@@ -17,17 +17,17 @@ class BacktestList extends React.Component {
       render: row => <span>
     <Link to={`/backtest/${row.value}`}>{row.value}</Link>
   </span>,
-      className: center
+      className: tableStyle.center
     }, {
       minWidth: 30,
       header: 'Simulations',
       accessor: 'simulation_count',
-      className: center
+      className: tableStyle.center
     }, {
       minWidth: 30,
       header: 'Algorithm',
       accessor: 'algorithm',
-      className: center
+      className: tableStyle.center
     }, {
       minWidth: 30,
       header: 'Tickers',
@@ -37,7 +37,7 @@ class BacktestList extends React.Component {
       return ticker.ticker;
     }).join(', ')}
   </span>,
-      className: center
+      className: tableStyle.center
     }, {
       header: 'Parameters',
       accessor: 'params',
@@ -46,7 +46,7 @@ class BacktestList extends React.Component {
       minWidth: 30,
       header: 'Status',
       accessor: 'status',
-      className: [center, actions],
+      className: [tableStyle.center, tableStyle.actions],
       render: row => row.row.success ? (<div>
         <i className="fa fa-check" style={{color: '#6CD899'}}> </i>{' '}
         {JSON.stringify(row.row.executionTime)} sec
@@ -55,12 +55,12 @@ class BacktestList extends React.Component {
       minWidth: 50,
       header: 'Actions',
       accessor: 'id',
-      className: [center, actions],
+      className: [tableStyle.center, tableStyle.actions],
       render: row => <div>
-        <a className={`button button-danger ${actionButton}`} onClick={() => {this.props.actions.deleteBacktest(row.value);}}>
+        <a className={`button button-danger ${tableStyle.actionButton}`} onClick={() => {this.props.actions.deleteBacktest(row.value);}}>
           delete
         </a>{' '}
-        <Link className={`button button-primary ${actionButton}`} to={`/backtest/${row.value}`}>
+        <Link className={`button button-primary ${tableStyle.actionButton}`} to={`/backtest/${row.value}`}>
           view
         </Link>
       </div>
@@ -68,6 +68,7 @@ class BacktestList extends React.Component {
   }
 
   render() {
+    let { backtests } = this.props;
     return (
       <div className={card}>
         <header>
@@ -77,9 +78,11 @@ class BacktestList extends React.Component {
         </header>
         <section>
           <ReactTable
-            showPagination={false}
             minRows={0}
-            data={this.props.backtests}
+            showPagination
+            defaultPageSize={100}
+            className={tableStyle.reset}
+            data={backtests}
             columns={this.columns}
           />
         </section>
