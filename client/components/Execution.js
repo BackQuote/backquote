@@ -22,7 +22,7 @@ export default class Execution extends React.Component {
             <i className="fa fa-refresh fa-spin"> </i>
           </span>
         ) : <i className="fa fa-check" style={{color: '#6CD899'}}> </i> }
-        <Line percent={execution.progress} strokeColor="#33c3f0" trailColor="#f6f6f6" />
+        <Line percent={execution.progress} strokeWidth={1} strokeColor="#33c3f0" trailColor="#f6f6f6" />
       </div>
     );
   }
