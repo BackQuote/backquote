@@ -79,7 +79,7 @@ def trade_results(id):
     trades = Trade.query.filter_by(result_id = id).all()
     return jsonify_all(trades)
 
-@app.route('/quotes/<int:day_id>/<int:ticker>')
+@app.route('/quotes/<int:day_id>/<string:ticker>')
 def quote_by_day_ticker(day_id, ticker):
     quotes = Quote.query \
         .filter_by(day_id=day_id) \
@@ -111,9 +111,15 @@ def simulations_results(id):
 
 @app.route('/backtests')
 def backtests():
+    algorithms = Algorithm.query.all()
+    algorithm_by_id = {}
+    for algorithm in algorithms:
+        algorithm_by_id[algorithm.id] = algorithm.name
+
     backtests = Backtest.query.options(lazyload('simulations')).all()
     for backtest in backtests:
         backtest.simulation_count = Simulation.query.filter_by(backtest_id=backtest.id).count()
+        backtest.algorithm = algorithm_by_id[backtest.algorithm_id]
     return jsonify_all(backtests)
 
 @app.route('/backtests/<int:id>')
