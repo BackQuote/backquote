@@ -11,7 +11,7 @@ class BacktestList extends React.Component {
   constructor() {
     super();
     this.columns = [ {
-      minWidth: 10,
+      minWidth: 15,
       header: '#',
       accessor: 'id',
       render: row => <span>

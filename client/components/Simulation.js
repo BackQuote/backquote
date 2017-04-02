@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
+import * as styles from '../styles/simulation.scss';
 import SimulationChart from './SimulationChart';
 import DailyResultChart from './DailyResultChart';
 
@@ -58,11 +59,15 @@ class Simulation extends React.Component {
                 <option value="dailyProfitReset">With Reset</option>
               </select>
             </div>
-            <SimulationChart results={results} profitType={this.state.profitType} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
+            <div className={styles.chart}>
+              <SimulationChart results={results} profitType={this.state.profitType} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
+            </div>
             { (quotes.length > 0 || trades.length > 0) ?
-              <DailyResultChart quotes={quotes} trades={trades} profitType={this.state.profitType}
-                                previousDailyResult={this.previousDailyResult.bind(this)}
-                                nextDailyResult={this.nextDailyResult.bind(this)}/>
+              <div className={styles.chart}>
+                <DailyResultChart quotes={quotes} trades={trades} profitType={this.state.profitType}
+                                  previousDailyResult={this.previousDailyResult.bind(this)}
+                                  nextDailyResult={this.nextDailyResult.bind(this)}/>
+              </div>
               : null }
           </div>
         </section>
