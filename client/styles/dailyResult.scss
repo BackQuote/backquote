@@ -1,0 +1,19 @@
+.container {
+  position: relative;
+}
+
+.actions {
+  padding: 40px 20px;
+  position: absolute;
+  bottom: 130px;
+}
+
+.next {
+  @extend .actions;
+  right: -60px;
+}
+
+.prev {
+  @extend .actions;
+  left: -60px;
+}

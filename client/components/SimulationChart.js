@@ -17,7 +17,15 @@ class SimulationChart extends React.Component {
           cursor: 'pointer',
           events: {
             click: () => {
-              let result = this.props.results[event.point.index];
+              this.refs.chart.chart.xAxis[0].setExtremes(0, 1);
+              let point = event.point;
+              let result = this.props.results[point.index];
+              console.log(point.x);
+              this.config.xAxis.plotLines = [{
+                color: '#48B4E7',
+                width: 1,
+                value: point.x
+              }];
               this.props.updateDailyResultChart(result.id, result.dayId);
             }
           },
@@ -51,7 +59,7 @@ class SimulationChart extends React.Component {
   render() {
     this.config.series[0].data = formatDataSet(this.props.results, this.props.profitType);
     return (
-      <ReactHighstock config={this.config}> </ReactHighstock>
+      <ReactHighstock ref="chart" config={this.config}> </ReactHighstock>
     );
   }
 }
