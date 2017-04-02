@@ -245,6 +245,10 @@ class Backtest(db.Model):
         self.success = success
         self.algorithm_id = algorithm_id
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     @property
     def serialize(self):
         return {

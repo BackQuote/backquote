@@ -11,7 +11,7 @@ class BacktestListPage extends React.Component {
 
   render() {
     return (
-      <BacktestList backtests={this.props.backtests}/>
+      <BacktestList backtests={this.props.backtests} actions={this.props.actions}/>
     );
   }
 }

@@ -48,3 +48,41 @@ export function launchBacktest(algorithm, algorithmId, params, tickers) {
     });
   };
 }
+
+export function deleteBacktest(id) {
+  return (dispatch) => {
+    api.del(`backtests/${id}`)
+      .then(() => {
+        dispatch(fetchBacktests());
+        dispatch(Notifications.info({
+          title: 'Success',
+          message: 'Backtest deleted successfully.'
+        }));
+      })
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to delete backtest',
+          message: error.message
+        }));
+      });
+  };
+}
+
+export function deleteExecution(id) {
+  return (dispatch) => {
+    api.del(`executions/${id}`)
+      .then(() => {
+        dispatch(fetchBacktests());
+        dispatch(Notifications.info({
+          title: 'Success',
+          message: 'Execution deleted successfully.'
+        }));
+      })
+      .catch((error) => {
+        dispatch(Notifications.error({
+          title: 'Unable to delete execution',
+          message: error.message
+        }));
+      });
+  };
+}
