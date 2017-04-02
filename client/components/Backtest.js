@@ -7,16 +7,7 @@ import { Link } from 'react-router';
 import ProfitNumber from './ProfitNumber';
 import { theme } from '../themes/default';
 
-const columns = [{
-  header: 'Parameters',
-  accessor: 'params',
-  render: row => <JSONTree data={row.value} theme={theme} hideRoot />
-}, {
-  minWidth: 50,
-  header: 'Ticker',
-  accessor: 'ticker',
-  className: center
-}, {
+const columns = [ {
   minWidth: 50,
   header: 'Profit',
   accessor: 'profitNoReset',
@@ -28,6 +19,15 @@ const columns = [{
   accessor: 'profitReset',
   render: row => <ProfitNumber value={row.value}/>,
   className: center
+}, {
+  minWidth: 30,
+  header: 'Ticker',
+  accessor: 'ticker',
+  className: center
+}, {
+  header: 'Parameters',
+  accessor: 'params',
+  render: row => <JSONTree data={row.value} theme={theme} shouldExpandNode={() => {return false;}} />
 }, {
   minWidth: 50,
   header: 'Actions',

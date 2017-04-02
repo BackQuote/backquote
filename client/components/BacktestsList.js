@@ -10,7 +10,9 @@ const columns = [ {
   minWidth: 10,
   header: '#',
   accessor: 'id',
-  render: row => <Link to={`/backtest/${row.value}`}>{row.value}</Link>,
+  render: row => <span>
+    <Link to={`/backtest/${row.value}`}>{row.value}</Link>
+  </span>,
   className: center
 }, {
   minWidth: 30,
@@ -35,18 +37,22 @@ const columns = [ {
 }, {
   header: 'Parameters',
   accessor: 'params',
-  render: row => <JSONTree data={row.value} theme={theme} hideRoot />
+  render: row => <JSONTree data={row.value} theme={theme} shouldExpandNode={() => {return false;}} />
+}, {
+  minWidth: 30,
+  header: 'Status',
+  accessor: 'status',
+  className: [center, actions],
+  render: row => row.row.success ? (<div>
+    <i className="fa fa-check" style={{color: '#6CD899'}}> </i>{' '}
+    {JSON.stringify(row.row.executionTime)} sec
+  </div>) : <i className="fa fa-ellipsis-h"> </i>
 }, {
   minWidth: 60,
   header: 'Actions',
   accessor: 'id',
   className: [center, actions],
-  render: row => <div className="content">
-    <small>
-      {JSON.stringify(row.row.executionTime)} sec
-    </small>
-    <Link className="button" to={`/backtest/${row.value}`}>view</Link>
-  </div>
+  render: row => <Link className="button" to={`/backtest/${row.value}`}>view</Link>
 }];
 
 class BacktestList extends React.Component {

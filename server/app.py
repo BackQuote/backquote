@@ -187,10 +187,9 @@ def run_backtester():
         "pending": True
     })
 
+    emit_executions()
     if executing is False and thread is None:
         socketio.start_background_task(target=execute_backtest)
-    else:
-        emit_executions()
 
     return jsonify({"status": "ok"})
 
