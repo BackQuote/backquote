@@ -8,12 +8,32 @@ class Simulation extends React.Component {
   constructor() {
     super();
     this.state = {
-      profitType: 'dailyProfitNoReset'
+      profitType: 'dailyProfitNoReset',
+      selectedDay: {
+        id: null,
+        dayId: null
+      }
     };
   }
 
   updateDailyResultChart(id, dayId) {
+    this.setState({ selectedDay: {id, dayId} });
     this.props.updateDailyResultChart(id, dayId, this.props.simulation.ticker);
+  }
+
+  changeDailyResult(delta) {
+    let id = this.state.selectedDay.id+delta;
+    let dayId = this.state.selectedDay.dayId+delta;
+    this.setState({ selectedDay: {id, dayId} });
+    this.props.updateDailyResultChart(id, dayId, this.props.simulation.ticker);
+  }
+
+  previousDailyResult() {
+    this.changeDailyResult(-1);
+  }
+
+  nextDailyResult() {
+    this.changeDailyResult(+1);
   }
 
   setProfitType() {
@@ -40,7 +60,9 @@ class Simulation extends React.Component {
             </div>
             <SimulationChart results={results} profitType={this.state.profitType} updateDailyResultChart={(id, dayId) => {this.updateDailyResultChart(id, dayId);}}/>
             { (quotes.length > 0 || trades.length > 0) ?
-              <DailyResultChart quotes={quotes} trades={trades} profitType={this.state.profitType} />
+              <DailyResultChart quotes={quotes} trades={trades} profitType={this.state.profitType}
+                                previousDailyResult={this.previousDailyResult.bind(this)}
+                                nextDailyResult={this.nextDailyResult.bind(this)}/>
               : null }
           </div>
         </section>

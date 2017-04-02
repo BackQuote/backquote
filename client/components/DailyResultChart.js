@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import ReactHighstock from 'react-highcharts/ReactHighstock';
 import { formatDataSet } from '../utilities/charts';
+import * as styles from '../styles/dailyResult.scss';
 
 let config = {};
 config.yAxis = [{
@@ -59,18 +60,24 @@ config.series = [{
   }]
 }];
 
-config.title = {
-  text: 'Daily result chart'
-};
-
 class DailyResultChart extends React.Component {
   render() {
     let { quotes, trades } = this.props;
     config.series[0].data = formatDataSet(quotes, 'open', 'timestamp', true);
     config.series[1].data = formatDataSet(trades, 'price', 'timestamp', true);
-
+    
     return (
-      <ReactHighstock config={config} ref="chart"> </ReactHighstock>
+      <div className={styles.container}>
+        <ReactHighstock config={config} ref="chart"> </ReactHighstock>
+        <a className={styles.prev} href="javascript:void(0)"
+           onClick={() => {this.props.previousDailyResult();}}>
+          <i className="fa fa-chevron-left fa-2x"> </i>
+        </a>
+        <a className={styles.next} href="javascript:void(0)"
+           onClick={() => {this.props.nextDailyResult();}}>
+          <i className="fa fa-chevron-right fa-2x"> </i>
+        </a>
+      </div>
     );
   }
 }
