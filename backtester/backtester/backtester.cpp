@@ -59,7 +59,6 @@ int main(int argc, char* argv[]) {
 	backtestDuration = (clock() - startTime) / (double)CLOCKS_PER_SEC;
 	cout << "Backtester done." << endl;
 	cout << "Backtest duration: " << backtestDuration << endl;
-	getchar();
 }
 
 // Example of the string this function returns on a Windows system: C:\projects\backquote\backtester\backtester

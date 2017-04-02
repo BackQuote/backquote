@@ -161,6 +161,7 @@
     <ClInclude Include="models\models.h" />
     <ClInclude Include="models\quote.h" />
     <ClInclude Include="models\result.h" />
+    <ClInclude Include="models\status.h" />
     <ClInclude Include="models\stdafx.h" />
     <ClInclude Include="models\trade.h" />
     <ClInclude Include="stdafx.h" />

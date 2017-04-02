@@ -35,7 +35,8 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
 
 	while (getline(ultimateFileStream, upLine)) {
 		if (upLine.find("new day") != string::npos) {
-			day.quotes.back().lastOfTheDay = true;
+			day.closingTime = day.quotes.back().timestamp < marketCloseTime ? day.quotes.back().timestamp : marketCloseTime;
+			day.openingTime = day.quotes.front().timestamp > marketOpenTime ? day.quotes.front().timestamp : marketOpenTime;
 			days.push_back(day);
 			day.quotes.clear();
 			day.date = upLine.substr(upLine.size() - 8, 8);
@@ -52,6 +53,10 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
 	}
 
 	ultimateFileStream.close();
+
+	day.closingTime = day.quotes.back().timestamp < marketCloseTime ? day.quotes.back().timestamp : marketCloseTime;
+	day.openingTime = day.quotes.front().timestamp > marketOpenTime ? day.quotes.front().timestamp : marketOpenTime;
+	days.push_back(day);
 }
 
 // Splits a string separated by a comma and stores the separated strings in the lineInfo string array.
@@ -104,8 +109,9 @@ void TickerBacktester::backtestAlgo(ctpl::thread_pool &tp, vector<unordered_map<
 		futures.push_back(
 			tp.push([&](int id) {
 				vector<Result> results;
-				runSimulation(ref(params), ref(results));
-				sendResults(ref(params), ref(results), ref(m));
+				double lowestCumulativeProfitReset = 0;
+				runSimulation(ref(params), ref(results), ref(lowestCumulativeProfitReset));
+				sendResults(ref(params), ref(results), ref(m), ref(lowestCumulativeProfitReset));
 			})
 		);
 	}
@@ -115,7 +121,7 @@ void TickerBacktester::backtestAlgo(ctpl::thread_pool &tp, vector<unordered_map<
 	}
 }
 
-void TickerBacktester::runSimulation(unordered_map<string, double> &params, vector<Result> &results) {
+void TickerBacktester::runSimulation(unordered_map<string, double> &params, vector<Result> &results, double &lowestCumulativeProfitReset) {
 	unique_ptr<Algorithm> algo = getAlgo(params);
 	Result result;
 	double cumulativeCash = params["cash"];
@@ -134,6 +140,9 @@ void TickerBacktester::runSimulation(unordered_map<string, double> &params, vect
 		cumulativeCash = dailyCashNoReset;
 		result.cumulativeProfitNoReset += result.dailyProfitNoReset;
 		result.cumulativeProfitReset += result.dailyProfitReset;
+		if (result.cumulativeProfitReset < lowestCumulativeProfitReset) {
+			lowestCumulativeProfitReset = result.cumulativeProfitReset;
+		}
 		results.push_back(result);
 	}
 }
@@ -148,61 +157,89 @@ unique_ptr<Algorithm> TickerBacktester::getAlgo(const unordered_map<string, doub
 
 void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &result, unique_ptr<Algorithm> &algo, Day &day,
 	unordered_map<string, double> &params) {
-	bool activePositions = false;
+
 	Action action;
 	Trade trade;
-	bool keepTrading = false;
+	Status status;
 
 	for (auto &quote : day.quotes) {
-		action = algo->processQuote(quote);
-		keepTrading = handleAction(result, dailyCashReset, dailyCashNoReset, action, quote, trade, activePositions, params);
-		if (!keepTrading) {
-			break;
+		status = algo->checkStatus(dailyCashReset, quote, trade, day);
+		if (status == tooEarly) {
+			continue;
 		}
+		else if (status == stopTrading) {
+			action = sell;
+		}
+		else {
+			assert(status == canTrade);
+			if ((algo->activePositions && algo->tradeInBounds(dailyCashReset, quote, trade)) || !algo->activePositions) {
+				action = algo->processQuote(quote);
+				if ((action == buy && algo->activePositions) || (action == sell && !algo->activePositions)) {
+					action = doNothing;
+				}
+			}
+			else {
+				action = sell;
+			}
+		}
+
+		if (action != doNothing) {
+			handleAction(result, dailyCashReset, dailyCashNoReset, action, quote, trade, algo);
+		}
+
+		if (status == stopTrading) break;
 	}
 }
 
 // Initiates trades based on actions returned by an algorithm. Returns a boolean to determine if we should keep trading or not based on
 // the maximum daily loss constraint.
-bool TickerBacktester::handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, Quote &quote, Trade &trade,
-	bool &activePositions, unordered_map<string, double> &params) {
-	if (action != nop) {
-		trade.price = quote.price;
-		trade.timestamp = quote.timestamp;
-		trade.action = action;
-	}
+void TickerBacktester::handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, Quote &quote, Trade &trade,
+	unique_ptr<Algorithm> &algo) {
 
-	if (action == buy && !activePositions) {
-		activePositions = true;
-		trade.quantityReset = (dailyCashReset * (1 - params["maxLossPerTrade"])) / params["margin"] / quote.price;
-		trade.quantityNoReset = (dailyCashNoReset * (1 - params["maxLossPerTrade"])) / params["margin"] / quote.price;
+	trade.price = quote.price;
+	trade.timestamp = quote.timestamp;
+	trade.action = action;
+
+	if (action == buy) {
+		algo->activePositions = true;
+		double purchasingPower = (dailyCashReset * (1 - algo->params["maxLossPerTrade"])) / algo->params["margin"];
+		if (purchasingPower < dailyCashReset) {
+			purchasingPower = dailyCashReset;
+		}
+		trade.quantityReset = purchasingPower / quote.price;
+		purchasingPower = (dailyCashNoReset * (1 - algo->params["maxLossPerTrade"])) / algo->params["margin"];
+		if (purchasingPower < dailyCashNoReset) {
+			purchasingPower = dailyCashNoReset;
+		}
+		trade.quantityNoReset = purchasingPower / quote.price;
 		dailyCashReset -= trade.price * trade.quantityReset;
 		dailyCashNoReset -= trade.price * trade.quantityNoReset;
 		result.trades.push_back(trade);
 	}
-	else if (action == sell && activePositions) {
-		activePositions = false;
+	else if (action == sell) {
+		algo->activePositions = false;
 		dailyCashReset += trade.price * trade.quantityReset - commission;
 		dailyCashNoReset += trade.price * trade.quantityNoReset - commission;
 		result.trades.push_back(trade);
 		trade.quantityReset = 0;
 		trade.quantityNoReset = 0;
-
-		if (dailyCashReset < dailyCashReset * (1 - params["maxDailyLoss"])) {
-			return false;
-		}
 	}
-
-	return true;
 }
 
 // Serializes all the results for a simulation and sends them through stdout to the server for database upload.
-void TickerBacktester::sendResults(unordered_map<string, double> &params, vector<Result> &results, mutex &m) {
+void TickerBacktester::sendResults(unordered_map<string, double> &params, vector<Result> &results, mutex &m, double &lowestCumulativeProfitReset) {
 	json j_sim;
 	j_sim["params"] = json(params);
 	j_sim["ticker"] = ticker;
 	j_sim["profitReset"] = results.back().cumulativeProfitReset;
+	j_sim["profitRateReset"] = results.back().cumulativeProfitReset / params["cash"];
 	j_sim["profitNoReset"] = results.back().cumulativeProfitNoReset;
+	j_sim["profitRateNoReset"] = results.back().cumulativeProfitNoReset / params["cash"];
+	double profitRateNoTrading = ((days.back().quotes.back().price / days.front().quotes.front().price) - 1);
+	j_sim["profitNoTrading"] = profitRateNoTrading * params["cash"];
+	j_sim["profitRateNoTrading"] = profitRateNoTrading;
+	j_sim["walletNeededForReset"] = lowestCumulativeProfitReset < 0 ? params["cash"] - lowestCumulativeProfitReset : params["cash"];
+
 	json j_resList;
 
 	for (size_t i = 0; i < results.size(); ++i) {

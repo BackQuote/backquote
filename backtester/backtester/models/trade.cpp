@@ -14,10 +14,11 @@ void trade_ns::to_json(json& j, const Trade& trade) {
 	case sell:
 		actionString = "sell";
 		break;
-	case nop:
-		actionString = "nop";
+	case doNothing:
+		actionString = "doNothing";
 		break;
 	}
+
 	j = json{ { "price", trade.price },{ "quantityReset", trade.quantityReset },{ "quantityNoReset", trade.quantityNoReset },
 	{ "action", actionString },{ "timestamp", trade.timestamp } };
 }
