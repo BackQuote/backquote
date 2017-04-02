@@ -54,32 +54,32 @@ def tickers():
     tickers = Ticker.query.all()
     return jsonify_all(tickers)
 
-@app.route('/algorithms/<id>')
+@app.route('/algorithms/<int:id>')
 def algorithm(id):
     algorithm = Algorithm.query.get(id)
     return jsonify(algorithm.serialize)
 
-@app.route('/results/<id>')
+@app.route('/results/<int:id>')
 def result(id):
     result = Result.query.get(id)
     return jsonify(result.serialize)
 
-@app.route('/days/<id>')
+@app.route('/days/<int:id>')
 def day(id):
     day = Day.query.get(id)
     return jsonify(day.serialize)
 
-@app.route('/trades/<id>')
+@app.route('/trades/<int:id>')
 def trade(id):
     trade = Trade.query.get(id)
     return jsonify(trade.serialize)
 
-@app.route('/trades/results/<id>')
+@app.route('/trades/results/<int:id>')
 def trade_results(id):
     trades = Trade.query.filter_by(result_id = id).all()
     return jsonify_all(trades)
 
-@app.route('/quotes/<day_id>/<ticker>')
+@app.route('/quotes/<int:day_id>/<int:ticker>')
 def quote_by_day_ticker(day_id, ticker):
     quotes = Quote.query \
         .filter_by(day_id=day_id) \
@@ -87,7 +87,7 @@ def quote_by_day_ticker(day_id, ticker):
         .all()
     return jsonify_all(quotes)
 
-@app.route('/quotes/<id>')
+@app.route('/quotes/<int:id>')
 def quote(id):
     quote = Quote.query.get(id)
     return jsonify(quote.serialize)
@@ -97,12 +97,12 @@ def simulations():
     simulations = Simulation.query.options(lazyload('results')).all()
     return jsonify_all(simulations)
 
-@app.route('/simulations/<id>')
+@app.route('/simulations/<int:id>')
 def simulation(id):
     simulation = Simulation.query.get(id)
     return jsonify(simulation.serialize)
 
-@app.route('/simulations/<id>/results')
+@app.route('/simulations/<int:id>/results')
 def simulations_results(id):
     results = Result.query.filter_by(simulation_id=id).all()
     for r in results:
@@ -116,12 +116,36 @@ def backtests():
         backtest.simulation_count = Simulation.query.filter_by(backtest_id=backtest.id).count()
     return jsonify_all(backtests)
 
-@app.route('/backtests/<id>')
+@app.route('/backtests/<int:id>')
 def backtest(id):
     backtest = Backtest.query.get(id)
     return jsonify(backtest.serialize)
 
-@app.route('/backtests/<id>/simulations')
+@app.route('/executions/<int:id>', methods=['DELETE'])
+def delete_execution(id):
+    global pending_executions
+    backtest = Backtest.query.get(id)
+    for index, execution in enumerate(pending_executions):
+        if execution['id'] == id:
+            del pending_executions[index]
+    emit_executions()
+
+    if backtest:
+        backtest.delete()
+        return jsonify(backtest.serialize)
+    else:
+        return jsonify({})
+
+@app.route('/backtests/<int:id>', methods=['DELETE'])
+def delete_backtest(id):
+    backtest = Backtest.query.get(id)
+    if backtest:
+        backtest.delete()
+        return jsonify(backtest.serialize)
+    else:
+        return jsonify({})
+
+@app.route('/backtests/<int:id>/simulations')
 def backtests_simulations(id):
     simulations = Simulation.query.filter_by(backtest_id=id).all()
     return jsonify_all(simulations)

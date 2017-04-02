@@ -33,7 +33,7 @@ const columns = [ {
   header: 'Actions',
   accessor: 'id',
   style: {textAlign: 'center'},
-  render: row => <Link className="button" to={`/simulation/${row.value}`}>view</Link>
+  render: row => <Link className="button button-primary" to={`/simulation/${row.value}`}>view</Link>
 }];
 
 class Backtest extends React.Component {

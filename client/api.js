@@ -23,6 +23,10 @@ class api {
     return this.fetch('put', path, options);
   }
 
+  del(path, options) {
+    return this.fetch('delete', path, options);
+  }
+
   fetch(method, path = '', options) {
     const url = `${this.base}/${path}`;
     options = Object.assign({}, optionsDefaults, this.options, options || {});

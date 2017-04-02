@@ -2,8 +2,11 @@ import React, { PropTypes } from 'react';
 import io from 'socket.io-client';
 import Execution from './Execution';
 import { card } from '../styles/card.scss';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import * as backtestsActions from '../actions/backtests';
 
-export default class Executions extends React.Component {
+class Executions extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -28,14 +31,15 @@ export default class Executions extends React.Component {
       return (
         <div className={card}>
           <header>
-            <a className="u-pull-right" href="javascript:void(0)" onClick={() => {this.clearExecutions();}}>Clear</a>
+            <a className="u-pull-right" href="javascript:void(0)"
+               onClick={() => {this.clearExecutions();}}>Clear</a>
             <h4 className="title">
               Executions
             </h4>
           </header>
           <section>
             {this.state.executions.map((execution, index) => {
-              return <Execution key={index} execution={execution} />;
+              return <Execution key={index} execution={execution} actions={this.props.actions} />;
             })}
           </section>
         </div>
@@ -45,3 +49,11 @@ export default class Executions extends React.Component {
     return <div></div>;
   }
 }
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    actions: bindActionCreators(backtestsActions, dispatch)
+  };
+};
+
+export default connect(null, mapDispatchToProps)(Executions);
