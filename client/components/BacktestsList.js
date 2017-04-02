@@ -26,7 +26,7 @@ class BacktestList extends React.Component {
     }, {
       minWidth: 30,
       header: 'Algorithm',
-      accessor: 'algorithmId', // Todo: get the actual algorithm name
+      accessor: 'algorithm',
       className: center
     }, {
       minWidth: 30,
