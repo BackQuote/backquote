@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { card } from '../styles/card.scss';
-import { center } from '../styles/tables.scss';
+import * as tableStyle from '../styles/tables.scss';
 import ReactTable from 'react-table';
 import JSONTree from 'react-json-tree';
 import { Link } from 'react-router';
@@ -12,18 +12,18 @@ const columns = [ {
   header: 'Profit',
   accessor: 'profitNoReset',
   render: row => <ProfitNumber value={row.value}/>,
-  className: center
+  className: tableStyle.center
 }, {
   minWidth: 50,
   header: 'Profit (reset)',
   accessor: 'profitReset',
   render: row => <ProfitNumber value={row.value}/>,
-  className: center
+  className: tableStyle.center
 }, {
   minWidth: 30,
   header: 'Ticker',
   accessor: 'ticker',
-  className: center
+  className: tableStyle.center
 }, {
   header: 'Parameters',
   accessor: 'params',
@@ -32,12 +32,13 @@ const columns = [ {
   minWidth: 50,
   header: 'Actions',
   accessor: 'id',
-  style: {textAlign: 'center'},
+  className: tableStyle.center,
   render: row => <Link className="button button-primary" to={`/simulation/${row.value}`}>view</Link>
 }];
 
 class Backtest extends React.Component {
   render() {
+    let simulations = this.props.simulations;
     return (
       <div className={card}>
         <header>
@@ -47,9 +48,11 @@ class Backtest extends React.Component {
         </header>
         <section>
           <ReactTable
-            showPagination={false}
             minRows={0}
-            data={this.props.simulations || []}
+            showPagination
+            defaultPageSize={100}
+            className={tableStyle.reset}
+            data={simulations}
             columns={columns} />
         </section>
       </div>
