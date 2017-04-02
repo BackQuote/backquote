@@ -37,9 +37,12 @@ class Executions extends React.Component {
               Executions
             </h4>
           </header>
-          <section>
+          <section className="row">
             {this.state.executions.map((execution, index) => {
-              return <Execution key={index} execution={execution} actions={this.props.actions} />;
+              let className = index % 2 === 0 ?  'no-margin-left' : '';
+              return <div className={`columns six ${className}`} key={execution.id}>
+                <Execution key={index} execution={execution} actions={this.props.actions} />
+              </div>;
             })}
           </section>
         </div>
