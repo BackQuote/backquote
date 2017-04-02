@@ -6,7 +6,7 @@ from sqlalchemy.orm import lazyload
 from flask_cors import CORS
 from Queue import Queue
 from upload import *
-import os, json, subprocess
+import os, json, subprocess, time
 
 async_mode = None
 thread = None
@@ -179,6 +179,8 @@ def execute_backtest():
     simulation_count = 0
     number_of_simulations = proc.stdout.readline().rstrip('\r\n')
     current_execution["number_of_simulations"] = number_of_simulations
+    start_time = time.time()
+    avg_time = 0
     emit_executions()
 
     while True:
@@ -191,8 +193,15 @@ def execute_backtest():
 
         current_execution["current_simulation"] = simulation_count + 1
         current_execution["progress"] = float(simulation_count) / float(number_of_simulations) * 100
+
+        if simulation_count == 2:# skip the first simulation as it will be longer due to ultimate load
+            avg_time = time.time() - start_time
+        if simulation_count > 1:
+            current_execution["eta"] = avg_time * number_of_simulations - avg_time * simulation_count
+
         emit_executions()
 
+    current_execution["eta"] = None
     completed_executions.append(executions.pop(0))
 
     execution_time = proc.stdout.readline().rstrip('\r\n').split()[-1]
