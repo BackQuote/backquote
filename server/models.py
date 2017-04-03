@@ -170,7 +170,7 @@ class Result(db.Model):
             'cumulativeProfitNoReset': decimal(self.cumulative_profit_no_reset),
             'dayId': self.day_id,
             'simulationId': self.simulation_id,
-            'date': str(self.date)
+            'date': self.date
         }
 
 

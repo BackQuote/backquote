@@ -106,7 +106,7 @@ def simulation(id):
 def simulations_results(id):
     results = Result.query.filter_by(simulation_id=id).all()
     for r in results:
-        r.day = Day.query.get(r.day_id)
+        r.date = Day.query.get(r.day_id).date.strftime('%Y-%m-%d %H:%M:%S')
     return jsonify_all(results)
 
 @app.route('/backtests')
