@@ -4,6 +4,9 @@ import { formatDataSet } from '../utilities/charts';
 import * as styles from '../styles/dailyResult.scss';
 
 let config = {};
+config.chart = {
+  height: 400
+};
 config.yAxis = [{
   title: {
     text: 'Quotes/Trades'
@@ -65,7 +68,7 @@ class DailyResultChart extends React.Component {
     let { quotes, trades } = this.props;
     config.series[0].data = formatDataSet(quotes, 'open', 'timestamp', true);
     config.series[1].data = formatDataSet(trades, 'price', 'timestamp', true);
-    
+
     return (
       <div className={styles.container}>
         <ReactHighstock config={config} ref="chart"> </ReactHighstock>

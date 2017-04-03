@@ -8,6 +8,7 @@ class SimulationChart extends React.Component {
     this.config = {
       chart: {
         type: 'column',
+        height: 400
       },
       plotOptions: {
         column: {
@@ -20,7 +21,6 @@ class SimulationChart extends React.Component {
               this.refs.chart.chart.xAxis[0].setExtremes(0, 1);
               let point = event.point;
               let result = this.props.results[point.index];
-              console.log(point.x);
               this.config.xAxis.plotLines = [{
                 color: '#48B4E7',
                 width: 1,
