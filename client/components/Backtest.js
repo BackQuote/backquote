@@ -27,11 +27,13 @@ const columns = [ {
 }, {
   header: 'Parameters',
   accessor: 'params',
+  sortable: false,
   render: row => <JSONTree data={row.value} theme={theme} shouldExpandNode={() => {return false;}} />
 }, {
   minWidth: 50,
   header: 'Actions',
   accessor: 'id',
+  sortable: false,
   className: tableStyle.center,
   render: row => <Link className="button button-primary" to={`/simulation/${row.value}`}>view</Link>
 }];
