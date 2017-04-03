@@ -142,7 +142,7 @@ class Result(db.Model):
     __tablename__ = "result"
 
     id = db.Column(db.Integer, primary_key=True)
-    trades = db.relationship('Trade', backref='result', lazy='dynamic')
+    trades = db.relationship('Trade', backref='result', lazy='dynamic', cascade="all,delete")
     daily_profit_reset = db.Column(db.Numeric)
     daily_profit_no_reset = db.Column(db.Numeric)
     cumulative_profit_reset = db.Column(db.Numeric)
@@ -202,7 +202,7 @@ class Simulation(db.Model):
     params = db.Column(db.String)
     profit_no_reset = db.Column(db.Numeric)
     profit_reset = db.Column(db.Numeric)
-    results = db.relationship('Result', backref='simulation', lazy='dynamic')
+    results = db.relationship('Result', backref='simulation', lazy='dynamic', cascade="all,delete")
     backtest_id = db.Column(db.Integer, db.ForeignKey('backtest.id'))
     ticker = db.Column(db.String, db.ForeignKey('ticker.ticker'))
 
@@ -233,7 +233,7 @@ class Backtest(db.Model):
     timestamp = db.Column(db.TIMESTAMP)
     success = db.Column(db.Boolean)
     execution_time = db.Column(db.Numeric)
-    simulations = db.relationship('Simulation', backref='backtest', lazy='dynamic')
+    simulations = db.relationship('Simulation', backref='backtest', lazy='dynamic', cascade="all,delete")
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
     tickers = db.relationship('Ticker', secondary=backtest_ticker, backref='backtest')
     simulation_count = 0,
