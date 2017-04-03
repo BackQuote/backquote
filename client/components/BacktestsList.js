@@ -41,6 +41,7 @@ class BacktestList extends React.Component {
     }, {
       header: 'Parameters',
       accessor: 'params',
+      sortable: false,
       render: row => <JSONTree data={row.value} theme={theme} shouldExpandNode={() => {return false;}} />
     }, {
       minWidth: 30,
@@ -55,6 +56,7 @@ class BacktestList extends React.Component {
       minWidth: 50,
       header: 'Actions',
       accessor: 'id',
+      sortable: false,
       className: [tableStyle.center, tableStyle.actions],
       render: row => <div>
         <a className={`button button-danger ${tableStyle.actionButton}`} onClick={() => {this.props.actions.deleteBacktest(row.value);}}>
