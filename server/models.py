@@ -256,7 +256,7 @@ class Backtest(db.Model):
             'params': json.loads(self.params),
             'timestamp': str(self.timestamp),
             'success': self.success,
-            'executionTime': self.execution_time,
+            'executionTime': decimal(self.execution_time),
             'algorithmId': self.algorithm_id,
             'tickers': [i.serialize for i in self.tickers],
             'simulation_count': self.simulation_count,

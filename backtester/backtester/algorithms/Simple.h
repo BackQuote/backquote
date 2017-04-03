@@ -4,10 +4,8 @@
 
 class Simple : public Algorithm {
 public:
-	Simple(const std::unordered_map<std::string, double> params);
+	Simple(const std::unordered_map<std::string, double> &params);
+	Simple();
 	~Simple();
-	Action processQuote(Quote&);
-	
-private:
-	bool bought;
+	Action processQuote(Quote &quote);
 };

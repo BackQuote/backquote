@@ -4,5 +4,7 @@
 	"cash":15000,
 	"margin":0.3,
 	"maxLossPerTrade":0.05,
-	"maxDailyLoss": 0.3
+	"maxGainPerTrade":0.05,
+	"maxDailyLoss": 0.3,
+	"maxDailyGain": 0.3
 }

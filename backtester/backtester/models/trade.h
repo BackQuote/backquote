@@ -1,5 +1,4 @@
 #pragma once
-
 #include "stdafx.h"
 #include "models.h"
 
@@ -14,5 +13,5 @@ namespace trade_ns {
 		size_t timestamp;
 	};
 
-	void to_json(json& j, const Trade&);
+	void to_json(json& j, const Trade& trade);
 }

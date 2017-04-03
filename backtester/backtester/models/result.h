@@ -1,5 +1,4 @@
 #pragma once
-
 #include "stdafx.h"
 #include "models.h"
 
@@ -20,6 +19,6 @@ namespace result_ns {
 		double cumulativeProfitNoReset;
 	};
 
-	void to_json(json& j, const Result&);
+	void to_json(json& j, const Result& result);
 }
 
