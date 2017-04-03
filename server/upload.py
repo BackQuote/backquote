@@ -8,11 +8,18 @@ def save_models(simulation_results, backtest_id):
     params = simulation_results['params']
     results = simulation_results['results']
     profit_reset = simulation_results['profitReset']
+    profit_rate_reset = simulation_results['profitRateReset']
     profit_no_reset = simulation_results['profitNoReset']
+    profit_rate_no_reset = simulation_results['profitRateNoReset']
+    profit_no_trading = simulation_results['profitNoTrading']
+    profit_rate_no_trading = simulation_results['profitRateNoTrading']
+    wallet_needed_for_reset = simulation_results['walletNeededForReset']
     ticker = simulation_results['ticker']
 
     # add simulation
-    simulation = Simulation(json.dumps(params), profit_no_reset, profit_reset, backtest_id, str(ticker))
+    simulation = Simulation(json.dumps(params), profit_no_reset, profit_rate_no_reset, profit_reset, profit_rate_reset,
+                            profit_no_trading, profit_rate_no_trading, wallet_needed_for_reset, backtest_id, str(ticker)
+                            )
     db.session.add(simulation)
     db.session.commit()
     simulation_id = simulation.id
