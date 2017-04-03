@@ -228,11 +228,16 @@ def stats():
     bestSimulation = Simulation.query.order_by(Simulation.profit_no_reset.desc()).first()
     numberOfBacktests = Backtest.query.count()
     numberOfSimulations = Simulation.query.count()
-    return jsonify({
+
+    stats = {
         "numberOfBacktests": numberOfBacktests,
         "numberOfSimulations": numberOfSimulations,
-        "bestSimulation": bestSimulation.serialize
-    })
+    }
+
+    if (bestSimulation):
+        stats["bestSimulation"] = bestSimulation.serialize
+
+    return jsonify(stats)
 
 @socketio.on('request_executions')
 def get_latest_executions():

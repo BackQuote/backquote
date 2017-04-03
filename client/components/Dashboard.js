@@ -13,21 +13,25 @@ class Dashboard extends React.Component {
           <div className="row">
             <div className="12 columns">
               <div className={card}>
-                <header>
-                  <h4 className="title">
-                    <Link to={`/simulation/${stats.bestSimulation.id}`}>Best simulation</Link>
-                  </h4>
-                </header>
-                <section>
-                  <ul>
-                    <li>
-                      Profit: {<ProfitNumber value={stats.bestSimulation.profitNoReset} />}
-                    </li>
-                    <li>
-                      Profit (reset): {<ProfitNumber value={stats.bestSimulation.profitReset} />}
-                    </li>
-                  </ul>
-                </section>
+                {stats.bestSimulation ? (
+                  <div>
+                    <header>
+                      <h4 className="title">
+                        <Link to={`/simulation/${stats.bestSimulation.id}`}>Best simulation</Link>
+                      </h4>
+                    </header>
+                    <section>
+                      <ul>
+                        <li>
+                          Profit: {<ProfitNumber value={stats.bestSimulation.profitNoReset} />}
+                        </li>
+                        <li>
+                          Profit (reset): {<ProfitNumber value={stats.bestSimulation.profitReset} />}
+                        </li>
+                      </ul>
+                    </section>
+                  </div>
+                ) : null }
                 <header>
                   <h4 className="title">
                     {stats.numberOfBacktests}{' '}<Link to={'/backtests'}>Backtests</Link>
