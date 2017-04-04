@@ -1,4 +1,5 @@
 from models import *
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta
 import json
 
@@ -68,5 +69,9 @@ def backtest_completed(backtest_id, execution_time):
 def upload_template(args):
     template = Template(args)
     db.session.add(template)
-    db.session.commit()
-    return template
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return {'error': True, 'message': 'This template already exists'}
+    return template.serialize
