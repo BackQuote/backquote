@@ -18,7 +18,6 @@ class Executions extends React.Component {
   componentDidMount() {
     this.socket.emit('request_executions');
     this.socket.on('executions', (data) => {
-      console.log(data);
       this.setState({executions: JSON.parse(data.executions)});
     });
   }

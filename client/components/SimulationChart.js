@@ -18,7 +18,7 @@ class SimulationChart extends React.Component {
           cursor: 'pointer',
           events: {
             click: () => {
-              this.refs.chart.chart.xAxis[0].setExtremes(0, 1);
+              this.extremes = this.refs.chart.chart.xAxis[0].getExtremes();
               let point = event.point;
               let result = this.props.results[point.index];
               this.config.xAxis.plotLines = [{
@@ -54,6 +54,12 @@ class SimulationChart extends React.Component {
       },
       series: [{}]
     };
+  }
+
+  componentDidUpdate() {
+    if (this.extremes) {
+      this.refs.chart.chart.xAxis[0].setExtremes(this.extremes.min, this.extremes.max, false);
+    }
   }
 
   render() {
