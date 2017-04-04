@@ -47,7 +47,7 @@ def templates():
 def save_template():
     post_data = request.get_json()
     template = upload_template(json.dumps(post_data['params']))
-    return jsonify(template.serialize)
+    return jsonify(template)
 
 @app.route('/tickers')
 def tickers():

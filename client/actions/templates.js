@@ -35,11 +35,17 @@ export function saveTemplate(algorithm, params) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({algorithm, params})
-    }).then(() => {
-      dispatch(Notifications.success({
-        title: 'Success',
-        message: 'Template saved successfully.'
-      }));
+    }).then((response) => {
+      if (response.error) {
+        dispatch(Notifications.info({
+          message: response.message
+        }));
+      } else {
+        dispatch(Notifications.success({
+          title: 'Success',
+          message: 'Template saved successfully.'
+        }));
+      }
     }).catch((error) => {
       dispatch(Notifications.error({
         title: 'Unable to save template',
