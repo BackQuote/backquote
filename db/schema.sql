@@ -261,7 +261,12 @@ CREATE TABLE simulation (
     ticker character varying(10),
     params text,
     profit_reset numeric(10,2),
-    profit_no_reset numeric(10,2)
+    profit_rate_reset numeric(10,2),
+    profit_no_reset numeric(10,2),
+    profit_rate_no_reset numeric(10,2),
+    profit_no_trading numeric(10,2),
+    profit_rate_no_trading numeric(10,2),
+    wallet_needed_for_reset numeric(10,2)
 );
 
 
