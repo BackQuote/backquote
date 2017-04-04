@@ -101,7 +101,7 @@ CREATE TABLE backtest (
     params text,
     success boolean DEFAULT false NOT NULL,
     algorithm_id integer,
-    execution_time numeric(30,2)
+    execution_time numeric(30,2) DEFAULT 0
 );
 
 
