@@ -168,6 +168,10 @@ def execute_backtest():
     current_execution["pending"] = False
     executions.append(current_execution)
 
+    simulation_count = 0
+    socketio.start_background_task(target=emit_executions)
+    current_execution["current_simulation"] = simulation_count
+
     backtest = Backtest.query.get(current_execution['id'])
     algorithm = Algorithm.query.get(backtest.algorithm_id)
     tickers = [i.ticker for i in backtest.tickers]
@@ -176,30 +180,31 @@ def execute_backtest():
     proc = subprocess.Popen([exe, '--algoName', algorithm.name, '--params', backtest.params, '--tickers'] +
                             tickers, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
-    simulation_count = 0
     number_of_simulations = proc.stdout.readline().rstrip('\r\n')
     current_execution["number_of_simulations"] = number_of_simulations
-    start_time = time.time()
     avg_time = 0
-    emit_executions()
+    socketio.start_background_task(target=emit_executions)
 
     while True:
-        simulation_count += 1
+        if simulation_count == 1:
+            start_time = time.time()
         line = proc.stdout.readline().rstrip('\r\n')
         if line == 'Backtester done.':
             break
         simulation_results = json.loads(line)
         save_models(simulation_results, backtest.id)
 
-        current_execution["current_simulation"] = simulation_count + 1
-        current_execution["progress"] = float(simulation_count) / float(number_of_simulations) * 100
+        current_execution["progress"] = float(simulation_count + 1) / float(number_of_simulations) * 100
 
-        if simulation_count == 2:# skip the first simulation as it will be longer due to ultimate load
+        # skip the first simulation as it will be longer due to ultimate load
+        if simulation_count == 1:
             avg_time = time.time() - start_time
-        if simulation_count > 1:
-            current_execution["eta"] = avg_time * number_of_simulations - avg_time * simulation_count
+        if simulation_count > 0:
+            current_execution["eta"] = avg_time * float(number_of_simulations) - avg_time * float(simulation_count)
 
-        emit_executions()
+        simulation_count += 1
+        current_execution["current_simulation"] = simulation_count
+        socketio.start_background_task(target=emit_executions)
 
     current_execution["eta"] = None
     completed_executions.append(executions.pop(0))
