@@ -201,15 +201,26 @@ class Simulation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     params = db.Column(db.String)
     profit_no_reset = db.Column(db.Numeric)
+    profit_rate_no_reset = db.Column(db.Numeric)
     profit_reset = db.Column(db.Numeric)
+    profit_rate_reset = db.Column(db.Numeric)
+    profit_no_trading = db.Column(db.Numeric)
+    profit_rate_no_trading = db.Column(db.Numeric)
+    wallet_needed_for_reset = db.Column(db.Numeric)
     results = db.relationship('Result', backref='simulation', lazy='dynamic', cascade="all,delete")
     backtest_id = db.Column(db.Integer, db.ForeignKey('backtest.id'))
     ticker = db.Column(db.String, db.ForeignKey('ticker.ticker'))
 
-    def __init__(self, params, profit_no_reset, profit_reset, backtest_id, ticker):
+    def __init__(self, params, profit_no_reset, profit_rate_no_reset, profit_reset, profit_rate_reset,
+                 profit_no_trading, profit_rate_no_trading, wallet_needed_for_reset, backtest_id, ticker):
         self.params = params
         self.profit_no_reset = profit_no_reset
+        self.profit_rate_no_reset = profit_rate_no_reset
         self.profit_reset = profit_reset
+        self.profit_rate_reset = profit_rate_reset
+        self.profit_no_trading = profit_no_trading
+        self.profit_rate_no_trading = profit_rate_no_trading
+        self.wallet_needed_for_reset = wallet_needed_for_reset
         self.backtest_id = backtest_id
         self.ticker = ticker
 
@@ -219,7 +230,12 @@ class Simulation(db.Model):
             'id': self.id,
             'params': json.loads(self.params),
             'profitNoReset': str(self.profit_no_reset),
+            'profitRateNoReset': str(self.profit_rate_no_reset),
             'profitReset': str(self.profit_reset),
+            'profitRateReset': str(self.profit_rate_reset),
+            'profitNoTrading': str(self.profit_no_trading),
+            'profitRateNoTrading': str(self.profit_rate_no_trading),
+            'walletNeededForReset': str(self.wallet_needed_for_reset),
             'backtestId': self.backtest_id,
             'ticker': self.ticker
         }
@@ -256,7 +272,7 @@ class Backtest(db.Model):
             'params': json.loads(self.params),
             'timestamp': str(self.timestamp),
             'success': self.success,
-            'executionTime': decimal(self.execution_time),
+            'executionTime': str(self.execution_time),
             'algorithmId': self.algorithm_id,
             'tickers': [i.serialize for i in self.tickers],
             'simulation_count': self.simulation_count,
