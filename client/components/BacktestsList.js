@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import io from 'socket.io-client';
 import { card } from '../styles/card.scss';
 import * as tableStyle from '../styles/tables.scss';
 import ReactTable from 'react-table';
@@ -7,16 +8,17 @@ import { Link } from 'react-router';
 import { theme } from '../themes/default';
 
 class BacktestList extends React.Component {
-
   constructor() {
     super();
+    this.state = {
+      executions: []
+    };
+    this.socket = io('http://localhost:5000');
     this.columns = [ {
       minWidth: 15,
       header: '#',
       accessor: 'id',
-      render: row => <span>
-    <Link to={`/backtest/${row.value}`}>{row.value}</Link>
-  </span>,
+      render: row => <span><Link to={`/backtest/${row.value}`}>{row.value}</Link></span>,
       className: tableStyle.center
     }, {
       minWidth: 30,
@@ -33,10 +35,10 @@ class BacktestList extends React.Component {
       header: 'Tickers',
       accessor: 'tickers',
       render: row => <span>
-    {row.value.map(ticker => {
-      return ticker.ticker;
-    }).join(', ')}
-  </span>,
+        {row.value.map(ticker => {
+          return ticker.ticker;
+        }).join(', ')}
+      </span>,
       className: tableStyle.center
     }, {
       header: 'Parameters',
@@ -48,10 +50,30 @@ class BacktestList extends React.Component {
       header: 'Status',
       accessor: 'status',
       className: [tableStyle.center, tableStyle.actions],
-      render: row => row.row.success ? (<div>
-        <i className="fa fa-check" style={{color: '#6CD899'}}> </i>{' '}
-        {JSON.stringify(row.row.executionTime)} sec
-      </div>) : <i className="fa fa-ellipsis-h"> </i>
+      render: ({row}) => {
+        let execution = this.state.executions.filter(exec => {
+          return exec.id === row.id;
+        })[0];
+
+        if (execution) {
+          if (execution.pending) {
+            return <i className="fa fa-ellipsis-h"> </i>;
+          } else if (!execution.execution_time) {
+            return <i className="fa fa-refresh fa-spin"> </i>;
+          }
+          return <div>
+            <i className="fa fa-check" style={{color: '#6CD899'}}> </i>{' '}
+            { execution.execution_time } sec
+          </div>;
+        }
+        if (row.success) {
+          return <div>
+            <i className="fa fa-check" style={{color: '#6CD899'}}> </i>{' '}
+            { JSON.stringify(row.executionTime) } sec
+          </div>;
+        }
+        return <i className="fa fa-ellipsis-h"> </i>;
+      }
     }, {
       minWidth: 50,
       header: 'Actions',
@@ -67,6 +89,13 @@ class BacktestList extends React.Component {
         </Link>
       </div>
     }];
+  }
+
+  componentDidMount() {
+    this.socket.emit('request_executions');
+    this.socket.on('executions', (data) => {
+      this.setState({executions: JSON.parse(data.executions)});
+    });
   }
 
   render() {

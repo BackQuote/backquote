@@ -206,10 +206,12 @@ def execute_backtest():
         current_execution["current_simulation"] = simulation_count
         socketio.start_background_task(target=emit_executions)
 
+    execution_time = proc.stdout.readline().rstrip('\r\n').split()[-1]
     current_execution["eta"] = None
+    current_execution["execution_time"] = execution_time
+    socketio.start_background_task(target=emit_executions)
     completed_executions.append(executions.pop(0))
 
-    execution_time = proc.stdout.readline().rstrip('\r\n').split()[-1]
     backtest_completed(backtest.id, execution_time)
 
     if pending_executions:
