@@ -32,17 +32,38 @@ config.tooltip = {
 };
 
 config.series = [{
-  name: 'Quote',
+  name: 'Price',
   data: [],
   dataGrouping: {
     enabled: false
   }
 }, {
-  name: 'Trade',
+  name: 'Bought at',
   data: [],
   lineWidth: 0,
   marker: {
     enabled: true,
+    fillColor: '#00c833',
+    lineColor: '#1d1d1d',
+    lineWidth: 1,
+    symbol: 'triangle',
+    radius: 5
+  },
+  states: {
+    hover: {
+      lineWidthPlus: 0
+    }
+  }
+}, {
+  name: 'Sold at',
+  data: [],
+  lineWidth: 0,
+  marker: {
+    enabled: true,
+    fillColor: '#f93943',
+    lineColor: '#1d1d1d',
+    lineWidth: 1,
+    symbol: 'triangle-down',
     radius: 5
   },
   states: {
@@ -66,8 +87,18 @@ config.series = [{
 class DailyResultChart extends React.Component {
   render() {
     let { quotes, trades } = this.props;
+    let sells = [];
+    let buys = trades.filter(trade => {
+      if (trade.action === 'sell') {
+        sells.push(trade);
+        return false;
+      }
+      return true;
+    });
+
     config.series[0].data = formatDataSet(quotes, 'open', 'timestamp', true);
-    config.series[1].data = formatDataSet(trades, 'price', 'timestamp', true);
+    config.series[1].data = formatDataSet(buys, 'price', 'timestamp', true);
+    config.series[2].data = formatDataSet(sells, 'price', 'timestamp', true);
 
     return (
       <div className={styles.container}>
