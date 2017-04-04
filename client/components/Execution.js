@@ -60,7 +60,9 @@ export default class Execution extends React.Component {
         ) : execution.progress < 100  ? (
           <span>
             <i className="fa fa-refresh fa-spin"> </i>{' '}
-            <small>({execution.current_simulation}/{execution.number_of_simulations})</small>{' '}
+            {execution.number_of_simulations ? (
+                <small>({execution.current_simulation}/{execution.number_of_simulations})</small>
+              ) : null}{' '}
             {this.state.eta ? (
               <small>{this.humanReadableETA(this.state.eta)}</small>
             ) : null }

@@ -1,5 +1,4 @@
 from models import *
-from sqlalchemy import update
 from datetime import datetime, timedelta
 import json
 
@@ -45,8 +44,8 @@ def save_models(simulation_results, backtest_id):
             trade_models.append(Trade(trade['price'], trade['quantityReset'], trade['quantityNoReset'], trade['action'],
                                       time, result_id))
 
-        db.session.add_all(trade_models)
-        db.session.commit()
+    db.session.add_all(trade_models)
+    db.session.commit()
 
 
 def save_backtest(args):
