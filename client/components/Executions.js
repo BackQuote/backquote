@@ -22,6 +22,10 @@ class Executions extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.socket.removeAllListeners();
+  }
+
   clearExecutions() {
     this.socket.emit('clear_executions');
   }

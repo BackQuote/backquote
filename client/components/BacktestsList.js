@@ -98,6 +98,10 @@ class BacktestList extends React.Component {
     });
   }
 
+  componentWillUnmount() {
+    this.socket.removeAllListeners();
+  }
+
   render() {
     let { backtests } = this.props;
     return (
