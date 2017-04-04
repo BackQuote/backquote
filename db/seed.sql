@@ -10,7 +10,7 @@ TRUNCATE TABLE public.trade RESTART IDENTITY CASCADE ;
 TRUNCATE TABLE public.result RESTART IDENTITY CASCADE ;
 
 INSERT INTO public.algorithm (id, name) VALUES (1, 'simple');
-INSERT INTO public.template (id, params) VALUES (1, '{"maxLossPerTrade": 0.05, "maxDailyLoss": 0.3, "timeBufferEnd": [0, 0, 1], "cash": 15000, "timeBufferStart": [0, 0, 1], "margin": 0.3}');
+INSERT INTO public.template (id, params) VALUES (1, '{"maxLossPerTrade": 0.05, "maxGainPerTrade": 3, "maxDailyLoss": 0.3, "maxDailyGain": 3, "timeBufferEnd": [0, 0, 1], "cash": 15000, "timeBufferStart": [0, 0, 1], "margin": 0.3}');
 INSERT INTO public.backtest (id, timestamp, params, success, algorithm_id) VALUES (1, '2017-03-22 12:11:36.502000', '{"cash":15000,"margin":0.3,"maxDailyLoss":0.3,"maxLossPerTrade":0.05,"timeBufferEnd":[0,0,1],"timeBufferStart":[0,0,1]}', false, 1);
 INSERT INTO public.backtest_ticker (backtest_id, ticker) VALUES (1, 'upro');
 INSERT INTO public.simulation (id, backtest_id, ticker, params, profit_reset, profit_no_reset) VALUES (1, 1, 'upro', '{"maxLossPerTrade": 0.05, "maxDailyLoss": 0.3, "timeBufferEnd": 0.0, "cash": 15000, "timeBufferStart": 0.0, "margin": 0.3}', -718.49, -10195.57);
