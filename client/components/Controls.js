@@ -126,7 +126,7 @@ class Controls extends React.Component {
                     multi
                     value={this.state.tickers}
                     onChange={this.handleTickersChange.bind(this)}
-                    options={tickers.map(ticker => {return {value: ticker.ticker, label: ticker.ticker};})}
+                    options={tickers.map(ticker => {return {value: ticker.ticker, label: ticker.ticker.toUpperCase()};})}
                   />
                 </div>
               </div>

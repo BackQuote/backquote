@@ -36,7 +36,7 @@ class BacktestList extends React.Component {
       accessor: 'tickers',
       render: row => <span>
         {row.value.map(ticker => {
-          return ticker.ticker;
+          return ticker.ticker.toUpperCase();
         }).join(', ')}
       </span>,
       className: tableStyle.center
