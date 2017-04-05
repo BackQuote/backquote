@@ -4,11 +4,8 @@ import { positive, negative } from '../styles/profitNumber.scss';
 class ProfitNumber extends React.Component {
   render() {
     let { value } = this.props;
-    return value < 0 ? (
-      <span className={negative}>({value}$)</span>
-    ) : (
-      <span className={positive}>{value}$</span>
-    );
+    let className = value < 0 ? negative : positive;
+    return <span className={className}>{value}$</span>;
   }
 }
 
