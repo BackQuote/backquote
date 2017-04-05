@@ -5,11 +5,8 @@ class ProfitRate extends React.Component {
   render() {
     let { value } = this.props;
     let rate = value * 100;
-    return value < 0 ? (
-      <span className={negative}>({rate}%)</span>
-    ) : (
-      <span className={positive}>{rate}%</span>
-    );
+    let className = value < 0 ? negative : positive;
+    return <span className={className}>{rate}%</span>;
   }
 }
 
