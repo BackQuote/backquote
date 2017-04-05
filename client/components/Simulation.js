@@ -1,8 +1,12 @@
 import React, { PropTypes } from 'react';
+import { Link } from 'react-router';
 import { card } from '../styles/card.scss';
 import * as styles from '../styles/simulation.scss';
 import SimulationChart from './SimulationChart';
 import DailyResultChart from './DailyResultChart';
+import ProfitNumber from './ProfitNumber';
+import JSONTree from 'react-json-tree';
+import { theme } from '../themes/default';
 
 class Simulation extends React.Component {
 
@@ -42,18 +46,73 @@ class Simulation extends React.Component {
   }
 
   render() {
-    let {results, quotes, trades} = this.props;
+    let {results, quotes, trades, simulation} = this.props;
     return (
       <div className={card}>
         <header>
           <h4 className="title">
-            Simulation
+            <Link to={'/backtests'}>Backtests</Link>
+            {' '}<i className="fa fa-angle-right"> </i>{' '}
+            <Link to={`/backtest/${simulation.backtestId}`}>Simulations</Link>
+            {' '}<i className="fa fa-angle-right"> </i>{' '}
+            <Link to={`/simulation/${simulation.id}`}>{simulation.id}</Link>
           </h4>
         </header>
         <section>
           <div className="container">
+
+            { simulation ? (
+              <div>
+                <div className="row">
+                  <div className="columns six">
+                    <label>Returns summary</label>
+                    <table>
+                      <thead>
+                      <tr>
+                        <th></th>
+                        <th>Value</th>
+                        <th>Rate</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td>No reset</td>
+                        <td><ProfitNumber value={simulation.profitNoReset} /></td>
+                        <td>{simulation.profitRateNoReset}%</td>
+                      </tr>
+                      <tr>
+                        <td>Reset</td>
+                        <td><ProfitNumber value={simulation.profitReset} /></td>
+                        <td>{simulation.profitRateReset}%</td>
+                      </tr>
+                      <tr>
+                        <td>No trading</td>
+                        <td><ProfitNumber value={simulation.profitNoTrading} /></td>
+                        <td>{simulation.profitRateNoTrading}%</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="columns six">
+                    <label>Parameters</label>
+                    <JSONTree data={simulation.params || []} theme={theme} hideRoot />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="columns two">
+                    <label>Ticker</label>
+                    {simulation.ticker ? simulation.ticker.toUpperCase() : null}
+                  </div>
+                  <div className="columns two">
+                    <label>Wallet needed</label>
+                    {simulation.walletNeededForReset}$
+                  </div>
+                </div>
+              </div>
+            ) : null }
+            <hr/>
             <div className="u-pull-right">
-              Profit{' '}
+              Profit type{' '}
               <select name="profitType" ref="profitType" onChange={() => {this.setProfitType();}}>
                 <option value="dailyProfitNoReset">Without Reset</option>
                 <option value="dailyProfitReset">With Reset</option>

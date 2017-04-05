@@ -1,11 +1,12 @@
 .reset {
-  button, input, select, form {
+  a, button, input, select, form {
     margin-bottom: 0;
   }
 }
 
 .center {
   text-align: center;
+  margin: auto;
 }
 
 .actions {

@@ -25,6 +25,7 @@ const columns = [ {
   minWidth: 30,
   header: 'Ticker',
   accessor: 'ticker',
+  render: ({row}) => row.ticker.toUpperCase(),
   className: tableStyle.center
 }, {
   header: 'Parameters',
