@@ -229,13 +229,13 @@ class Simulation(db.Model):
         return {
             'id': self.id,
             'params': json.loads(self.params),
-            'profitNoReset': str(self.profit_no_reset),
-            'profitRateNoReset': str(self.profit_rate_no_reset),
-            'profitReset': str(self.profit_reset),
-            'profitRateReset': str(self.profit_rate_reset),
-            'profitNoTrading': str(self.profit_no_trading),
-            'profitRateNoTrading': str(self.profit_rate_no_trading),
-            'walletNeededForReset': str(self.wallet_needed_for_reset),
+            'profitNoReset': decimal(self.profit_no_reset),
+            'profitRateNoReset': decimal(self.profit_rate_no_reset),
+            'profitReset': decimal(self.profit_reset),
+            'profitRateReset': decimal(self.profit_rate_reset),
+            'profitNoTrading': decimal(self.profit_no_trading),
+            'profitRateNoTrading': decimal(self.profit_rate_no_trading),
+            'walletNeededForReset': decimal(self.wallet_needed_for_reset),
             'backtestId': self.backtest_id,
             'ticker': self.ticker
         }
