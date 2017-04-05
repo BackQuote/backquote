@@ -1,15 +1,16 @@
 import React, { PropTypes } from 'react';
 import { positive, negative } from '../styles/profitNumber.scss';
 
-class ProfitNumber extends React.Component {
+class ProfitRate extends React.Component {
   render() {
     let { value } = this.props;
+    let rate = value * 100;
     return value < 0 ? (
-      <span className={negative}>({value}$)</span>
+      <span className={negative}>({rate}%)</span>
     ) : (
-      <span className={positive}>{value}$</span>
+      <span className={positive}>{rate}%</span>
     );
   }
 }
 
-export default ProfitNumber;
+export default ProfitRate;
