@@ -8,7 +8,7 @@ from Queue import Queue
 from upload import *
 import os, json, subprocess, time
 
-async_mode = None
+async_mode = 'gevent'
 thread = None
 executions = []
 completed_executions = []
