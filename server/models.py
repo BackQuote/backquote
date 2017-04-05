@@ -248,7 +248,7 @@ class Backtest(db.Model):
     params = db.Column(db.String)
     timestamp = db.Column(db.TIMESTAMP)
     success = db.Column(db.Boolean)
-    execution_time = db.Column(db.Numeric)
+    execution_time = db.Column(db.Numeric, default=0)
     simulations = db.relationship('Simulation', backref='backtest', lazy='dynamic', cascade="all,delete")
     algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
     tickers = db.relationship('Ticker', secondary=backtest_ticker, backref='backtest')
