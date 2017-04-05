@@ -18,12 +18,14 @@ class BacktestList extends React.Component {
       minWidth: 15,
       header: '#',
       accessor: 'id',
+      hideFilter: true,
       render: row => <span><Link to={`/backtest/${row.value}`}>{row.value}</Link></span>,
       className: tableStyle.center
     }, {
       minWidth: 30,
       header: 'Simulations',
       accessor: 'simulation_count',
+      hideFilter: true,
       className: tableStyle.center
     }, {
       minWidth: 30,
@@ -34,6 +36,12 @@ class BacktestList extends React.Component {
       minWidth: 30,
       header: 'Tickers',
       accessor: 'tickers',
+      filterMethod: (filter, row) => {
+        let result = row[filter.id].filter(ticker => {
+          return ticker.ticker.startsWith(filter.value);
+        });
+        return result.length > 0;
+      },
       render: row => <span>
         {row.value.map(ticker => {
           return ticker.ticker;
@@ -43,12 +51,15 @@ class BacktestList extends React.Component {
     }, {
       header: 'Parameters',
       accessor: 'params',
+      filterMethod: (filter, row) =>
+        (JSON.stringify(row[filter.id]).replace(/\"/g, '').includes(filter.value.replace(/\s*/g, ''))),
       sortable: false,
       render: row => <JSONTree data={row.value} theme={theme} shouldExpandNode={() => {return false;}} />
     }, {
       minWidth: 30,
       header: 'Status',
-      accessor: 'status',
+      accessor: 'executionTime',
+      hideFilter: true,
       className: [tableStyle.center, tableStyle.actions],
       render: ({row}) => {
         let execution = this.state.executions.filter(exec => {
@@ -78,6 +89,7 @@ class BacktestList extends React.Component {
       minWidth: 50,
       header: 'Actions',
       accessor: 'id',
+      hideFilter: true,
       sortable: false,
       className: [tableStyle.center, tableStyle.actions],
       render: row => <div>
@@ -115,6 +127,7 @@ class BacktestList extends React.Component {
           <ReactTable
             minRows={0}
             showPagination
+            showFilters
             defaultPageSize={100}
             className={tableStyle.reset}
             data={backtests}

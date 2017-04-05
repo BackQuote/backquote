@@ -11,12 +11,14 @@ const columns = [ {
   minWidth: 50,
   header: 'Profit',
   accessor: 'profitNoReset',
+  hideFilter: true,
   render: row => <ProfitNumber value={row.value}/>,
   className: tableStyle.center
 }, {
   minWidth: 50,
   header: 'Profit (reset)',
   accessor: 'profitReset',
+  hideFilter: true,
   render: row => <ProfitNumber value={row.value}/>,
   className: tableStyle.center
 }, {
@@ -28,11 +30,14 @@ const columns = [ {
   header: 'Parameters',
   accessor: 'params',
   sortable: false,
+  filterMethod: (filter, row) =>
+    (JSON.stringify(row[filter.id]).replace(/\"/g, '').includes(filter.value.replace(/\s*/g, ''))),
   render: row => <JSONTree data={row.value} theme={theme} shouldExpandNode={() => {return false;}} />
 }, {
   minWidth: 50,
   header: 'Actions',
   accessor: 'id',
+  hideFilter: true,
   sortable: false,
   className: tableStyle.center,
   render: row => <Link className="button button-primary" to={`/simulation/${row.value}`}>view</Link>
@@ -52,6 +57,7 @@ class Backtest extends React.Component {
           <ReactTable
             minRows={0}
             showPagination
+            showFilters
             defaultPageSize={100}
             className={tableStyle.reset}
             data={simulations}
