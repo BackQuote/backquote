@@ -6,8 +6,10 @@ import SimulationChart from './SimulationChart';
 import DailyResultChart from './DailyResultChart';
 import ProfitNumber from './ProfitNumber';
 import ProfitRate from './ProfitRate';
+import Breadcrumbs from './Breadcrumbs';
 import JSONTree from 'react-json-tree';
 import { theme } from '../themes/default';
+
 
 class Simulation extends React.Component {
 
@@ -52,11 +54,11 @@ class Simulation extends React.Component {
       <div className={card}>
         <header>
           <h4 className="title">
-            <Link to={'/backtests'}>Backtests</Link>
-            {' '}<i className="fa fa-angle-right"> </i>{' '}
-            <Link to={`/backtest/${simulation.backtestId}`}>Simulations</Link>
-            {' '}<i className="fa fa-angle-right"> </i>{' '}
-            <Link to={`/simulation/${simulation.id}`}>{simulation.id}</Link>
+            <Breadcrumbs crumbs={[
+              ['Backtests', '/backtests'],
+              ['Simulations', `/backtest/${simulation.backtestId}`],
+              [simulation.backtestId, `/simulation/${simulation.id}`]
+            ]}/>
           </h4>
         </header>
         <section>

@@ -6,6 +6,7 @@ import ReactTable from 'react-table';
 import JSONTree from 'react-json-tree';
 import { Link } from 'react-router';
 import { theme } from '../themes/default';
+import Breadcrumbs from './Breadcrumbs';
 
 class BacktestList extends React.Component {
   constructor() {
@@ -120,7 +121,9 @@ class BacktestList extends React.Component {
       <div className={card}>
         <header>
           <h4 className="title">
-            Backtests
+            <Breadcrumbs crumbs={[
+              ['Backtests', '/backtests'],
+            ]}/>
           </h4>
         </header>
         <section>

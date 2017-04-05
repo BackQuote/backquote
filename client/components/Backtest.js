@@ -5,6 +5,7 @@ import ReactTable from 'react-table';
 import JSONTree from 'react-json-tree';
 import { Link } from 'react-router';
 import ProfitNumber from './ProfitNumber';
+import Breadcrumbs from './Breadcrumbs';
 import { theme } from '../themes/default';
 
 const columns = [ {
@@ -51,7 +52,10 @@ class Backtest extends React.Component {
       <div className={card}>
         <header>
           <h4 className="title">
-            Backtest
+            <Breadcrumbs crumbs={[
+              ['Backtests', '/backtests'],
+              ['Simulations',  simulations[0] ? `/backtest/${simulations[0].backtestId}` : '']
+            ]}/>
           </h4>
         </header>
         <section>
