@@ -27,7 +27,20 @@ class BacktestList extends React.Component {
       header: 'Simulations',
       accessor: 'simulation_count',
       hideFilter: true,
-      className: tableStyle.center
+      className: tableStyle.center,
+      render: ({row}) => {
+        let execution = this.getExecution(row.id);
+        if (execution) {
+          console.log(execution);
+          return <div>{execution.number_of_simulations ? (
+              (execution.current_simulation == execution.number_of_simulations) ? execution.number_of_simulations :
+              (`${execution.current_simulation}/${execution.number_of_simulations}`)
+            ) : 0}
+          </div>;
+        }
+
+        return row.simulation_count;
+      }
     }, {
       minWidth: 30,
       header: 'Algorithm',
@@ -63,10 +76,7 @@ class BacktestList extends React.Component {
       hideFilter: true,
       className: [tableStyle.center, tableStyle.actions],
       render: ({row}) => {
-        let execution = this.state.executions.filter(exec => {
-          return exec.id === row.id;
-        })[0];
-
+        let execution = this.getExecution(row.id);
         if (execution) {
           if (execution.pending) {
             return <i className="fa fa-ellipsis-h"> </i>;
@@ -113,6 +123,12 @@ class BacktestList extends React.Component {
 
   componentWillUnmount() {
     this.socket.removeAllListeners();
+  }
+
+  getExecution(id) {
+    return this.state.executions.filter(exec => {
+      return exec.id === id;
+    })[0];
   }
 
   render() {
