@@ -265,5 +265,9 @@ def clear_executions():
     del completed_executions[:]
     emit_executions()
 
+@app.teardown_appcontext
+def close_db(error):
+    db.session.close()
+
 if __name__ == '__main__':
     socketio.run(app, debug=app.config['DEBUG'])
