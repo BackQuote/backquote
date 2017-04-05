@@ -5,6 +5,7 @@ import * as styles from '../styles/simulation.scss';
 import SimulationChart from './SimulationChart';
 import DailyResultChart from './DailyResultChart';
 import ProfitNumber from './ProfitNumber';
+import ProfitRate from './ProfitRate';
 import JSONTree from 'react-json-tree';
 import { theme } from '../themes/default';
 
@@ -78,17 +79,17 @@ class Simulation extends React.Component {
                       <tr>
                         <td>No reset</td>
                         <td><ProfitNumber value={simulation.profitNoReset} /></td>
-                        <td>{simulation.profitRateNoReset}%</td>
+                        <td><ProfitRate value={simulation.profitRateNoReset}/></td>
                       </tr>
                       <tr>
                         <td>Reset</td>
                         <td><ProfitNumber value={simulation.profitReset} /></td>
-                        <td>{simulation.profitRateReset}%</td>
+                        <td><ProfitRate value={simulation.profitRateReset} /></td>
                       </tr>
                       <tr>
                         <td>No trading</td>
                         <td><ProfitNumber value={simulation.profitNoTrading} /></td>
-                        <td>{simulation.profitRateNoTrading}%</td>
+                        <td><ProfitRate value={simulation.profitRateNoTrading} /></td>
                       </tr>
                       </tbody>
                     </table>
