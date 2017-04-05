@@ -10,7 +10,8 @@ export function formatDataSet(dataset, yAttr, xAttr = 'date') {
     let xValue;
     let date = data[xAttr].substring(0, 10).split('-');
     let time = data[xAttr].substring(11, 19).split(':');
-    xValue = Date.UTC(date[0], date[1], date[2], time[0], time[1], time[2]);
+    // Month is represented by an integer between 0 and 11. Thus, we need to adjust it.
+    xValue = Date.UTC(date[0], date[1]-1, date[2], time[0], time[1], time[2]);
     return [xValue, data[yAttr]];
   });
 }
