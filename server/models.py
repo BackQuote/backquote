@@ -274,7 +274,7 @@ class Backtest(db.Model):
             'success': self.success,
             'executionTime': decimal(self.execution_time),
             'algorithmId': self.algorithm_id,
-            'tickers': [i.serialize for i in self.tickers],
+            'tickers': ', '.join([i.ticker for i in self.tickers]),
             'simulation_count': self.simulation_count,
             'algorithm': self.algorithm
         }
