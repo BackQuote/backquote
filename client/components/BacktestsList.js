@@ -50,17 +50,7 @@ class BacktestList extends React.Component {
       minWidth: 30,
       header: 'Tickers',
       accessor: 'tickers',
-      filterMethod: (filter, row) => {
-        let result = row[filter.id].filter(ticker => {
-          return ticker.ticker.startsWith(filter.value);
-        });
-        return result.length > 0;
-      },
-      render: row => <span>
-        {row.value.map(ticker => {
-          return ticker.ticker.toUpperCase();
-        }).join(', ')}
-      </span>,
+      render: row => row.value.toUpperCase(),
       className: tableStyle.center
     }, {
       header: 'Parameters',
