@@ -47,3 +47,4 @@ node_modules
 server/ENV
 dist
 db/quotes
+backtester/backtester/cmake-build-debug

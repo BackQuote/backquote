@@ -23,7 +23,7 @@ Status Algorithm::checkStatus(double dailyCashReset, Quote &quote, Trade &trade,
 		double profit = (trade.quantityReset * quote.price) - (trade.quantityReset * trade.price);
 		double profitRate = profit / (dailyCashReset + (trade.quantityReset * trade.price));
 
-		if (profitRate > params["maxDailyGain"] || profitRate < (0 - params["maxDailyLoss"])) {
+		if (profitRate > params["maxDailyGain"] || profitRate < -params["maxDailyLoss"]) {
 			return stopTrading;
 		}
 	}

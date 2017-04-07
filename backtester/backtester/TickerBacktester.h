@@ -3,13 +3,9 @@
 #include "algorithms/Algorithm.h"
 #include "models/models.h"
 
-const int quoteDivFactor = 10'000; // by how much we need to divide the quotes to represent them in dollars
-const double commission = 5; // amount in dollars for selling a stock
-const size_t lineElementCount = 5; // 5 = number of elements we want in a line of an ultimate file (time, open, high, low, close)
-
 class TickerBacktester {
 public:
-	TickerBacktester(std::string &ticker, const std::string &backtesterRootDir, const std::string &algoName);
+	TickerBacktester(const std::string &ticker, const std::string &backtesterRootDir, const std::string &algoName);
 	~TickerBacktester();
 	void backtestAlgo(ctpl::thread_pool &tp, std::vector<std::unordered_map<std::string, double>> &paramCombos, std::mutex &m);
 
@@ -19,7 +15,7 @@ private:
 	std::string algoName;
 
 	void loadUltimateFile(const std::string &ultimateFile);
-	void split(const std::string &line, std::string lineInfo[], const char* delimiter);
+	void split(const std::string &line, std::string lineInfo[], const char delimiter);
 	void addQuotes(const double open, const double high, const double low, const double close, Day &day, std::size_t timestamp);
 	void runSimulation(std::unordered_map<std::string, double> &params, std::vector<result_ns::Result> &results, double &lowestCumulativeProfitReset);
 	std::unique_ptr<Algorithm> getAlgo(const std::unordered_map<std::string, double> &params);
