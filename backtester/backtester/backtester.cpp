@@ -119,7 +119,12 @@ void buildParamCombos(json &config, vector<unordered_map<string, double>> &param
 		}
 	}
 
-	paramCombosRecursion(0, rangeNames, ranges, params, paramCombos);
+	if (ranges.size() > 0) {
+		paramCombosRecursion(0, rangeNames, ranges, params, paramCombos);
+	}
+	else {
+		paramCombos.push_back(params);
+	}
 }
 
 // Used in the buildParamCombos function to find recursively all the parameter combinations. Recursion is used because the number of
