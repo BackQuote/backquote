@@ -15,7 +15,7 @@ private:
 	std::string algoName;
 
 	void loadUltimateFile(const std::string &ultimateFile);
-	void split(const std::string &line, std::string lineInfo[], const char delimiter);
+	void split(const std::string &line, double lineInfo[], const char delimiter);
 	void addQuotes(const double open, const double high, const double low, const double close, Day &day, std::size_t timestamp);
 	void runSimulation(std::unordered_map<std::string, double> &params, std::vector<result_ns::Result> &results, double &lowestCumulativeProfitReset);
 	std::unique_ptr<Algorithm> getAlgo(const std::unordered_map<std::string, double> &params);

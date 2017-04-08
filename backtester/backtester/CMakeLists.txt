@@ -21,10 +21,11 @@ set(SOURCE_FILES
         models/stdafx.h
         models/trade.cpp
         models/trade.h
+        utilities/constants.h
         stdafx.cpp
         stdafx.h
         TickerBacktester.cpp
-        backtester.cpp utilities/constants.h)
+        backtester.cpp)
 
 find_package (Threads)
 add_executable(backtester ${SOURCE_FILES})

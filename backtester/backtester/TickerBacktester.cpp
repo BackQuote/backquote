@@ -26,31 +26,31 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
     }
 
     string upLine;
-    string lineInfo[LINE_ELEMENT_COUNT];
+    double lineInfo[LINE_ELEMENT_COUNT];
     size_t timestamp;
     Day day;
     double open, high, low, close;
     getline(ultimateFileStream, upLine);
     day.date = upLine.substr(upLine.size() - 8, 8);
 
-	while (getline(ultimateFileStream, upLine)) {
-		if (upLine.find("new day") != string::npos) {
-			day.closingTime = day.quotes.back().timestamp < marketCloseTime ? day.quotes.back().timestamp : marketCloseTime;
-			day.openingTime = day.quotes.front().timestamp > marketOpenTime ? day.quotes.front().timestamp : marketOpenTime;
-			days.push_back(day);
-			day.quotes.clear();
-			day.date = upLine.substr(upLine.size() - 8, 8);
-		}
-		else {
-			split(upLine, lineInfo, ",");
-			timestamp = stoi(lineInfo[0]);
-			open = atof(lineInfo[1].c_str()) / quoteDivFactor;
-			high = atof(lineInfo[2].c_str()) / quoteDivFactor;
-			low = atof(lineInfo[3].c_str()) / quoteDivFactor;
-			close = atof(lineInfo[4].c_str()) / quoteDivFactor;
-			addQuotes(open, high, low, close, day, timestamp);
-		}
-	}
+    while (getline(ultimateFileStream, upLine)) {
+        if (upLine.find("new day") != string::npos) {
+            day.closingTime = day.quotes.back().timestamp < marketCloseTime ? day.quotes.back().timestamp : marketCloseTime;
+            day.openingTime = day.quotes.front().timestamp > marketOpenTime ? day.quotes.front().timestamp : marketOpenTime;
+            days.push_back(day);
+            day.quotes.clear();
+            day.date = upLine.substr(upLine.size() - 8, 8);
+        }
+        else {
+            split(upLine, lineInfo, ',');
+            timestamp = stoi(lineInfo[0]);
+            open = stod(lineInfo[1].c_str()) / QUOTE_DIV_FACTOR;
+            high = stod(lineInfo[2].c_str()) / QUOTE_DIV_FACTOR;
+            low = stod(lineInfo[3].c_str()) / QUOTE_DIV_FACTOR;
+            close = stod(lineInfo[4].c_str()) / QUOTE_DIV_FACTOR;
+            addQuotes(open, high, low, close, day, timestamp);
+        }
+    }
 
     ultimateFileStream.close();
 
@@ -60,18 +60,16 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
 }
 
 // Splits a string separated by a comma and stores the separated strings in the lineInfo string array.
-void TickerBacktester::split(const string &line, string lineInfo[], const char delimiter) {
-    string token = "";
-    int tokenIndex = 0;
-
-    for (unsigned int i = 0; i < line.size(); i++) {
-        if (line[i] == delimiter) {
-            lineInfo[tokenIndex++] = token;
-            token = "";
+void TickerBacktester::split(const string &line, double lineInfo[], const char delimiter) {
+    stringstream ss;
+    ss.str(line);
+    string token;
+    size_t tokenIndex = 0;
+    while (getline(ss, token, delimiter)) {
+        if (tokenIndex == LINE_ELEMENT_COUNT) {
+            break;
         }
-        else {
-            token += line.at(i);
-        }
+        lineInfo[tokenIndex++] = stod(token);
     }
 }
 
@@ -121,29 +119,29 @@ void TickerBacktester::backtestAlgo(ctpl::thread_pool &tp, vector<unordered_map<
 }
 
 void TickerBacktester::runSimulation(unordered_map<string, double> &params, vector<Result> &results, double &lowestCumulativeProfitReset) {
-	unique_ptr<Algorithm> algo = getAlgo(params);
-	Result result;
-	double cumulativeCash = params["cash"];
-	double dailyCashReset;
-	double dailyCashNoReset;
-	result.cumulativeProfitNoReset = 0;
-	result.cumulativeProfitReset = 0;
+    unique_ptr<Algorithm> algo = getAlgo(params);
+    Result result;
+    double cumulativeCash = params["cash"];
+    double dailyCashReset;
+    double dailyCashNoReset;
+    result.cumulativeProfitNoReset = 0;
+    result.cumulativeProfitReset = 0;
 
-	for (Day &day : days) {
-		result.trades.clear();
-		dailyCashReset = params["cash"];
-		dailyCashNoReset = cumulativeCash;
-		simulateDay(dailyCashReset, dailyCashNoReset, result, algo, day, params);
-		result.dailyProfitReset = dailyCashReset - params["cash"];
-		result.dailyProfitNoReset = dailyCashNoReset - cumulativeCash;
-		cumulativeCash = dailyCashNoReset;
-		result.cumulativeProfitNoReset += result.dailyProfitNoReset;
-		result.cumulativeProfitReset += result.dailyProfitReset;
-		if (result.cumulativeProfitReset < lowestCumulativeProfitReset) {
-			lowestCumulativeProfitReset = result.cumulativeProfitReset;
-		}
-		results.push_back(result);
-	}
+    for (Day &day : days) {
+        result.trades.clear();
+        dailyCashReset = params["cash"];
+        dailyCashNoReset = cumulativeCash;
+        simulateDay(dailyCashReset, dailyCashNoReset, result, algo, day, params);
+        result.dailyProfitReset = dailyCashReset - params["cash"];
+        result.dailyProfitNoReset = dailyCashNoReset - cumulativeCash;
+        cumulativeCash = dailyCashNoReset;
+        result.cumulativeProfitNoReset += result.dailyProfitNoReset;
+        result.cumulativeProfitReset += result.dailyProfitReset;
+        if (result.cumulativeProfitReset < lowestCumulativeProfitReset) {
+            lowestCumulativeProfitReset = result.cumulativeProfitReset;
+        }
+        results.push_back(result);
+    }
 }
 
 unique_ptr<Algorithm> TickerBacktester::getAlgo(const unordered_map<string, double> &params) {
