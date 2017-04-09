@@ -128,12 +128,13 @@ void TickerBacktester::runSimulation(unordered_map<string, double> &params, vect
 	unique_ptr<Algorithm> algo = getAlgo(params);
 	Result result;
 	double cumulativeCash = params["cash"];
-	double dailyCashReset;
-	double dailyCashNoReset;
+	double dailyCashReset = params["cash"];
+	double dailyCashNoReset = params["cash"];
 	result.cumulativeProfitNoReset = 0;
 	result.cumulativeProfitReset = 0;
 
 	for (Day &day : days) {
+		if (dailyCashNoReset < day.quotes.front().price) break;
 		result.trades.clear();
 		dailyCashReset = params["cash"];
 		dailyCashNoReset = cumulativeCash;
