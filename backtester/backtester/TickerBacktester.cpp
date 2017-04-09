@@ -44,11 +44,14 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
 		else {
 			split(upLine, lineInfo, ",");
 			timestamp = stoi(lineInfo[0]);
-			open = atof(lineInfo[1].c_str()) / quoteDivFactor;
-			high = atof(lineInfo[2].c_str()) / quoteDivFactor;
-			low = atof(lineInfo[3].c_str()) / quoteDivFactor;
-			close = atof(lineInfo[4].c_str()) / quoteDivFactor;
-			addQuotes(open, high, low, close, day, timestamp);
+
+			if (timestamp >= marketOpenTime && timestamp <= marketCloseTime) {
+				open = atof(lineInfo[1].c_str()) / quoteDivFactor;
+				high = atof(lineInfo[2].c_str()) / quoteDivFactor;
+				low = atof(lineInfo[3].c_str()) / quoteDivFactor;
+				close = atof(lineInfo[4].c_str()) / quoteDivFactor;
+				addQuotes(open, high, low, close, day, timestamp);
+			}
 		}
 	}
 
