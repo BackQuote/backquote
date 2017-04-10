@@ -6,6 +6,5 @@ class Simple : public Algorithm {
 public:
 	Simple(const std::unordered_map<std::string, double> &params);
 	Simple();
-	~Simple();
 	Action processQuote(Quote &quote);
 };
