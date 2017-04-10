@@ -31,9 +31,6 @@
 # Quotes data
 /tools/GenerateUltimateFile/GenerateUltimateFile/quotes/*
 backtester/backtester/ultimate_files
-backtester/backtester/cmake-build-debug
-backtester/backtester/algorithms/configs
-db/quotes
 
 # Misc
 .DS_STORE
@@ -49,3 +46,4 @@ node_modules
 *.css.map
 server/ENV
 dist
+db/quotes
