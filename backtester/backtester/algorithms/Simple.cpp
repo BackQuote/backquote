@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Simple.h"
 
 using namespace std;
@@ -13,4 +14,3 @@ Action Simple::processQuote(Quote &quote) {
 
 Simple::Simple() {
 }
-
