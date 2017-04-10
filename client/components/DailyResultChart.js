@@ -8,23 +8,10 @@ config.chart = {
   height: 400
 };
 config.yAxis = [{
+  offset: 30,
   title: {
     text: 'Quotes/Trades'
-  },
-  height: '70%'
-}, {
-  title: {
-    text: 'Profit'
-  },
-  top: '75%',
-  height: '25%',
-  offset: 0,
-  plotLines: [{
-    value: 0,
-    color: '#eeeeee',
-    dashStyle: 'solid',
-    width: 1
-  }]
+  }
 }];
 
 config.tooltip = {
@@ -71,17 +58,6 @@ config.series = [{
       lineWidthPlus: 0
     }
   }
-}, {
-  type: 'column',
-  name: 'Profit',
-  data: [],
-  yAxis: 1,
-  zones: [{
-    value: 0,
-    color: '#f93943'
-  }, {
-    color: '#6cd899'
-  }]
 }];
 
 class DailyResultChart extends React.Component {
@@ -96,9 +72,9 @@ class DailyResultChart extends React.Component {
       return true;
     });
 
-    config.series[0].data = formatDataSet(quotes, 'open', 'timestamp', true);
-    config.series[1].data = formatDataSet(buys, 'price', 'timestamp', true);
-    config.series[2].data = formatDataSet(sells, 'price', 'timestamp', true);
+    config.series[0].data = formatDataSet(quotes, 'open', 'timestamp');
+    config.series[1].data = formatDataSet(buys, 'price', 'timestamp');
+    config.series[2].data = formatDataSet(sells, 'price', 'timestamp');
 
     return (
       <div className={styles.container}>
@@ -118,8 +94,7 @@ class DailyResultChart extends React.Component {
 
 DailyResultChart.propTypes = {
   quotes: React.PropTypes.array,
-  trades: React.PropTypes.array,
-  profit: React.PropTypes.array
+  trades: React.PropTypes.array
 };
 
 export default DailyResultChart;
