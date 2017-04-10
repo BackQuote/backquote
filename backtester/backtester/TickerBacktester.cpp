@@ -31,7 +31,7 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
     Day day;
     double open, high, low, close;
     getline(ultimateFileStream, upLine);
-    day.date = upLine.substr(upLine.size() - 8, 8);
+    day.date = upLine.substr(upLine.find(NEW_DAY_DELIMITER)+2, DATE_LENGTH);
 
     while (getline(ultimateFileStream, upLine)) {
         if (upLine.find("new day") != string::npos) {
@@ -39,7 +39,7 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
             day.openingTime = day.quotes.front().timestamp > MARKET_OPEN_TIME ? day.quotes.front().timestamp : MARKET_OPEN_TIME;
             days.push_back(day);
             day.quotes.clear();
-            day.date = upLine.substr(upLine.size() - 8, 8);
+            day.date = upLine.substr(upLine.find(NEW_DAY_DELIMITER)+2, DATE_LENGTH);
         }
         else {
             split(upLine, lineInfo, ',');
@@ -164,7 +164,9 @@ void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoRe
             case tooEarly:
                 continue;
             case stopTrading:
-                action = sell;
+                if (algo->activePositions) {
+                    action = sell;
+                }
                 break;
             case canTrade:
                 if ((algo->activePositions && algo->tradeInBounds(dailyCashReset, quote, trade)) || !algo->activePositions) {
@@ -174,7 +176,7 @@ void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoRe
                     }
                 }
                 else {
-                    action = sell;
+                  	action = sell;
                 }
                 break;
             default:
