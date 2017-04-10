@@ -117,8 +117,10 @@ class Simulation extends React.Component {
             <div className="u-pull-right">
               Profit type{' '}
               <select name="profitType" ref="profitType" onChange={() => {this.setProfitType();}}>
-                <option value="dailyProfitNoReset">Without Reset</option>
-                <option value="dailyProfitReset">With Reset</option>
+                <option value="dailyProfitNoReset">Daily without reset</option>
+                <option value="dailyProfitReset">Daily with reset</option>
+                <option value="cumulativeProfitNoReset">Cumulative without reset</option>
+                <option value="cumulativeProfitReset">Cumulative with reset</option>
               </select>
             </div>
             <div className={styles.chart}>
