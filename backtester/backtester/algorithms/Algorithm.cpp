@@ -12,7 +12,7 @@ Algorithm::~Algorithm() {
 
 // Checks various conditions to determine if the backtester can trade, should stop trading or remain idle (tooEarly)
 Status Algorithm::checkStatus(double dailyCashReset, Quote &quote, Trade &trade, Day &day) {
-	if (quote.timestamp <= day.openingTime + (size_t)(params["timeBufferStart"])) {
+	if (quote.timestamp < day.openingTime + (size_t)(params["timeBufferStart"])) {
 		return tooEarly;
 	}
 	else if (quote.timestamp >= day.closingTime - (size_t)params["timeBufferEnd"]) {
@@ -23,7 +23,7 @@ Status Algorithm::checkStatus(double dailyCashReset, Quote &quote, Trade &trade,
 		double profit = (trade.quantityReset * quote.price) - (trade.quantityReset * trade.price);
 		double profitRate = profit / (dailyCashReset + (trade.quantityReset * trade.price));
 
-		if (profitRate > params["maxDailyGain"] || profitRate < (0 - params["maxDailyLoss"])) {
+		if (profitRate > params["maxDailyGain"] || profitRate < -params["maxDailyLoss"]) {
 			return stopTrading;
 		}
 	}
