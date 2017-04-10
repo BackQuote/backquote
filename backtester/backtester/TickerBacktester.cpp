@@ -44,11 +44,14 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
 		else {
 			split(upLine, lineInfo, ",");
 			timestamp = stoi(lineInfo[0]);
-			open = atof(lineInfo[1].c_str()) / quoteDivFactor;
-			high = atof(lineInfo[2].c_str()) / quoteDivFactor;
-			low = atof(lineInfo[3].c_str()) / quoteDivFactor;
-			close = atof(lineInfo[4].c_str()) / quoteDivFactor;
-			addQuotes(open, high, low, close, day, timestamp);
+
+			if (timestamp >= marketOpenTime && timestamp <= marketCloseTime) {
+				open = atof(lineInfo[1].c_str()) / quoteDivFactor;
+				high = atof(lineInfo[2].c_str()) / quoteDivFactor;
+				low = atof(lineInfo[3].c_str()) / quoteDivFactor;
+				close = atof(lineInfo[4].c_str()) / quoteDivFactor;
+				addQuotes(open, high, low, close, day, timestamp);
+			}
 		}
 	}
 
@@ -125,12 +128,13 @@ void TickerBacktester::runSimulation(unordered_map<string, double> &params, vect
 	unique_ptr<Algorithm> algo = getAlgo(params);
 	Result result;
 	double cumulativeCash = params["cash"];
-	double dailyCashReset;
-	double dailyCashNoReset;
+	double dailyCashReset = params["cash"];
+	double dailyCashNoReset = params["cash"];
 	result.cumulativeProfitNoReset = 0;
 	result.cumulativeProfitReset = 0;
 
 	for (Day &day : days) {
+		if (dailyCashNoReset < day.quotes.front().price) break;
 		result.trades.clear();
 		dailyCashReset = params["cash"];
 		dailyCashNoReset = cumulativeCash;
