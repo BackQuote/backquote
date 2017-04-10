@@ -1,7 +1,3 @@
-//
-// Created by Anthony on 2017-04-08.
-//
-
 #ifndef BACKTESTER_CONSTANTS_H
 #define BACKTESTER_CONSTANTS_H
 
