@@ -1,5 +1,4 @@
 #pragma once
-#include <cstring>
 
 struct Quote {
     double price;
