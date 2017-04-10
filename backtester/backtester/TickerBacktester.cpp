@@ -35,27 +35,27 @@ void TickerBacktester::loadUltimateFile(const string &ultimateFile) {
 
     while (getline(ultimateFileStream, upLine)) {
         if (upLine.find("new day") != string::npos) {
-            day.closingTime = day.quotes.back().timestamp < marketCloseTime ? day.quotes.back().timestamp : marketCloseTime;
-            day.openingTime = day.quotes.front().timestamp > marketOpenTime ? day.quotes.front().timestamp : marketOpenTime;
+            day.closingTime = day.quotes.back().timestamp < MARKET_CLOSE_TIME ? day.quotes.back().timestamp : MARKET_CLOSE_TIME;
+            day.openingTime = day.quotes.front().timestamp > MARKET_OPEN_TIME ? day.quotes.front().timestamp : MARKET_OPEN_TIME;
             days.push_back(day);
             day.quotes.clear();
             day.date = upLine.substr(upLine.size() - 8, 8);
         }
         else {
             split(upLine, lineInfo, ',');
-            timestamp = stoi(lineInfo[0]);
-            open = stod(lineInfo[1].c_str()) / QUOTE_DIV_FACTOR;
-            high = stod(lineInfo[2].c_str()) / QUOTE_DIV_FACTOR;
-            low = stod(lineInfo[3].c_str()) / QUOTE_DIV_FACTOR;
-            close = stod(lineInfo[4].c_str()) / QUOTE_DIV_FACTOR;
+            timestamp = (size_t)lineInfo[0];
+            open = lineInfo[1] / QUOTE_DIV_FACTOR;
+            high = lineInfo[2] / QUOTE_DIV_FACTOR;
+            low = lineInfo[3] / QUOTE_DIV_FACTOR;
+            close =lineInfo[4] / QUOTE_DIV_FACTOR;
             addQuotes(open, high, low, close, day, timestamp);
         }
     }
 
     ultimateFileStream.close();
 
-    day.closingTime = day.quotes.back().timestamp < marketCloseTime ? day.quotes.back().timestamp : marketCloseTime;
-    day.openingTime = day.quotes.front().timestamp > marketOpenTime ? day.quotes.front().timestamp : marketOpenTime;
+    day.closingTime = day.quotes.back().timestamp < MARKET_CLOSE_TIME ? day.quotes.back().timestamp : MARKET_CLOSE_TIME;
+    day.openingTime = day.quotes.front().timestamp > MARKET_OPEN_TIME ? day.quotes.front().timestamp : MARKET_OPEN_TIME;
     days.push_back(day);
 }
 
@@ -154,7 +154,6 @@ unique_ptr<Algorithm> TickerBacktester::getAlgo(const unordered_map<string, doub
 
 void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoReset, Result &result, unique_ptr<Algorithm> &algo, Day &day,
                                    unordered_map<string, double> &params) {
-
     Action action;
     Trade trade;
     Status status;
@@ -194,7 +193,6 @@ void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoRe
 // the maximum daily loss constraint.
 void TickerBacktester::handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, Quote &quote, Trade &trade,
                                     unique_ptr<Algorithm> &algo) {
-
     trade.price = quote.price;
     trade.timestamp = quote.timestamp;
     trade.action = action;

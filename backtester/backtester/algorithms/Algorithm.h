@@ -2,9 +2,6 @@
 #include "stdafx.h"
 #include "../models/models.h"
 
-const size_t marketOpenTime = 34'200'000; // milliseconds equivalent to 9h30
-const size_t marketCloseTime = 57'600'000; // milliseconds equivalent to 16h00
-
 class Algorithm {
 public:
 	std::unordered_map<std::string, double> params;
