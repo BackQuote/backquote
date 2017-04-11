@@ -35,7 +35,7 @@
     "react-router": "^2.4.0",
     "react-router-redux": "^4.0.4",
     "react-select": "^1.0.0-rc.3",
-    "react-table": "^5.3.4",
+    "react-table": "^5.5.0",
     "redux": "^3.5.2",
     "socket.io-client": "^1.7.3"
   },
