@@ -15,8 +15,7 @@ algorithm instance through the processQuote function.<br/>
 6. Results and trades' info are stored in memory through the whole process and uploaded to a database at the very end (not yet implemented).
 
 ### In development:<br />
-1. PostgreSQL client to pull quotes data and upload results<br/>
-2. AI-based algorithms
+1. AI-based algorithms
 
 ## GenerateUltimateFile
 When stock quotes are purchased, they are often split in many files (one per trading day).
@@ -40,8 +39,3 @@ rootfolder/
 <br />----|&nbsp;    ...
 <br />--|&nbsp;  ...
 <br />  
-### Upcoming:<br />
-When parsing all the files for data, the data will be uploaded to a database instead of being written to large files.
-This should improve the speed to acquire data by the backtester. This solution will be implemented once:<br/>
-1. The database setup is complete.<br/>
-2. The backtester's database client is complete.
