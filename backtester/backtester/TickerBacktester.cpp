@@ -101,6 +101,7 @@ void TickerBacktester::addQuotes(const double open, const double high, const dou
     day.quotes.push_back(quote);
 }
 
+// Running one simulation per parameter combination and sending the results to the parent process
 void TickerBacktester::backtestAlgo(ctpl::thread_pool &tp, vector<unordered_map<string, double>> &paramCombos, mutex &m) {
     vector<future<void>> futures;
 
@@ -120,6 +121,8 @@ void TickerBacktester::backtestAlgo(ctpl::thread_pool &tp, vector<unordered_map<
     }
 }
 
+// Processes every quote of every day loaded in memory for the ticker specified. The quotes will be processed with the algorithm specified
+// and its parent class (Algorithm). These two algorithms will use the parameter combinations passed as an argument (params).
 void TickerBacktester::runSimulation(unordered_map<string, double> &params, vector<Result> &results, double &lowestCumulativeProfitReset) {
     unique_ptr<Algorithm> algo = getAlgo(params);
     Result result;
@@ -147,6 +150,7 @@ void TickerBacktester::runSimulation(unordered_map<string, double> &params, vect
     }
 }
 
+// Returns a pointer to a new instance of the algorithm that matches the algoName passed as an argument to the backtester.
 unique_ptr<Algorithm> TickerBacktester::getAlgo(const unordered_map<string, double> &params) {
     if (algoName.compare("simple") == 0) {
         return make_unique<Simple>(params);
@@ -170,6 +174,9 @@ void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoRe
                 if (algo->activePositions) {
                     action = sell;
                 }
+				else {
+					action = doNothing;
+				}
                 break;
             case canTrade:
                 if ((algo->activePositions && algo->tradeInBounds(dailyCashReset, quote, trade)) || !algo->activePositions) {
@@ -194,8 +201,7 @@ void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoRe
     }
 }
 
-// Initiates trades based on actions returned by an algorithm. Returns a boolean to determine if we should keep trading or not based on
-// the maximum daily loss constraint.
+// Creates trades based on actions returned by an algorithm. This function will adjust cash levels as well based on the value of the trades.
 void TickerBacktester::handleAction(Result &result, double &dailyCashReset, double &dailyCashNoReset, Action &action, Quote &quote, Trade &trade,
                                     unique_ptr<Algorithm> &algo) {
     trade.price = quote.price;
@@ -205,8 +211,13 @@ void TickerBacktester::handleAction(Result &result, double &dailyCashReset, doub
     switch(action) {
         case buy: {
                 algo->activePositions = true;
+				// The purchasing power is the total amount of money that can be used to buy stocks depending on the margin and the maximum
+				// loss per trade. The maxLossPerTrade is used to lower the total amount. This is useful in case of a loss and have a buffer
+				// before getting a margin call.
                 double purchasingPower = (dailyCashReset * (1 - algo->params["maxLossPerTrade"])) / algo->params["margin"];
-                if (purchasingPower < dailyCashReset) {
+                // If both the maxLossPerTrade and margin are high, the formula above will return a value lower than the dailyCash. If this
+				// occurs, we must set the purchasing power back to the dailyCash value.
+				if (purchasingPower < dailyCashReset) {
                     purchasingPower = dailyCashReset;
                 }
                 trade.quantityReset = purchasingPower / quote.price;
@@ -233,7 +244,7 @@ void TickerBacktester::handleAction(Result &result, double &dailyCashReset, doub
     }
 }
 
-// Serializes all the results for a simulation and sends them through stdout to the server for database upload.
+// Serializes all the results for a simulation in JSON format and sends them through stdout to the server for database upload.
 void TickerBacktester::sendResults(unordered_map<string, double> &params, vector<Result> &results, mutex &m, double &lowestCumulativeProfitReset) {
     json j_sim;
     j_sim["params"] = json(params);
@@ -258,5 +269,6 @@ void TickerBacktester::sendResults(unordered_map<string, double> &params, vector
 
     j_sim["results"] = j_resList;
     lock_guard<mutex> lock(m);
+	// The endl is very important here as it used by the parent process to separate de data of each simulation.
     cout << j_sim << endl;
 }

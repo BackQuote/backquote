@@ -32,7 +32,7 @@ Status Algorithm::checkStatus(double dailyCashReset, Quote &quote, Trade &trade,
 }
 
 // Checks if a trade is within the bounds established. In other words, is the trade profit below
-// the maximum trade profit or the loss below the minimum loss?
+// the maximumGainPerTrade or the loss below the maxLossPerTrade?
 bool Algorithm::tradeInBounds(double dailyCashReset, Quote &quote, Trade &trade) {
 	double profit = (trade.quantityReset * quote.price) - (trade.quantityReset * trade.price);
 	double profitRate = profit / (dailyCashReset + (trade.quantityReset * trade.price));
