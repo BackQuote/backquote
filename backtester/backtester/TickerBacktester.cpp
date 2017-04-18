@@ -174,9 +174,9 @@ void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoRe
                 if (algo->activePositions) {
                     action = sell;
                 }
-				else {
-					action = doNothing;
-				}
+                else {
+                    action = doNothing;
+                }
                 break;
             case canTrade:
                 if ((algo->activePositions && algo->tradeInBounds(dailyCashReset, quote, trade)) || !algo->activePositions) {
@@ -186,7 +186,7 @@ void TickerBacktester::simulateDay(double &dailyCashReset, double &dailyCashNoRe
                     }
                 }
                 else {
-                  	action = sell;
+                      action = sell;
                 }
                 break;
             default:
@@ -211,13 +211,13 @@ void TickerBacktester::handleAction(Result &result, double &dailyCashReset, doub
     switch(action) {
         case buy: {
                 algo->activePositions = true;
-				// The purchasing power is the total amount of money that can be used to buy stocks depending on the margin and the maximum
-				// loss per trade. The maxLossPerTrade is used to lower the total amount. This is useful in case of a loss and have a buffer
-				// before getting a margin call.
+                // The purchasing power is the total amount of money that can be used to buy stocks depending on the margin and the maximum
+                // loss per trade. The maxLossPerTrade is used to lower the total amount. This is useful in case of a loss and have a buffer
+                // before getting a margin call.
                 double purchasingPower = (dailyCashReset * (1 - algo->params["maxLossPerTrade"])) / algo->params["margin"];
                 // If both the maxLossPerTrade and margin are high, the formula above will return a value lower than the dailyCash. If this
-				// occurs, we must set the purchasing power back to the dailyCash value.
-				if (purchasingPower < dailyCashReset) {
+                // occurs, we must set the purchasing power back to the dailyCash value.
+                if (purchasingPower < dailyCashReset) {
                     purchasingPower = dailyCashReset;
                 }
                 trade.quantityReset = purchasingPower / quote.price;
@@ -269,6 +269,6 @@ void TickerBacktester::sendResults(unordered_map<string, double> &params, vector
 
     j_sim["results"] = j_resList;
     lock_guard<mutex> lock(m);
-	// The endl is very important here as it used by the parent process to separate de data of each simulation.
+    // The endl is very important here as it used by the parent process to separate de data of each simulation.
     cout << j_sim << endl;
 }
