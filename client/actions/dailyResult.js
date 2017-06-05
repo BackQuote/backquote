@@ -24,8 +24,7 @@ export function fetchDailyResult(id, dayId, ticker) {
       .then((quotes) => {
         dispatch(quotesFetchSuccess(quotes));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch quotes',
           message: error.message
@@ -35,8 +34,7 @@ export function fetchDailyResult(id, dayId, ticker) {
       .then((trades) => {
         dispatch(tradesFetchSuccess(trades));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch trades',
           message: error.message

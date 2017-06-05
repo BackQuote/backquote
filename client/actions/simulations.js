@@ -17,8 +17,7 @@ export function fetchSimulations(backtestId) {
       .then((simulations) => {
         dispatch(simulationsFetchSuccess(simulations));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch simulations',
           message: error.message

@@ -17,8 +17,7 @@ export function fetchAlgorithms() {
       .then((algorithms) => {
         dispatch(algorithmsFetchSuccess(algorithms));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch algorithms',
           message: error.message
