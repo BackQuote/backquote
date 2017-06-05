@@ -17,8 +17,7 @@ export function fetchBacktests() {
       .then((backtests) => {
         dispatch(backtestsFetchSuccess(backtests));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch backtests',
           message: error.message
@@ -40,7 +39,7 @@ export function launchBacktest(algorithm, algorithmId, params, tickers) {
         title: 'Success',
         message: 'Backtest started successfully.'
       }));
-    }).catch((error) => {
+    }, error => {
       dispatch(Notifications.error({
         title: 'Unable to execute backtest',
         message: error.message
@@ -58,8 +57,7 @@ export function deleteBacktest(id) {
           title: 'Success',
           message: 'Backtest deleted successfully.'
         }));
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to delete backtest',
           message: error.message
@@ -77,8 +75,7 @@ export function deleteExecution(id) {
           title: 'Success',
           message: 'Execution deleted successfully.'
         }));
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to delete execution',
           message: error.message

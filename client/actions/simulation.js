@@ -25,8 +25,7 @@ export function fetchSimulation(id) {
       .then((simulation) => {
         dispatch(hideLoading());
         dispatch(simulationFetchSuccess(simulation));
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch simulation',
           message: error.message
@@ -42,8 +41,7 @@ export function fetchSimulationResults(simulationsId) {
       .then((results) => {
         dispatch(simulationsResultsFetchSuccess(results));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch simulation results',
           message: error.message

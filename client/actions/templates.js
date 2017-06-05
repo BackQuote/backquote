@@ -17,8 +17,7 @@ export function fetchTemplates() {
       .then((templates) => {
         dispatch(templatesFetchSuccess(templates));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch templates',
           message: error.message
@@ -46,7 +45,7 @@ export function saveTemplate(algorithm, params) {
           message: 'Template saved successfully.'
         }));
       }
-    }).catch((error) => {
+    }, error => {
       dispatch(Notifications.error({
         title: 'Unable to save template',
         message: error.message

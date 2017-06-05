@@ -17,8 +17,7 @@ export function fetchTickers() {
       .then((tickers) => {
         dispatch(tickersFetchSuccess(tickers));
         dispatch(hideLoading());
-      })
-      .catch((error) => {
+      }, error => {
         dispatch(Notifications.error({
           title: 'Unable to fetch tickers',
           message: error.message
